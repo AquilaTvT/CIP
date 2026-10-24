@@ -17,8 +17,8 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 PRODUCT_NAME = 'Plume'
-PRODUCT_VERSION = '1.1.0'
-PRODUCT_BUILD = '20261024.2'
+PRODUCT_VERSION = '1.2.0'
+PRODUCT_BUILD = '20261024.3'
 
 
 def build(destination, universal=False):
@@ -33,6 +33,8 @@ def build(destination, universal=False):
         if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != item['sha256']:
             raise SystemExit(f'Offline runtime checksum mismatch: {item["name"]}. Run scripts/vendor_pyodide.py.')
     subprocess.run([sys.executable, str(ROOT / 'scripts' / 'assemble_academy.py'), '--check'], check=True)
+    if not (ROOT / 'data' / 'packs' / 'ci-original.js').is_file():
+        raise SystemExit('Missing the bundled problem sets. Run scripts/build_packs.py first.')
     destination = destination.resolve()
     if destination.suffix != '.app':
         raise SystemExit('--output must name an .app bundle')
@@ -43,7 +45,7 @@ def build(destination, universal=False):
         macos = bundle / 'Contents' / 'MacOS'
         resources.mkdir(parents=True); macos.mkdir()
         site = resources / 'site'; site.mkdir()
-        for name in ['index.html', 'app.js', 'settings.js', 'academy.js', 'styles.css', 'pyworker.js']:
+        for name in ['index.html', 'app.js', 'library.js', 'settings.js', 'academy.js', 'styles.css', 'pyworker.js']:
             shutil.copy2(ROOT / name, site / name)
         for name in ['data', 'vendor', 'assets']:
             if (ROOT / name).exists():

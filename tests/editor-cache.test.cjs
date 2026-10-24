@@ -20,7 +20,8 @@ function fixture(){
     dispatch(transaction){this.state=transaction.state}
   }
   const context={window:{},document:{createElement:()=>({remove(){}})},Map,
-    EditorState,Prec,StateEffect,EditorView:View,basicSetup:history(),python:()=>[],oneDark:[],
+    EditorState,Prec,StateEffect,EditorView:View,basicSetup:history(),python:()=>[],
+    HighlightStyle:{define:()=>[]},syntaxHighlighting:()=>[],tags:new Proxy({},{get:()=>Object.assign(()=>'tag',{})}),
     indentUnit:{of:()=>[]},keymap:{of:()=>[]},indentWithTab:{}};
   vm.runInNewContext(source,context);
   const api=context.window.CIEditor;

@@ -16,6 +16,7 @@ jobs:
       - run: git diff --exit-code -- vendor/editor.js vendor/editor-LICENSES.txt
       - run: python scripts/assemble_library.py
       - run: python scripts/assemble_academy.py --check
+      - run: python scripts/build_packs.py --check
       - run: python -m unittest discover -s tests -p '*_test.py'
       - run: node --test tests/*.test.cjs
       - run: npm run check

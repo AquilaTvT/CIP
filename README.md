@@ -1,133 +1,205 @@
-# Plume
+<p align="center">
+  <img src="assets/plume.svg" width="88" height="88" alt="">
+</p>
 
-**CI Programming Practice**
+<h1 align="center">Plume</h1>
 
-Developed by Aquila.
+<p align="center">
+  为东京大学创造情报学（CI）上机考试准备的 Python 练习工作台<br>
+  <sub>题库 · 课程 · 本地评测 · 限时模拟 · 中文 / 日本語 / English · 完全离线</sub>
+</p>
 
-面向东京大学创造情报学编程备考的练习工作台。221 道分级题目、24 节 Python 与算法课程，以及编写代码、复习和限时模拟所需的工具。界面与学习内容支持中文、English、日本語；题干、样例、图示、公式和 Python 运行环境随软件保存在本地。
+<p align="center">
+  <a href="#开始使用">开始使用</a> ·
+  <a href="#题库">题库</a> ·
+  <a href="#课程">课程</a> ·
+  <a href="#评测与计分">评测与计分</a> ·
+  <a href="#导入自己的题库">导入题库</a> ·
+  <a href="#开发">开发</a>
+</p>
 
-![Plume 工作台](docs/preview.png)
+![Plume 题目工作区：左侧是 CI 原创套题的题面，右侧是编辑器与本地评测结果](docs/preview.png)
+
+## 特点
+
+- **245 道题。** 221 道 AtCoder 题目按 L0–L5 分级，每题都有完整的中日英题面；另有 6 套 CI 风格原创套题，共 24 个小问。
+- **贴近上机考试。** 原创套题与考试同构：一个情境、四个由浅入深的小问，多数套题附带数据文件，程序像在终端里一样用 `open()` 读取。
+- **本地评测。** Python 3.12 在 WebAssembly 中运行，提供样例与隐藏用例、时间限制、浮点误差和特殊判题；代码不会离开本机。
+- **28 节课程。** 从第一行 Python 讲到 BFS 与动态规划，再到读取数据文件、递归与记忆化、最短路、模拟与解析；每课都有可运行的示例和自动检查的练习。
+- **限时模拟。** 按等级抽题，或把一整套原创题当作一场考试，按小问配分计时。
+- **可扩展。** 用一个 JSON 文件导入自己的题目、数据文件和隐藏用例。
+- **记录在本机。** 进度、代码、笔记、课程与模拟历史自动保存，可导出完整备份；也可以同步 AtCoder 的公开提交记录。
 
 ## 开始使用
 
-**macOS**：解压发布包，打开 `Plume.app`，也可先拖入“应用程序”。无需运行 `start.command`、安装 Python 或手动打开浏览器。支持 macOS 13.3 及以上；下载与当前 Mac 架构对应的包，M 系列使用 `Plume-macOS-AppleSilicon.zip`。
+### macOS App
 
-当前构建采用本机临时签名，尚未经过 Apple Developer ID 公证。在另一台电脑首次打开时，macOS 可能需要在“隐私与安全性”中确认。GitHub Actions 的 macOS 构建产物可在 [Actions](https://github.com/AquilaTvT/CIP/actions) 中下载。
+GitHub Actions 会为每次推送构建 macOS 版本：在 [Actions](https://github.com/AquilaTvT/CIP/actions/workflows/check.yml) 中打开最近一次成功的运行，下载 `Plume-macOS`（需登录 GitHub），解压后把 `Plume.app` 拖入“应用程序”。也可以按[下文](#构建-macos-app)在本机构建。
 
-**源码运行（macOS / Windows / Linux）**：安装 Python 3.9+，在项目目录运行：
+App 自带题库、课程、编辑器和 Python 运行环境，不需要安装 Python 或打开浏览器，支持 macOS 13.3 及以上。构建使用本机临时签名，未经 Apple 公证；首次打开时若被拦截，请在“系统设置 → 隐私与安全性”中选择“仍要打开”。
+
+### 浏览器（macOS / Windows / Linux）
+
+安装 Python 3.9 或更高版本，在项目目录运行：
 
 ```sh
 python3 start.py
 ```
 
-Windows 可使用 `py start.py`。服务器只监听本机，默认地址为 `http://127.0.0.1:8765`。端口占用时可使用 `python3 start.py --port 8766`。完整离线使用请采用 App 或本机服务；静态托管时，AtCoder 在线同步仍取决于服务器代理或浏览器跨域策略。
+浏览器会打开 `http://127.0.0.1:8765`。Windows 可以使用 `py start.py`；端口被占用时加上 `--port 8766`。服务只监听本机，题面、课程与 Python 运行环境全部来自本地文件。
 
-## 学习与练习
+## 界面
 
-入门课程分为 **6 章、24 课**：开始编程、组织数据与程序、分析与验证、序列与查询、图与搜索、状态与策略综合。内容覆盖 Python 基础、调试、复杂度、穷举、排序、哈希、前缀和、二分、双指针、栈队列、BFS、DFS、动态规划、0/1 背包、贪心及综合解题流程。
+<table>
+  <tr>
+    <td width="50%"><img src="docs/today.png" alt="今日：下一题、每日目标、课程进度与等级进度"></td>
+    <td width="50%"><img src="docs/mock.png" alt="模拟考试：以一套原创题为一场考试，按小问配分计时"></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/course.png" alt="课程：正文、目录与旁边的练习编辑器"></td>
+    <td width="50%"><img src="docs/dark.png" alt="深色外观与英文界面下的题目工作区"></td>
+  </tr>
+</table>
 
-每课提供完整中英日正文、学习目标、逐步推演、带输入输出的代码示例、常见错误、自测问答、编程练习与详细参考解。课内目录和“查看练习要求”可直接定位内容；示例可以复制。代码与课程进度自动保存在本机，全部练习用例通过后记录课程完成。课程检查和 AtCoder 的正式 AC 分别记录。详细目录与内容验证见 [课程说明](docs/ACADEMY.md)。
+界面遵循 macOS 的设计习惯：侧栏导航、分段控件、浅色与深色外观、减少动态效果，以及完整的键盘操作。三种界面语言与三种题面语言可以分别设置。
 
-![课程阅读与练习](docs/course.png)
+## 题库
 
-题库按 Level 0–5 组织，可按题号、等级、难度和状态查找。工作台提供练习续接、未完成题推荐和每日目标；收藏、笔记及错误记录可用于复习。侧栏可以收起，题目页支持上一题／下一题与浏览历史前进／后退。
+### AtCoder 分级题
 
-离线 CodeMirror 编辑器支持 Python 高亮、行号、缩进、括号补全、查找、撤销重做。每题提供完整官方样例，也可添加自定义输入和期望输出。Python 在 WebAssembly Worker 中运行，每次执行使用独立环境，不在宿主机执行用户代码。
+| 等级 | 名称 | 题数 |
+| :---: | --- | ---: |
+| L0 | 入门 | 33 |
+| L1 | 基础 | 31 |
+| L2 | 基础实现 | 47 |
+| L3 | CI 核心 | 45 |
+| L4 | 进阶实现 | 40 |
+| L5 | 综合算法 | 25 |
+
+等级是学习路线，与 ABC 的题目字母不一一对应；L0 按先修关系从 `PracticeA` 开始。每题的中文、日文、英文题面分别保存在本地（共 663 份），包含全部约束、输入输出格式、官方样例与图示；所选语言的题面总是完整显示，不会悄悄换成另一种语言。配点与 Difficulty 取自 AtCoder 与 AtCoder Problems。
+
+### CI 原创套题
+
+| 套题 | 情境 | 考查内容 | 时间 |
+| --- | --- | --- | ---: |
+| 访问日志分析 | 解析 Web 服务器日志 | 文件读取、字典计数、排序、会话切分、滑动窗口 | 120 分钟 |
+| 游程编码 | 压缩与还原字符串 | 字符串处理、前缀和与二分、区间动态规划 | 120 分钟 |
+| 栈式计算机 | 解释并编译一门小语言 | 模拟、标签与跳转、错误与超时、递归下降 | 150 分钟 |
+| 仓库机器人 | 网格地图上的搬运 | 邻接判断、BFS、状态压缩 DP、字典序 Dijkstra | 120 分钟 |
+| 城市铁路 | 换乘与时刻表 | Dijkstra、状态扩展、依赖时刻的最短路 | 150 分钟 |
+| 黑白图像 | 像素与连通性 | 洪水填充、4/8 连通与洞、单调栈求最大矩形 | 120 分钟 |
+
+每套 4 个小问、共 100 分，题面、讲解与参考解答均有中日英三语。隐藏用例由固定种子生成，每个用例都用独立的暴力解法核对过参考答案。
+
+## 课程
+
+| 章 | 内容 |
+| --- | --- |
+| 开始编程 | 第一个程序、输入与整数、条件分支、循环与累计 |
+| 组织数据与程序 | 字符串、列表与下标、嵌套循环与二维表、函数 |
+| 分析与验证 | 调试、复杂度估算、无遗漏的穷举、排序 |
+| 序列与查询 | 集合与字典、前缀和、二分搜索、双指针 |
+| 图与搜索 | 栈与队列、BFS、DFS 与连通分量、网格搜索 |
+| 状态、策略与综合 | 动态规划、0/1 背包、贪心与交换论证、完整解题流程 |
+| 上机专题 | 读取数据文件、递归与记忆化、优先队列与最短路、模拟与解析 |
+
+每课包含学习目标、逐步推演、带输入输出的代码示例、常见错误、自测问答、一道原创练习与详细解答，并链接到题库中的后续练习。练习的全部用例通过后记为完成；课程进度与题目记录分开保存。详见[课程说明](docs/ACADEMY.md)与[学习顺序](docs/CURRICULUM.md)。
+
+## 评测与计分
+
+**运行**依次执行控制台中的全部用例，包括样例和自己添加的用例；**评测**执行全部样例与隐藏用例，结果为 AC、WA、RE、TLE 或 OLE，并记入该题的历史。每次运行都在新的 Python 解释器中进行，每个用例拥有独立的模块、标准流和工作目录。答案不唯一或允许误差的题目使用相应的判定规则。
+
+本地结果只代表本机用例上的表现，**不等于官方 AC**。填写 AtCoder 用户名后，可以同步公开的提交记录，官方结果会标为“已验证”。
+
+模拟考试在开始时固定题目、时长、计分方式与账号：
+
+- **每题 100 分** 或 **原题配点**：最终通过的题目，首次通过前的每次错误加罚 5 分钟；CE 与 IE 不计罚时。
+- **按小问配分**：以一整套原创题为一场考试，每个小问按其分值计分。
+
+模拟分数是训练指标，不是东京大学考试的成绩，也不能预测考试成绩。
+
+## 导入自己的题库
+
+在“设置 → 题库”中可以下载模板、导入题库包、导出任意题库包。题库包是一个 JSON 文件：
+
+```json
+{
+  "format": "plume-pack",
+  "version": 1,
+  "id": "my-practice",
+  "title": "My Practice",
+  "problems": [
+    {
+      "id": "MY-1",
+      "title": "Sum",
+      "statement": "Read two integers and print their sum.",
+      "samples": [{"input": "1 2\n", "output": "3\n"}],
+      "tests": [{"input": "-5 5\n", "output": "0\n"}]
+    }
+  ]
+}
+```
+
+题目可以分组成套、附带数据文件、指定时间限制与判定方式，并提供参考解答。导入时会完整校验，题面经过与内置题面相同的安全过滤。内置的 [CI 原创套题](data/packs/ci-original.json) 本身就是一个完整示例，字段说明见 [题库包格式](docs/PROBLEM_PACKS.md)。
+
+## 数据与隐私
+
+- **浏览器**：记录保存在当前浏览器、当前地址与端口的本地存储中，并请求浏览器不要在空间不足时清理。
+- **macOS App**：每次保存都在磁盘上确认写入 `~/Library/Application Support/org.cipractice.desktop/state.json`。
+- **备份**：在“设置 → 数据与备份”导出 JSON，内容包括代码、笔记、记录、课程进度、模拟历史与已导入的题库包。导入备份会替换当前记录，不会合并。
+
+无需注册，代码与备份不会上传。只有 AtCoder 同步和更新题目数据时会访问公开服务。浏览器与 App、不同浏览器之间的记录彼此独立，迁移时请使用备份。
+
+## 快捷键
 
 | 快捷键 | 操作 |
 | --- | --- |
-| `⌘K` / `Ctrl+K` | 搜索题目 |
-| `⌘Enter` / `Ctrl+Enter` | 运行当前练习或测试 |
+| `⌘K` / `Ctrl+K` | 按题号、标题或题面内容搜索题目 |
+| `⌘↵` / `Ctrl+Enter` | 运行当前用例或课程检查 |
+| `⇧⌘↵` / `Ctrl+Shift+Enter` | 评测全部用例 |
 | `⌘F` / `Ctrl+F` | 在编辑器中查找 |
-| `⌘Z` / `Ctrl+Z` | 撤销编辑 |
-| `⌘,` | macOS App 设置 |
+| `⌘,` / `Ctrl+,` | 打开设置 |
 
-## 设置与使用指南
+## 开发
 
-设置按操作内容分组：
-
-- **通用**：跟随系统／浅色／深色外观、界面与默认题面语言、启动页面、减少动态效果。
-- **练习与编辑器**：每日目标、题面字号、代码字号、缩进宽度和自动换行，提供阅读与代码预览。
-- **个人资料与 AtCoder**：本机显示名称、公开用户名、启动时同步及最近同步时间。无需提供 AtCoder 密码。
-- **数据与备份**：本地题库覆盖、元数据更新、JSON 导出与恢复、本地数据用量、工作区重置。
-- **使用指南**：可打开阅读的完整页面，说明第一次练习、代码与测试、模拟计分、AtCoder 同步和数据迁移，并链接到对应功能。
-- **关于**：产品版本、来源与许可、项目链接，以及作者 Aquila 的羽翎署名彩蛋。
-
-恢复显示与练习偏好不会删除代码、笔记或提交记录。清空工作区和导入备份均需确认；导入会替换当前数据，不会自动合并两份工作区。
-
-## 结果与计分
-
-本地显示“输出一致”只表示当前测试输出匹配，**不表示官方 AC**。构造题可能允许多种正确输出，浮点题可能采用误差规则，文本比较不能替代官方特殊判题。题目页提供官方提交、题解与已通过提交的链接；这些资源需要联网。
-
-AtCoder 同步结果标为“已验证”，手动完成与本地测试分别记录。150 分钟模拟默认三题、每题 100 分，也可采用原题官方配点；配点与账号在开始时固定。只有最终 AC 的题目，在首次 AC 前的计罚错误才计入罚时，每次增加 5 分钟，CE、IE 不计罚。模拟历史保留成绩、完成情况与逐题回看。
-
-模拟分数是训练指标，不是东京大学考试分数，也不保证某个考试成绩。
-
-## 题库说明
-
-| 内容 | 数量 |
-| --- | ---: |
-| 题目及日文题干 | 221 |
-| 官方英文题干 | 206 |
-| APG4bPython 本地英文译文 | 15 |
-| 本地中文题干 | 221 |
-| AtCoder Problems 索引命中 | 214 |
-| 有官方配点及 Difficulty 的题目 | 205 |
-
-**214／221 表示索引覆盖，不是缺少题干。** 未被该索引收录的 7 条是 APG4bPython EX14、EX15、EX16、EX17、EX18、EX20、EX21。索引中另有 9 条教程／入门记录没有常规竞赛配点或难度。本地总计保存 663 份题干。
-
-三语题干分别存储，不使用浏览器翻译，也不静默回退为日文。中文版保留题意、全部约束、输入输出、样例和说明。APG 教学页附加的教程与答案保留在来源文件中，和正式题干分开。配点以 AtCoder 原题为准；Difficulty 是 AtCoder Problems 的估计值。
-
-六个等级是学习路线，与 ABC 的字母题序不一一对应。0 级按先修关系从 `PracticeA` 开始，推荐优先选择最低未完成等级。详见 [学习顺序](docs/CURRICULUM.md) 与 [入门课程说明](docs/ACADEMY.md)。
-
-## 数据与升级
-
-代码、笔记、课程进度与练习记录保存在本机。桌面 App 每次保存会确认写入原生快照，路径为 `~/Library/Application Support/org.cipractice.desktop/state.json`。浏览器版使用当前浏览器与站点的本地存储。在“设置 → 数据与备份”导出 JSON；恢复前先备份目标设备已有的数据。
-
-Plume 沿用旧 CI Practice 的 bundle ID、原生存储目录、进度键和题目 ID。升级桌面 App 会继续读取原有记录；启动新版前请退出旧 App。桌面 App 与浏览器版是不同的工作区，二者迁移仍需导出、导入 JSON。
-
-## 开发与构建
-
-直接运行不需要安装 npm 依赖；编辑器与 Python 运行环境已随仓库保存。开发检查采用 Python 3.12 和 Node.js 22。
+运行本身不需要安装 npm 依赖；编辑器、MathJax 与 Python 运行环境已随仓库提供。开发检查使用 Python 3.12 与 Node.js 22：
 
 ```sh
 npm ci --ignore-scripts
 python3 scripts/assemble_library.py
 python3 scripts/assemble_academy.py --check
+python3 scripts/build_packs.py --check
 python3 -m unittest discover -s tests -p '*_test.py'
 node --test tests/*.test.cjs
 npm run check
 ```
 
-修改编辑器源码后运行 `npm ci --ignore-scripts` 和 `npm run build:editor`。其余浏览器代码无需框架构建。验证范围与原生测试入口见 [VALIDATION.md](docs/VALIDATION.md)。
-
 ```text
-app.js / styles.css / index.html   工作台、题库、模拟与持久化
-settings.js                       设置与三语使用指南
-academy.js / data/academy.js       课程交互与三语教学内容
-pyworker.js / vendor/              Python、编辑器和公式运行环境
-data/statements.{json,js}          发布用三语完整题干
-data/source/ / data/translations/  官方来源与可编辑译文
-data/media/ / assets/              题目图示与产品图标
-packaging/CIPractice.swift         macOS 外壳及本机服务
-scripts/ / tests/                  装配、构建和验证
+index.html · app.js · styles.css   界面、题库、工作区、评测、模拟与本地存储
+library.js                         题库包：校验、存储、Markdown、输出判定
+academy.js · settings.js           课程与设置、使用指南
+pyworker.js · vendor/              Python（Pyodide）、编辑器与 MathJax
+data/                              题面、元数据、课程与原创套题的发布文件
+packs/ci-original/                 原创套题的源文件：题面、参考解、暴力解与用例生成器
+packaging/                         macOS App 外壳与本地存储桥
+scripts/ · tests/                  构建、打包与测试
 ```
 
-在 macOS 安装 Xcode Command Line Tools 后构建：
+题面、课程与原创套题都由源文件生成，修改后运行对应的脚本即可；详见 [架构说明](docs/ARCHITECTURE.md)、[验证方式](docs/VALIDATION.md) 与 [参与贡献](CONTRIBUTING.md)。
+
+### 构建 macOS App
+
+在安装了 Xcode Command Line Tools 的 Mac 上运行：
 
 ```sh
-python3 scripts/build_app.py
+python3 scripts/build_app.py              # 当前架构；加 --universal 构建双架构
 python3 scripts/package_release.py
 ```
 
-输出为 `dist/Plume.app`、`release/Plume-source.zip`、对应架构的 `Plume-macOS-*.zip` 与 SHA-256 校验文件。默认针对当前 Mac 架构；`build_app.py --universal` 可构建双架构版本。打包脚本验证题库、最新界面文件与图标，不收集本地练习记录或工作区其他资料。
+输出 `dist/Plume.app`、`release/Plume-source.zip`、对应架构的 `Plume-macOS-*.zip` 与 SHA-256 校验文件。打包脚本会核对题库、课程、原创套题与最新的界面文件，不会收集本机的练习记录。
 
-图标以 `assets/plume.svg` 为源；运行 `swift scripts/build_icon.swift` 重建 PNG 与完整 macOS ICNS。原生集成测试需有已登录桌面会话：
+## 许可
 
-```sh
-CI_NATIVE_APP="$PWD/dist/Plume.app" CI_NATIVE_NETWORK=1 python3 -m unittest discover -s tests -p 'runtime_native_test.py' -v
-```
+Plume 的代码与原创套题采用 [MIT 许可证](LICENSE)。AtCoder 题目、图示与元数据，以及 Pyodide、MathJax、CodeMirror 等第三方组件保留各自的权利与许可，详见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
-测试使用独立的临时存储，不会读取或修改个人练习记录。联网检查可通过省略 `CI_NATIVE_NETWORK=1` 跳过。
-
-应用代码采用 MIT 许可证。题目、图示、元数据和第三方运行环境保留各自权利与许可，详见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+<p align="center"><sub>由 Aquila 设计与开发</sub></p>

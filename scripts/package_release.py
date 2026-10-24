@@ -11,9 +11,9 @@ ROOT = Path(__file__).resolve().parents[1]
 RELEASE = ROOT / 'release'
 SOURCE_ITEMS = (
     '.github', '.gitignore', 'README.md', 'CONTRIBUTING.md', 'SECURITY.md',
-    'LICENSE', 'THIRD_PARTY_NOTICES.md', 'CIPractice.icns', 'app.js', 'settings.js', 'academy.js',
-    'index.html', 'styles.css', 'pyworker.js', 'start.py', 'data', 'vendor', 'assets',
-    'packaging', 'scripts', 'tests', 'docs', 'package.json', 'package-lock.json',
+    'LICENSE', 'THIRD_PARTY_NOTICES.md', 'CIPractice.icns', 'app.js', 'library.js', 'settings.js', 'academy.js',
+    'index.html', 'styles.css', 'pyworker.js', 'start.py', 'data', 'packs', 'vendor', 'assets',
+    'packaging', 'scripts', 'tests', 'docs', 'package.json', 'package-lock.json', '.prettierrc.json',
 )
 
 
@@ -37,9 +37,11 @@ def main():
         assert len(library) == 221
         assert all(set(('ja', 'en', 'zh')) <= set(task) for task in library.values())
         course_source = archive.read(f'{PRODUCT_NAME}/data/academy.js').decode('utf-8')
-        course = json.loads(course_source.split('window.AQUILA_ACADEMY = ', 1)[1].removesuffix(';\n'))
-        assert course['version'] == 2 and len(course['lessons']) == 24
+        course = json.loads(course_source.split('window.PLUME_ACADEMY = ', 1)[1].removesuffix(';\n'))
+        assert course['version'] == 2 and len(course['lessons']) == 28
         assert all(set(lesson['content']) == {'ja', 'en', 'zh'} for lesson in course['lessons'])
+        pack = json.loads(archive.read(f'{PRODUCT_NAME}/data/packs/ci-original.json'))
+        assert pack['format'] == 'plume-pack' and len(pack['sets']) == 6 and len(pack['problems']) == 24
     outputs = [source]
     app = ROOT / 'dist' / f'{PRODUCT_NAME}.app'
     if app.is_dir():
@@ -53,7 +55,7 @@ def main():
             assert archive.read(f'{PRODUCT_NAME}.app/Contents/Resources/storage-bridge.js') == (ROOT / 'packaging/storage-bridge.js').read_bytes(), 'Stale native storage bridge'
             assert archive.read(f'{PRODUCT_NAME}.app/Contents/Resources/CIPractice.icns') == (ROOT / 'CIPractice.icns').read_bytes(), 'Stale app icon'
             prefix = f'{PRODUCT_NAME}.app/Contents/Resources/site/'
-            for name in ('index.html', 'styles.css', 'app.js', 'settings.js', 'academy.js', 'pyworker.js', 'data/academy.js', 'assets/plume.svg',
+            for name in ('index.html', 'styles.css', 'app.js', 'library.js', 'settings.js', 'academy.js', 'pyworker.js', 'data/academy.js', 'data/packs/ci-original.js', 'assets/plume.svg',
                          'vendor/editor.js', 'data/statements.json', 'data/statements.js',
                          'data/metadata.json', 'data/metadata.js'):
                 assert archive.read(prefix + name) == (ROOT / name).read_bytes(), f'Stale app file: {name}'
@@ -62,7 +64,7 @@ def main():
     (RELEASE / 'SHA256SUMS.txt').write_text(checksums)
     for path in outputs:
         print(f'{path.name}: {path.stat().st_size / 1024 / 1024:.1f} MiB')
-    print('Verified: 221 tasks, 663 statements, 24 trilingual lessons, current app assets and archive CRCs.')
+    print('Verified: 221 tasks, 663 statements, 24 original problems in 6 sets, 28 trilingual lessons, current app assets and archive CRCs.')
 
 
 if __name__ == '__main__':

@@ -8,30 +8,41 @@ const root = path.resolve(__dirname, '..');
 const context = {window: {}};
 vm.runInNewContext(fs.readFileSync(path.join(root, 'data/academy.js'), 'utf8'), context);
 vm.runInNewContext(fs.readFileSync(path.join(root, 'data/problems.js'), 'utf8'), context);
-const academy = JSON.parse(JSON.stringify(context.window.AQUILA_ACADEMY));
+vm.runInNewContext(fs.readFileSync(path.join(root, 'data/packs/ci-original.js'), 'utf8'), context);
+const academy = JSON.parse(JSON.stringify(context.window.PLUME_ACADEMY));
 const lessons = academy.lessons;
 const byId = new Map(lessons.map(lesson => [lesson.id, lesson]));
-const problemLabels = new Set(context.window.CI_PROBLEMS.map(problem => problem.label));
+const packLabels = context.window.PLUME_BUNDLED_PACKS.flatMap(pack => pack.problems.map(problem => problem.id));
+const problemLabels = new Set([...context.window.CI_PROBLEMS.map(problem => problem.label), ...packLabels]);
+const STAGES = ['start', 'python', 'methods', 'sequences', 'graphs', 'synthesis', 'exam'];
 const python = process.env.CI_PYTHON || 'python3';
 
+// Each case runs in a fresh working directory holding its data files, as in the app.
+const HARNESS = `
+import contextlib, io, json, os, sys, tempfile
+
+def execute(source, name, stdin, files):
+    home, output, old_stdin = os.getcwd(), io.StringIO(), sys.stdin
+    with tempfile.TemporaryDirectory() as directory:
+        for file_name, content in files.items():
+            with open(os.path.join(directory, file_name), 'w', encoding='utf-8', newline='') as handle:
+                handle.write(content)
+        os.chdir(directory)
+        try:
+            sys.stdin = io.StringIO(stdin)
+            with contextlib.redirect_stdout(output):
+                exec(compile(source, name, 'exec'), {'__name__': '__main__'})
+        finally:
+            sys.stdin = old_stdin
+            os.chdir(home)
+    return output.getvalue()
+`;
+
 function runCases(lesson, cases) {
-  const result = spawnSync(python, ['-c', `
-import contextlib, io, json, sys
+  const result = spawnSync(python, ['-c', HARNESS + `
 payload = json.load(sys.stdin)
-program = compile(payload['source'], '<academy-reference>', 'exec')
-results = []
-for case in payload['cases']:
-    output = io.StringIO()
-    old_stdin = sys.stdin
-    try:
-        sys.stdin = io.StringIO(case['input'])
-        with contextlib.redirect_stdout(output):
-            exec(program, {'__name__': '__main__'})
-    finally:
-        sys.stdin = old_stdin
-    results.append(output.getvalue())
-json.dump(results, sys.stdout)
-`], {input: JSON.stringify({source: lesson.solution, cases}), encoding: 'utf8', timeout: 10000});
+json.dump([execute(payload['source'], '<academy-reference>', case['input'], case.get('files', {})) for case in payload['cases']], sys.stdout)
+`], {input: JSON.stringify({source: lesson.solution, cases}), encoding: 'utf8', timeout: 20000});
   assert.ifError(result.error);
   assert.equal(result.status, 0, `${lesson.id}: ${result.stderr}`);
   const outputs = JSON.parse(result.stdout);
@@ -39,15 +50,15 @@ json.dump(results, sys.stdout)
   cases.forEach((item, index) => assert.equal(outputs[index], item.expected, `${lesson.id}, input ${JSON.stringify(item.input)}`));
 }
 
-test('academy has 24 ordered lessons with valid acyclic prerequisites and existing practice links', () => {
+test('academy has 28 ordered lessons with valid acyclic prerequisites and existing practice links', () => {
   assert.equal(academy.version, 2);
-  assert.equal(lessons.length, 24);
+  assert.equal(lessons.length, 28);
   assert.equal(byId.size, lessons.length);
   const visited = new Set();
   lessons.forEach((lesson, index) => {
     assert.match(lesson.id, /^[a-z][a-z0-9-]+$/);
     assert.equal(lesson.order, index + 1);
-    assert.ok(['start', 'python', 'methods', 'sequences', 'graphs', 'synthesis'].includes(lesson.stage));
+    assert.equal(lesson.stage, STAGES[Math.floor(index / 4)]);
     assert.ok(Number.isInteger(lesson.minutes) && lesson.minutes >= 10 && lesson.minutes <= 60);
     assert.equal(lesson.prerequisiteIds.length, index === 0 ? 0 : 1);
     for (const prerequisite of lesson.prerequisiteIds) assert.ok(visited.has(prerequisite), `${lesson.id}: ${prerequisite}`);
@@ -90,11 +101,12 @@ test('exercise fixtures have distinct-per-lesson inputs and executable Python so
   for (const lesson of lessons) {
     assert.ok(lesson.starter.trim().length > 0 && lesson.solution.trim().length > 0);
     assert.ok(lesson.tests.length >= (lesson.id === 'first-program' ? 1 : 4));
-    assert.equal(new Set(lesson.tests.map(item => item.input)).size, lesson.tests.length, `${lesson.id}: repeated fixtures`);
+    assert.equal(new Set(lesson.tests.map(item => JSON.stringify([item.input, item.files || {}]))).size, lesson.tests.length, `${lesson.id}: repeated fixtures`);
     for (const item of lesson.tests) {
       assert.equal(typeof item.input, 'string');
       assert.equal(typeof item.expected, 'string');
       assert.ok(item.expected.endsWith('\n'));
+      for (const [name, content] of Object.entries(item.files || {})) assert.ok(/^[A-Za-z0-9_][A-Za-z0-9_.-]*$/.test(name) && typeof content === 'string', `${lesson.id}: data file ${name}`);
     }
     sources.push(lesson.starter, lesson.solution, ...lesson.content.en.sections.filter(section => section.code).map(section => section.code));
   }
@@ -108,29 +120,21 @@ test('every published example produces the exact displayed output in each langua
   for(const lesson of lessons)for(const lang of ['zh','en','ja'])for(const [i,section] of lesson.content[lang].sections.entries()){
     if(!section.code)continue;
     assert.equal(typeof section.output,'string',`${lesson.id}/${lang}/${i}: example needs a visible output`);
-    examples.push({id:`${lesson.id}/${lang}/${i}`,source:section.code,input:section.exampleInput||'',expected:section.output});
+    examples.push({id:`${lesson.id}/${lang}/${i}`,source:section.code,input:section.exampleInput||'',files:section.exampleFiles||{},expected:section.output});
   }
-  const result=spawnSync(python,['-c',`
-import contextlib, io, json, sys
+  const result=spawnSync(python,['-c',HARNESS+`
 examples=json.load(sys.stdin)
 for example in examples:
-    old_stdin=sys.stdin
-    capture=io.StringIO()
-    try:
-        sys.stdin=io.StringIO(example['input'])
-        with contextlib.redirect_stdout(capture):
-            exec(compile(example['source'], example['id'], 'exec'), {'__name__':'__main__'})
-    finally:
-        sys.stdin=old_stdin
-    assert capture.getvalue()==example['expected'], (example['id'],repr(capture.getvalue()),repr(example['expected']))
+    actual=execute(example['source'], example['id'], example['input'], example['files'])
+    assert actual==example['expected'], (example['id'],repr(actual),repr(example['expected']))
 print(len(examples))
-`],{input:JSON.stringify(examples),encoding:'utf8',timeout:15000});
+`],{input:JSON.stringify(examples),encoding:'utf8',timeout:30000});
   assert.ifError(result.error);assert.equal(result.status,0,result.stderr);
   assert.ok(examples.length>=72,'Each lesson includes actual runnable examples');
 });
 
 test('authored chapter files reproduce the committed offline bundle',()=>{
-  const result=spawnSync(python,['scripts/assemble_academy.py','--check'],{cwd:root,encoding:'utf8',timeout:10000});
+  const result=spawnSync(python,['scripts/assemble_academy.py','--check'],{cwd:root,encoding:'utf8',timeout:20000});
   assert.ifError(result.error);assert.equal(result.status,0,result.stdout+result.stderr);
 });
 
@@ -339,4 +343,65 @@ test('integrated budget queries agree with exhaustive task subsets', () => {
     return {input: `${durations.length} ${budgets.length}\n${durations.join(' ')}\n${budgets.join('\n')}\n`, expected: answers.join('\n') + '\n'};
   });
   runCases(byId.get('exam-workflow'), cases);
+});
+
+test('score reports agree with direct aggregation, including comments, CRLF and a missing final newline', () => {
+  const names = ['amy', 'bob', 'cat', 'dan', 'eve'], subjects = ['art', 'math', 'music'];
+  const cases = Array.from({length: 16}, () => {
+    const lines = [], totals = new Map(), counts = new Map();
+    const records = random(12) + 1;
+    for (let i = 0; i < records; i++) {
+      if (random(5) === 0) lines.push(random(2) ? '' : '  # note');
+      const name = names[random(names.length)], score = random(101);
+      lines.push(`${name} ${subjects[random(subjects.length)]} ${score}`);
+      totals.set(name, (totals.get(name) || 0) + score);
+      counts.set(name, (counts.get(name) || 0) + 1);
+    }
+    const eol = random(3) === 0 ? '\r\n' : '\n';
+    const text = lines.join(eol) + (random(4) === 0 ? '' : eol);
+    const order = [...totals.keys()].sort((a, b) => totals.get(b) - totals.get(a) || (a < b ? -1 : 1));
+    return {input: '', files: {'scores.txt': text}, expected: order.map(name => `${name} ${totals.get(name)} ${counts.get(name)}\n`).join('')};
+  });
+  runCases(byId.get('files-and-parsing'), cases);
+});
+
+test('memoized decoding agrees with enumerating every split of the digits', () => {
+  function decodings(s) {
+    if (!s) return 1;
+    let count = 0;
+    if (s[0] !== '0') {
+      count += decodings(s.slice(1));
+      if (s.length >= 2 && Number(s.slice(0, 2)) <= 26) count += decodings(s.slice(2));
+    }
+    return count;
+  }
+  const digits = '0112226789';
+  const cases = Array.from({length: 40}, () => {
+    const s = Array.from({length: random(10) + 1}, () => digits[random(digits.length)]).join('');
+    return {input: `${s}\n`, expected: `${decodings(s) % 1000000007}\n`};
+  });
+  runCases(byId.get('recursion-and-memoization'), cases);
+});
+
+test('Dijkstra distances agree with Floyd–Warshall on graphs with parallel edges, loops and zero weights', () => {
+  const cases = Array.from({length: 24}, () => {
+    const n = random(7) + 1, edges = Array.from({length: random(12)}, () => [random(n), random(n), random(6)]);
+    const d = Array.from({length: n}, (_, i) => Array.from({length: n}, (_, j) => (i === j ? 0 : Infinity)));
+    for (const [u, v, w] of edges) { d[u][v] = Math.min(d[u][v], w); d[v][u] = Math.min(d[v][u], w); }
+    for (let k = 0; k < n; k++) for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) d[i][j] = Math.min(d[i][j], d[i][k] + d[k][j]);
+    return {input: `${n} ${edges.length}\n` + edges.map(([u, v, w]) => `${u + 1} ${v + 1} ${w}\n`).join(''), expected: d[0].map(x => (x === Infinity ? -1 : x)).join('\n') + '\n'};
+  });
+  runCases(byId.get('heaps-and-shortest-paths'), cases);
+});
+
+test('teleporter cycle skipping agrees with direct simulation, also for K near 10 to the eighteenth', () => {
+  // With at most 8 towns every cycle length divides 840, so a huge K can be replaced by a small equivalent one.
+  function walk(a, k) { let town = 1; for (let i = 0; i < k; i++) town = a[town - 1]; return town; }
+  const cases = Array.from({length: 40}, (_, index) => {
+    const n = random(8) + 1, a = Array.from({length: n}, () => random(n) + 1);
+    const k = index % 2 ? 10n ** 18n - BigInt(random(1000)) : BigInt(random(60) + 1);
+    const small = k > 8n ? 8n + ((k - 8n) % 840n) : k;
+    return {input: `${n} ${k}\n${a.join(' ')}\n`, expected: `${walk(a, Number(small))}\n`};
+  });
+  runCases(byId.get('simulation-and-parsing'), cases);
 });

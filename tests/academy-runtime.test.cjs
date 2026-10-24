@@ -4,6 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
+const os=require('node:os');
 const {spawnSync}=require('node:child_process');
 const root=path.join(__dirname,'..');
 const plain=value=>JSON.parse(JSON.stringify(value));
@@ -25,7 +26,7 @@ function course(){
   }[selector]||heading.querySelector(selector)||elements.lessonResults.querySelector(selector))};
   const scope={window:{},document:doc,Intl,console,Date,confirm:()=>true};vm.createContext(scope);
   for(const file of ['data/academy.js','academy.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),scope);
-  const api=scope.window.PlumeAcademy,lessons=scope.window.AQUILA_ACADEMY.lessons,progress=api.normalize();
+  const api=scope.window.PlumeAcademy,lessons=scope.window.PLUME_ACADEMY.lessons,progress=api.normalize();
   let busy=false,saves=0,releases=0,stops=0,editorOptions;
   scope.window.CIEditor={mount(textarea,options){editorOptions=options;return{value:()=>textarea.value,destroy(){}}}};
   const context={uiLang:'en',progress,editorOptions:{},save(){saves++},navigate(){},rerender(){},toast(message){context.lastToast=message},
@@ -35,14 +36,19 @@ function course(){
   function change(code){elements.lessonEditor.value=code;editorOptions.onChange(code)}
   return{api,lessons,progress,context,bind,change,elements,runButton,stopButton,restoreButton,heading,scope,get busy(){return busy},get saves(){return saves},get releases(){return releases},get stops(){return stops},setBusy(value){busy=value}};
 }
-function python(code,input){
-  const result=spawnSync(process.env.CI_PYTHON||'python3',['-I','-c',code],{input,encoding:'utf8',timeout:4000,maxBuffer:1024*1024});
-  if(result.error)throw result.error;
-  return {status:result.status===0?'OK':'ERR',stdout:result.stdout,stderr:result.stderr};
+// Like the browser runtime: data files are written to a fresh working directory before each run.
+function python(code,input,timeout,files={}){
+  const cwd=fs.mkdtempSync(path.join(os.tmpdir(),'plume-lesson-'));
+  try{
+    for(const [name,content] of Object.entries(files))fs.writeFileSync(path.join(cwd,name),content);
+    const result=spawnSync(process.env.CI_PYTHON||'python3',['-I','-c',code],{input,cwd,encoding:'utf8',timeout:4000,maxBuffer:1024*1024});
+    if(result.error)throw result.error;
+    return {status:result.status===0?'OK':'ERR',stdout:result.stdout,stderr:result.stderr};
+  }finally{fs.rmSync(cwd,{recursive:true,force:true})}
 }
 
 test('every bundled reference solution passes the real controller and isolated CPython tests',async()=>{
-  const c=course();c.context.executePython=async(code,input)=>python(code,input);
+  const c=course();c.context.executePython=async(...args)=>python(...args);
   for(const lesson of c.lessons){
     c.api.destroy();c.bind(lesson);await c.api.run();
     assert.ok(c.progress.completed[lesson.id]>0,`${lesson.id}: ${c.elements.lessonResults.innerHTML}`);
@@ -54,16 +60,16 @@ test('every bundled reference solution passes the real controller and isolated C
 });
 
 test('an incorrect solution and a Python exception cannot mark a lesson complete',async()=>{
-  const c=course(),lesson=c.bind(undefined,'print("incorrect")');c.context.executePython=async(code,input)=>python(code,input);
+  const c=course(),lesson=c.bind(undefined,'print("incorrect")');c.context.executePython=async(...args)=>python(...args);
   await c.api.run();assert.equal(c.progress.completed[lesson.id],undefined);assert.match(c.elements.lessonResults.innerHTML,/Some tests did not pass/);
   c.change('print(undefined_variable)');await c.api.run();assert.equal(c.progress.completed[lesson.id],undefined);
-  assert.match(c.elements.lessonResults.innerHTML,/NameError/);assert.match(c.elements.lessonResults.innerHTML,/Assign a value/);
+  assert.match(c.elements.lessonResults.innerHTML,/NameError/);assert.match(c.elements.lessonResults.innerHTML,/Assign a variable before using it/);
   assert.equal(c.progress.attempts[lesson.id],2);
 });
 
 test('runtime acquisition prevents a lesson from interfering with another active test',async()=>{
   const c=course(),lesson=c.bind();c.setBusy(true);let calls=0;c.context.executePython=async()=>{calls++;return{status:'OK'}};
-  await c.api.run();assert.equal(calls,0);assert.equal(c.progress.attempts[lesson.id],undefined);assert.match(c.context.lastToast,/Another test/);assert.equal(c.busy,true);
+  await c.api.run();assert.equal(calls,0);assert.equal(c.progress.attempts[lesson.id],undefined);assert.match(c.context.lastToast,/Another run is still in progress/);assert.equal(c.busy,true);
 });
 
 test('double Run clicks start a single batch and one attempt',async()=>{
@@ -132,5 +138,5 @@ test('a failed completion save cannot award a new persistent course completion',
 test('timeout errors provide an actionable hint and release the runner',async()=>{
   const c=course(),lesson=c.bind();c.context.executePython=async()=>{const error=new Error('Time limit');error.code='TLE';throw error};
   await c.api.run();assert.equal(c.progress.completed[lesson.id],undefined);assert.equal(c.busy,false);
-  assert.match(c.elements.lessonResults.innerHTML,/TLE/);assert.match(c.elements.lessonResults.innerHTML,/Check whether loops terminate/);
+  assert.match(c.elements.lessonResults.innerHTML,/TLE/);assert.match(c.elements.lessonResults.innerHTML,/Check that every loop ends/);
 });

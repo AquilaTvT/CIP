@@ -6,6 +6,10 @@ Problem identifiers, Japanese statements, available official English statements,
 
 The software license does not grant rights to redistribute AtCoder material. Review applicable permissions before publishing the bundled problem content in a public repository or distributing it commercially.
 
+## Original problem sets
+
+The CI Original Sets in `packs/ci-original` and `data/packs` are original work for Plume and are covered by the project's MIT license. Station names in the rail-network set refer to real places for illustration only; its lines and travel times are simplified and fictional.
+
 ## AtCoder Problems
 
 The bundled metadata snapshot comes from [AtCoder Problems](https://kenkoooo.com/atcoder/) on 2026-10-24. Its [source repository](https://github.com/kenkoooo/AtCoderProblems) documents the API and project license. Estimated difficulty and official contest point values are different metrics.

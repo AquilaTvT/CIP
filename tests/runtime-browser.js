@@ -56,7 +56,14 @@
     result = await run('import heapq,itertools,collections,math,bisect\nprint(math.gcd(84,126))');
     assert(result.status === 'OK' && result.stdout === '42\n', 'standard library');
     result = await run('import sys, __main__\nanswer=42\nprint(__main__.answer, sys.argv[0], __file__)');
-    assert(result.status === 'OK' && result.stdout === '42 /solution.py /solution.py\n', 'normal script main module and argv');
+    assert(result.status === 'OK' && result.stdout === '42 main.py /work/main.py\n', 'normal script main module and argv');
+    result = await new Promise((resolve, reject) => {
+      const id = ++sequence;
+      const timer = setTimeout(() => reject(Error('run timeout')), 5000);
+      worker.onmessage = event => { if (event.data.id === id) { clearTimeout(timer); resolve(event.data); } };
+      worker.postMessage({type: 'run', id, code: 'import os\nprint(open("data.txt", encoding="utf-8").read().split(), os.getcwd(), sorted(os.listdir()))', input: '', files: {'data.txt': '4 2\n', '../escape.txt': 'no'}});
+    });
+    assert(result.status === 'OK' && result.stdout === "['4', '2'] /work ['data.txt']\n", 'data files in a clean working directory', result.stdout + result.stderr);
     result = await run('from dataclasses import dataclass\n@dataclass\nclass Answer:\n    value: int\nprint(Answer(42).value)');
     assert(result.status === 'OK' && result.stdout === '42\n', 'dataclass module lookup');
     result = await run('import sys\nprint(42)\nsys.stdout.close()\nprint("diagnostic",file=sys.stderr)\nsys.stderr.close()');
@@ -81,18 +88,22 @@
     await executePython('import builtins, math\nbuiltins.ci_test_marker=1\nmath.ci_test_marker=1\nopen("/tmp/ci-test-marker", "w").write("private")', '');
     result = await executePython('import builtins, math, os\nprint(hasattr(builtins,"ci_test_marker"),hasattr(math,"ci_test_marker"),os.path.exists("/tmp/ci-test-marker"))', '');
     assert(result.status === 'OK' && result.stdout === 'False False False\n', 'fresh interpreter isolates modules and files');
-    resetRunner();
+    stopPythonRuns();
+    result = await executePython('import sys\nfrom functools import cache\nsys.setrecursionlimit(100000)\n@cache\ndef f(n):\n    return 0 if n == 0 else f(n - 1) + 1\nprint(f(20000))', '', 15000);
+    assert(result.status === 'RE' && /RecursionError/.test(result.stderr), 'deep recursion through C code is reported, not timed out', JSON.stringify(result).slice(0, 300));
+    result = await executePython('print(42)', '', 6000);
+    assert(result.status === 'OK' && result.stdout === '42\n', 'the runner recovers after a crashed interpreter');
     const health = await (await fetch('/__health')).json();
-    assert(health.ok && health.app === (globalThis.__ciNativeApp?.name || 'Plume') && health.version === '1.1.0', 'native localhost service');
-    for (const asset of ['settings.js', 'academy.js', 'data/academy.js']) {
+    assert(health.ok && health.app === (globalThis.__ciNativeApp?.name || 'Plume') && health.version === '1.2.0', 'native localhost service');
+    for (const asset of ['library.js', 'settings.js', 'academy.js', 'data/academy.js', 'data/packs/ci-original.js']) {
       const response = await fetch('/' + asset);
       assert(response.ok && (await response.text()).trim().length > 0, 'bundled local ' + asset);
     }
     // Exercise the same fresh-worker path as the lesson UI, not system Python.
     // Every fixture retains its exact input and output (including trailing LF).
-    const lessons = globalThis.AQUILA_ACADEMY?.lessons;
-    assert(Array.isArray(lessons) && lessons.length === 24 && new Set(lessons.map(lesson => lesson.id)).size === 24,
-      '24 bundled academy lessons loaded');
+    const lessons = globalThis.PLUME_ACADEMY?.lessons;
+    assert(Array.isArray(lessons) && lessons.length === 28 && new Set(lessons.map(lesson => lesson.id)).size === 28,
+      '28 bundled academy lessons loaded');
     const totalCourseCases=lessons.reduce((total,lesson)=>total+lesson.tests.length,0);
     assert(totalCourseCases>=93,'complete bundled academy exercise cases loaded');
     const cleanInterpreter = [
@@ -114,7 +125,7 @@
     for (const lesson of lessons) {
       for (const [index, test] of lesson.tests.entries()) {
         progress('academy case starting', {lesson: lesson.id, case: index + 1, completed: courseCases, total: totalCourseCases});
-        result = await executePython(cleanInterpreter + lesson.solution + taintInterpreter, test.input, 6000);
+        result = await executePython(cleanInterpreter + lesson.solution + taintInterpreter, test.input, 6000, test.files || {});
         assert(result.status === 'OK' && result.stdout === test.expected && result.stderr === '',
           'academy ' + lesson.id + ' case ' + (index + 1),
           JSON.stringify({status: result.status, expected: test.expected, actual: result.stdout, stderr: result.stderr}));
@@ -125,7 +136,23 @@
     result = await executePython(cleanInterpreter + 'print(42)', '', 6000);
     assert(result.status === 'OK' && result.stdout === '42\n' && result.stderr === '',
       'academy cases leave no interpreter or filesystem state');
-    resetRunner();
+    // The bundled original sets: every reference solution passes its samples and hidden tests.
+    const packProblems = window.PlumeLibrary?.problems().filter(problem => problem.bundled) || [];
+    assert(packProblems.length === 24, '24 bundled original problems loaded');
+    for (const problem of packProblems) {
+      progress('pack problem starting', {problem: problem.label});
+      const session = createPythonSession();
+      try {
+        for (const [index, test] of [...problem.samples, ...problem.tests].entries()) {
+          result = await session.run(problem.solution.code, test.input, problem.timeLimitMs, {...problem.files, ...test.files});
+          assert(result.status === 'OK' && window.PlumeLibrary.check(problem.checker, {input: test.input, actual: result.stdout, expected: test.expected}),
+            'pack ' + problem.label + ' case ' + (index + 1), JSON.stringify({status: result.status, stderr: result.stderr.slice(-300)}));
+        }
+      } finally {
+        session.close();
+      }
+    }
+    stopPythonRuns();
     assert((await fetch('/data/%00invalid')).status === 404, 'invalid native asset path');
     assert((await fetch('/__proxy?url=' + encodeURIComponent('https://kenkoooo.com:bad/atcoder/resources/problems.json'))).status === 403, 'invalid proxy URL rejected');
     const editorFixture = document.createElement('div');
@@ -154,7 +181,7 @@
     globalThis.__runtimeTestResults = {ok:true,checks,elapsedMs:Date.now()-startedAt};
   } catch (error) {
     worker?.terminate();
-    if (typeof resetRunner === 'function') resetRunner();
+    if (typeof stopPythonRuns === 'function') stopPythonRuns();
     globalThis.__runtimeTestResults = {ok:false,checks,error:String(error),progress:globalThis.__runtimeTestProgress};
   }
   globalThis.webkit?.messageHandlers?.runtimeTest?.postMessage(JSON.stringify(globalThis.__runtimeTestResults));

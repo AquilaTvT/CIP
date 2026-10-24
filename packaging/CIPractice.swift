@@ -5,7 +5,7 @@ import Darwin
 
 enum Product {
     static let name = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "Plume"
-    static let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.1.0"
+    static let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.2.0"
     static let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
 }
 
@@ -129,7 +129,7 @@ final class LocalServer {
         }
         if path == "/" { path = "/index.html" }
         let pieces = path.split(separator: "/").map(String.init)
-        let publicFiles = ["index.html", "app.js", "settings.js", "academy.js", "styles.css", "pyworker.js", "manifest.webmanifest", "CIPractice.icns"]
+        let publicFiles = ["index.html", "app.js", "library.js", "settings.js", "academy.js", "styles.css", "pyworker.js", "CIPractice.icns"]
         guard !pieces.isEmpty, !pieces.contains(where: { $0.hasPrefix(".") }),
               (publicFiles.contains(pieces.joined(separator: "/")) || ["data", "vendor", "assets"].contains(pieces[0])) else { respond(connection, status: 404, body: Data()); return }
         guard !path.contains("\0"), !path.contains("\\") else { respond(connection, status: 404, body: Data()); return }
@@ -236,7 +236,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
                 } else {
                     directory = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("org.cipractice.desktop", isDirectory: true)
                 }
-                let keys: Set<String> = storageTest ? ["ci-practice-runtime-storage-probe"] : ["ciPracticeHubState.v1", "ciPracticeHubState.v2"]
+                let keys: Set<String> = storageTest ? ["ci-practice-runtime-storage-probe"] : ["ciPracticeHubState.v1", "ciPracticeHubState.v2", "plumeProblemPacks.v1"]
                 let storage = try DurableStorage(directory: directory, keys: keys)
                 durableStorage = storage
                 let payload: [String: Any] = ["keys": keys.sorted()]

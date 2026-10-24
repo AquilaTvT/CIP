@@ -1,42 +1,44 @@
-# Plume validation
+# Validation
 
-This document records the verification scope and repeatable commands for the current application. Automated checks cover specified cases; they do not establish the absence of every defect or replace official AtCoder judging.
-
-## Release verification — 2026-10-25 JST
-
-- 138 JavaScript tests passed, with no failures or skips.
-- All 18 Python library, server, and native integration tests passed with network checks enabled, in 403.249 seconds.
-- The native offline run passed 135 assertions, including all 108 published course cases in separate Pyodide interpreters, in 392.065 seconds.
-- Source content checks executed 192 displayed example placements and 684 published or independently generated reference-solution cases.
-- Visual review covered the workspace, three-language lessons and settings, developer attribution, and exercise layout. The final sample-panel color adjustment was inspected in the browser and included in the release rebuild.
+How Plume is checked, and how to repeat the checks. Automated tests cover the cases they specify; they do not prove the absence of every defect, and a local judge result is never an official AtCoder verdict.
 
 ## Source checks
+
+These run on every push in GitHub Actions and take a few minutes locally with Python 3.12 and Node.js 22:
 
 ```sh
 npm ci --ignore-scripts
 python3 scripts/assemble_library.py
 python3 scripts/assemble_academy.py --check
+python3 scripts/build_packs.py --check
 python3 -m unittest discover -s tests -p '*_test.py'
 node --test tests/*.test.cjs
 npm run check
 ```
 
-| Area | Coverage |
-| --- | --- |
-| Statement library | 221 tasks and 663 local statements; language completeness; constraints and input/output sections; official samples; diagrams; canonical IDs; metadata counts; generated JS/JSON agreement. |
-| Course content | 24 lessons in six chapters; all published exercise cases and displayed code examples; three-language completeness; prerequisite ordering; linked library problems; reference implementations checked with Python. Additional independent oracles cover core algorithms. |
-| Course interaction | Lesson navigation, local drafts, test execution and cancellation, result comparison, completion state, and separation from official problem verdicts. |
-| Settings | Preference normalization, supported ranges, three-language rendering, actual guide articles, backup/import persistence, and preservation of existing practice data. |
-| Practice and scoring | Output comparison, backup validation, import sanitization, storage failures, official score snapshots, penalty rules, deadlines, mock history, worker cancellation and timeout recovery. |
-| AtCoder sync | Concurrent requests, account changes, duplicate/corrected verdicts, delayed results, and invalidation after import/reset. |
-| Native storage bridge | Initial migration, synchronous save acknowledgment, immediate reload, deletion tombstones, and failed-write rollback. |
-| Local server | Public assets and correct product/version metadata, loopback-only hosts, traversal/malformed paths, proxy URL restrictions and verified TLS fallback. |
+| Area | What is checked | Where |
+| --- | --- | --- |
+| Statement library | 221 tasks and 663 statements; every language present; constraint, input and output sections; official samples preserved verbatim; local media only; canonical IDs; metadata counts; generated JS and JSON agree. | `tests/library_test.py` |
+| Original sets | Every sample matches the expected output written in the source; hidden tests are regenerated from fixed seeds; an independent brute-force program agrees with the reference solution on every test; the committed pack matches its sources. | `scripts/build_packs.py --check`, `tests/library.test.cjs` |
+| Problem packs | Validation of every field with all errors reported; unique labels across AtCoder tasks, the bundled pack and installed packs; the storage budget; damaged storage; export and re-import without loss; the Markdown subset and its escaping; the exact, token, floating-point and task-specific checkers. | `tests/library.test.cjs` |
+| Course content | Chapter order and prerequisites; linked problems exist; complete Chinese, Japanese and English editions; every displayed example produces its displayed output; every published case passes; independent oracles check the reference solutions on hundreds of further inputs. | `tests/academy-content.test.cjs` |
+| Course interaction | Running checks, cancellation, stale results, editing during a run, restoring starter code, timeout recovery, save failure, and import of course progress. | `tests/academy-runtime.test.cjs` |
+| Workspace | Runner sessions, time limits and crash recovery; per-sample data files; batch snapshots; cancellation by reset or import; navigation during a run; mock scoring, penalties, deadlines and history; backup validation, quota failure and legacy imports; settings persistence; rendering in all three languages. | `tests/frontend.test.cjs` |
+| AtCoder sync | Concurrent requests, account changes, corrected verdicts, delayed results, and invalidation after import or reset; mock reconciliation. | `tests/audit.test.cjs` |
+| Settings | Normalization and limits, sanitized profile text, every section in every language, the guide articles, the library and backup controls. | `tests/settings.test.cjs` |
+| Editor | Undo history kept across remounts and cleared by import or reset. | `tests/editor-cache.test.cjs` |
+| Native storage bridge | Initial migration, synchronous acknowledgement, reload, deletion, and rollback of a failed write. | `tests/runtime-storage.test.cjs` |
+| Local server | Public files only, loopback hosts only, path traversal, proxy allowlist, verified TLS and its fallback, version metadata. | `tests/runtime_server_test.py` |
 
-The individual test files in `tests/` are the authoritative list. GitHub Actions runs the source checks on every push and builds the macOS package; consult the run associated with the commit being distributed.
+## Runtime check
 
-## Native application
+`tests/runtime-browser.js` exercises the real Pyodide runtime inside the running application. It checks standard input and output, Unicode, binary streams, the standard library, `__main__` and `argv`, data files in a clean working directory, exceptions, bounded output, termination of an infinite loop, isolation between runs, recovery after a crashed interpreter, the course exercises and every sample and hidden test of the original sets, the editor, and MathJax.
 
-Build on macOS with Xcode Command Line Tools, then run inside a logged-in desktop session:
+To run it in a browser, start `python3 start.py`, open the app, and load the script in the developer console, or drive the page with a browser automation tool; it reports through `globalThis.__runtimeTestResults`. The macOS app runs the same file with `--runtime-test`.
+
+## macOS app
+
+Build on macOS with the Xcode Command Line Tools, then run the native suite in a logged-in desktop session:
 
 ```sh
 python3 scripts/build_app.py
@@ -44,18 +46,12 @@ CI_NATIVE_APP="$PWD/dist/Plume.app" CI_NATIVE_NETWORK=1 python3 -m unittest disc
 python3 scripts/package_release.py
 ```
 
-Native tests cover local Python and formula rendering, CodeMirror, bundled learning/settings assets, real metadata and submissions API proxy access, immediate save/restart persistence, repeated launch, and the actual Settings/Help menu actions. They verify that the Settings shortcut is Command-comma, Help opens the local guide in the same WebKit view, and the upgrade bundle identifier remains `org.cipractice.desktop`.
+The native tests run the runtime check in WebKit, and cover saving and restarting with the native snapshot, repeated launches, the Settings and Help menu actions, and the AtCoder metadata proxy. They use a temporary storage directory and non-persistent WebKit data, so they never read or change personal records. Omit `CI_NATIVE_NETWORK=1` to skip the online case.
 
-The runtime cases include Unicode, binary streams, standard-library imports, script/module behavior, exceptions, closed streams, bounded output, infinite-loop termination, and isolation between executions. The background test configuration disables inactive-view suspension on macOS 14 and later, following [Apple’s WebKit scheduling documentation](https://developer.apple.com/documentation/webkit/wkpreferences/inactiveschedulingpolicy-swift.property); earlier systems show the test view. This is limited to integration-test mode. Because each of the 108 course cases initializes a fresh WASM interpreter, the native suite permits 900 seconds overall while failing after 75 seconds without progress; individual Python execution and initialization limits remain in force. Each completed case reports progress. Storage tests use a temporary native directory and nonpersistent WebKit storage; they never read or modify personal practice records. Omit `CI_NATIVE_NETWORK=1` to skip the external-network case.
+`package_release.py` verifies archive checksums, the statement library, the course, the bundled problem sets, current app assets and icon, and the code signature, and writes SHA-256 sums.
 
-The release packager verifies archive CRCs, all three statement languages, current application assets and icon files, the app signature, and SHA-256 checksums. The icon build reads `assets/plume.svg` and produces the standard 16–1024 pixel macOS representations.
+## Visual review
 
-## Visual and interaction review
+Before distributing an interface change, review Today, the library, a problem from each source, a lesson, Study Path, a mock exam in progress and its result, Review, and every Settings section, in Chinese, Japanese and English, light and dark, at desktop and phone widths. Check keyboard shortcuts, command search, back and forward navigation, and switching languages while a draft is open.
 
-Before distributing a UI change, review the workspace, problem editor, lesson page and each settings section in Chinese, English and Japanese. Check language switching without draft loss, keyboard navigation, command search, back/forward navigation, light/dark/system appearance, preference previews, guide links, and the About signature interaction. Verify backup export and import in the relevant host, as browser downloads and native dialogs use different paths.
-
-Native save/open dialogs require normal desktop interaction to verify end to end; serialization and import-validation tests do not establish that the operating-system dialogs were clicked. An ad-hoc signature is not Apple notarization. Local test output is not an official accepted submission, and structural language checks alone cannot prove every translation choice correct.
-
-## External service observation
-
-On 2026-10-24, the public AtCoder Problems submissions API initially timed out, then recovered. A final independent probe returned HTTP 200 with a JSON array, and the native app's metadata and submissions proxy check passed. This verifies access at that time, not ongoing service availability. Account synchronization, delayed results, cancellation, and scoring behavior are also covered by deterministic tests. Local statements, lessons, Python execution, and saved progress do not require these services.
+Native save and open dialogs need a real desktop interaction to verify end to end. The app is signed ad hoc for local use; that is not Apple notarization.

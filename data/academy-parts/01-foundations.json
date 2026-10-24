@@ -41,15 +41,15 @@
           },
           {
             "title": "把题目要求变成可检查的程序",
-            "body": "开始练习前，先圈出输入、处理、输出三个部分。本题明确没有输入，因此不要调用 input；处理包含一次乘法；输出要求两行。再把固定不变的文字与需要计算的值分开：Hello, Aquila! 是原样输出的问候，8 × 7 是需要转换成 Python 算式的计算。示例中的 Aquila 只是这句问候的一部分，不是让你填写用户名。\n\n然后列一个很小的核对表：第一行是否包含正确的逗号、一个空格和感叹号；第二行是否只含 56；是否一共两行。因为本题只有固定输出，一个测试就足够覆盖要求。这里不需要为了增加测试数量而给无输入的程序塞进随机数据。后面的输入题才需要用不同数据验证分支与边界。\n\n遇到新题时保留这个顺序：读格式，写处理步骤，预测一个结果，写代码，再比较完整输出。自动检查只能显示所测情况是否匹配，阅读题目和解释代码的能力不能由绿色标记替代。完成本课后，你应能够不用运行就说明每一条 print 的作用，以及为什么它产生了对应的一行。"
+            "body": "开始练习前，先圈出输入、处理、输出三个部分。本题明确没有输入，因此不要调用 input；处理包含一次乘法；输出要求两行。再把固定不变的文字与需要计算的值分开：Hello, World! 是原样输出的问候，8 × 7 是需要转换成 Python 算式的计算。\n\n然后列一个很小的核对表：第一行是否包含正确的逗号、一个空格和感叹号；第二行是否只含 56；是否一共两行。因为本题只有固定输出，一个测试就足够覆盖要求。这里不需要为了增加测试数量而给无输入的程序塞进随机数据。后面的输入题才需要用不同数据验证分支与边界。\n\n遇到新题时保留这个顺序：读格式，写处理步骤，预测一个结果，写代码，再比较完整输出。自动检查只能显示所测情况是否匹配，阅读题目和解释代码的能力不能由绿色标记替代。完成本课后，你应能够不用运行就说明每一条 print 的作用，以及为什么它产生了对应的一行。"
           }
         ],
         "exerciseTitle": "两行输出",
-        "task": "不读取任何输入。第一行输出 Hello, Aquila!，第二行输出算式 8 × 7 的值。使用 Python 计算第二行。",
+        "task": "不读取任何输入。第一行输出 Hello, World!，第二行输出算式 8 × 7 的值。使用 Python 计算第二行。",
         "input": "无输入。",
-        "output": "输出恰好两行：第一行为 Hello, Aquila!，第二行为整数结果。",
+        "output": "输出恰好两行：第一行为 Hello, World!，第二行为整数结果。",
         "hint": "分别写两条 print()。Python 的乘法运算符是 *。",
-        "explanation": "这道练习不读取输入，因此代码只需要两条输出语句。第一条使用带引号的字符串，准确输出 Hello, Aquila!；这里 Aquila 只是示例问候中的名字，与账户、显示名称或个人资料无关。第二条把 8 * 7 放在引号外，让 Python 计算得到整数 56。两次 print 默认各加一个换行，恰好形成题目要求的两行。不要添加提示语、空行，也不要把乘号写成数学排版用的 ×。运行后先检查第一行的逗号、空格和感叹号，再核对第二行是否为 56。本题没有输入边界，唯一需要检查的是完整输出格式。",
+        "explanation": "这道练习不读取输入，因此代码只需要两条输出语句。第一条使用带引号的字符串，准确输出 Hello, World!。第二条把 8 * 7 放在引号外，让 Python 计算得到整数 56。两次 print 默认各加一个换行，恰好形成题目要求的两行。不要添加提示语、空行，也不要把乘号写成数学排版用的 ×。运行后先检查第一行的逗号、空格和感叹号，再核对第二行是否为 56。本题没有输入边界，唯一需要检查的是完整输出格式。",
         "objectives": [
           "区分程序、输入和输出，知道运行按钮执行的是哪段代码。",
           "正确书写字符串、整数和算式，预测顺序执行的结果。",
@@ -98,15 +98,15 @@
           },
           {
             "title": "Turn a specification into checks",
-            "body": "Before the exercise, separate input, processing, and output. There is explicitly no input, so no input() call is needed. Processing consists of one multiplication, and output consists of two lines. Distinguish fixed text from a value to calculate: Hello, Aquila! is the literal greeting, while 8 × 7 must become a Python expression. Aquila is part of this example, not a request for your username.\n\nMake a short checklist: the first line has the correct comma, one space, and an exclamation mark; the second contains only 56; there are exactly two lines. One fixed-output test is appropriate here. Later input-based exercises will need varied boundary cases. Keep this workflow for future problems: read the format, state the steps, predict an example, implement it, and compare the entire output. You should be able to explain each statement without relying on a successful check alone."
+            "body": "Before the exercise, separate input, processing, and output. There is explicitly no input, so no input() call is needed. Processing consists of one multiplication, and output consists of two lines. Distinguish fixed text from a value to calculate: Hello, World! is the literal greeting, while 8 × 7 must become a Python expression.\n\nMake a short checklist: the first line has the correct comma, one space, and an exclamation mark; the second contains only 56; there are exactly two lines. One fixed-output test is appropriate here. Later input-based exercises will need varied boundary cases. Keep this workflow for future problems: read the format, state the steps, predict an example, implement it, and compare the entire output. You should be able to explain each statement without relying on a successful check alone."
           }
         ],
         "exerciseTitle": "Two lines of output",
-        "task": "Read no input. Print Hello, Aquila! on the first line and the value of 8 × 7 on the second. Let Python calculate the second line.",
+        "task": "Read no input. Print Hello, World! on the first line and the value of 8 × 7 on the second. Let Python calculate the second line.",
         "input": "There is no input.",
-        "output": "Print exactly two lines: Hello, Aquila! followed by the integer result.",
+        "output": "Print exactly two lines: Hello, World! followed by the integer result.",
         "hint": "Use two print() calls. Multiplication in Python uses *.",
-        "explanation": "This exercise reads no input, so it needs only two output statements. The first passes the exact string Hello, Aquila! to print. Aquila is simply the name in this example greeting, not an account name or a value obtained from your profile. The second passes the unquoted expression 8 * 7, which Python evaluates to the integer 56. Each print adds one newline, producing exactly two lines. Do not add a prompt, an empty line, or the mathematical multiplication glyph × in your Python expression. Check the greeting’s comma, space, and exclamation mark before checking the second line. There are no input boundary cases; the complete output format is the condition to verify.",
+        "explanation": "This exercise reads no input, so it needs only two output statements. The first passes the exact string Hello, World! to print. The second passes the unquoted expression 8 * 7, which Python evaluates to the integer 56. Each print adds one newline, producing exactly two lines. Do not add a prompt, an empty line, or the mathematical multiplication glyph × in your Python expression. Check the greeting’s comma, space, and exclamation mark before checking the second line. There are no input boundary cases; the complete output format is the condition to verify.",
         "objectives": [
           "Distinguish program, input, and output, and identify what Run executes.",
           "Write strings, integers, and expressions, and predict sequential execution.",
@@ -155,15 +155,15 @@
           },
           {
             "title": "問題文を確認可能な手順にする",
-            "body": "演習の前に、入力・処理・出力の 3 部分を確認します。この問題には入力がないので input() は不要です。処理は乗算 1 回、出力は 2 行です。Hello, Aquila! はそのまま出す文字列であり、8 × 7 は Python の式に置き換える計算です。Aquila は挨拶の一部に使う例の名前で、あなたのユーザー名を記入する指示ではありません。\n\n確認項目を小さくまとめます。1 行目のカンマ・1 個の空白・感嘆符が正しいか、2 行目は 56 だけか、全部で 2 行かを見ます。固定出力しかない問題なので、テストは 1 個で要求を確認できます。入力を読まないプログラムへ適当な値を増やしても、新しい条件の確認にはなりません。後の課では入力を変えて分岐や境界を調べます。\n\n新しい問題でも「形式を読む、手順を書く、結果を予想する、実装する、全出力を比べる」の順番を保ちます。自動テストの通過だけでは、コードの意味を理解した証明にはなりません。各 print が何を受け取り、どの行を出すのかを、実行せず説明できることを本課の到達点にします。"
+            "body": "演習の前に、入力・処理・出力の 3 部分を確認します。この問題には入力がないので input() は不要です。処理は乗算 1 回、出力は 2 行です。Hello, World! はそのまま出す文字列であり、8 × 7 は Python の式に置き換える計算です。\n\n確認項目を小さくまとめます。1 行目のカンマ・1 個の空白・感嘆符が正しいか、2 行目は 56 だけか、全部で 2 行かを見ます。固定出力しかない問題なので、テストは 1 個で要求を確認できます。入力を読まないプログラムへ適当な値を増やしても、新しい条件の確認にはなりません。後の課では入力を変えて分岐や境界を調べます。\n\n新しい問題でも「形式を読む、手順を書く、結果を予想する、実装する、全出力を比べる」の順番を保ちます。自動テストの通過だけでは、コードの意味を理解した証明にはなりません。各 print が何を受け取り、どの行を出すのかを、実行せず説明できることを本課の到達点にします。"
           }
         ],
         "exerciseTitle": "2 行の出力",
-        "task": "入力はありません。1 行目に Hello, Aquila!、2 行目に 8 × 7 の値を出力してください。2 行目の値は Python で計算してください。",
+        "task": "入力はありません。1 行目に Hello, World!、2 行目に 8 × 7 の値を出力してください。2 行目の値は Python で計算してください。",
         "input": "入力はありません。",
-        "output": "Hello, Aquila! と計算結果の整数を、それぞれ 1 行ずつ、合計 2 行で出力してください。",
+        "output": "Hello, World! と計算結果の整数を、それぞれ 1 行ずつ、合計 2 行で出力してください。",
         "hint": "print() を 2 回使います。Python の乗算演算子は * です。",
-        "explanation": "入力がないため、必要なのは出力文 2 個です。1 個目は引用符で囲んだ Hello, Aquila! をそのまま表示します。Aquila は例の挨拶に使う名前であり、アカウント名やプロフィールから取得する値ではありません。2 個目は 8 * 7 を引用符の外に書き、Python に整数 56 を計算させます。print はそれぞれ末尾に改行を付けるので、指定どおり 2 行になります。案内文や空行を追加せず、Python の式で乗算記号 × を使わないでください。最初の行のカンマ・空白・感嘆符と、次の行の 56 を順に確認します。入力の境界条件はなく、出力全体の形式が確認対象です。",
+        "explanation": "入力がないため、必要なのは出力文 2 個です。1 個目は引用符で囲んだ Hello, World! をそのまま表示します。2 個目は 8 * 7 を引用符の外に書き、Python に整数 56 を計算させます。print はそれぞれ末尾に改行を付けるので、指定どおり 2 行になります。案内文や空行を追加せず、Python の式で乗算記号 × を使わないでください。最初の行のカンマ・空白・感嘆符と、次の行の 56 を順に確認します。入力の境界条件はなく、出力全体の形式が確認対象です。",
         "objectives": [
           "プログラム・入力・出力を区別し、実行するコードを確認する。",
           "文字列・整数・式を正しく書き、実行順に結果を予測する。",
@@ -182,11 +182,11 @@
       }
     },
     "starter": "# TODO\n",
-    "solution": "print(\"Hello, Aquila!\")\nprint(8 * 7)\n",
+    "solution": "print(\"Hello, World!\")\nprint(8 * 7)\n",
     "tests": [
       {
         "input": "",
-        "expected": "Hello, Aquila!\n56\n"
+        "expected": "Hello, World!\n56\n"
       }
     ]
   },

@@ -17,8 +17,8 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 import webbrowser
 
 ROOT = Path(__file__).resolve().parent
-BUILD_ID = "ci-practice-offline-20261024"
-PUBLIC_FILES = {"index.html", "app.js", "settings.js", "academy.js", "styles.css", "pyworker.js", "CIPractice.icns", "manifest.webmanifest"}
+BUILD_ID = "plume-1.2.0-20261024"
+PUBLIC_FILES = {"index.html", "app.js", "library.js", "settings.js", "academy.js", "styles.css", "pyworker.js", "CIPractice.icns"}
 PUBLIC_DIRS = {"data", "vendor", "assets"}
 
 
@@ -117,7 +117,7 @@ class Handler(SimpleHTTPRequestHandler):
             return
         path = urlparse(self.path).path
         if path == "/__health":
-            self.json_response({"ok": True, "app": "Plume", "version": "1.1.0", "build": BUILD_ID})
+            self.json_response({"ok": True, "app": "Plume", "version": "1.2.0", "build": BUILD_ID})
             return
         if path == "/__proxy":
             url = parse_qs(urlparse(self.path).query).get("url", [""])[0]

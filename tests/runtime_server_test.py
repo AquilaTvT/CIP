@@ -36,8 +36,8 @@ class RuntimeServerTests(unittest.TestCase):
     def test_health_and_static(self):
         health = json.loads(self.request('/__health')[2])
         self.assertEqual(health['app'], 'Plume')
-        self.assertEqual(health['version'], '1.1.0')
-        for path in ['/settings.js', '/academy.js', '/data/academy.js', '/assets/plume.svg']:
+        self.assertEqual(health['version'], '1.2.0')
+        for path in ['/settings.js', '/library.js', '/academy.js', '/data/academy.js', '/data/packs/ci-original.js', '/assets/plume.svg']:
             self.assertEqual(self.request(path)[0], 200, path)
         self.assertEqual(self.request('/')[0], 200)
         self.assertEqual(self.request('/vendor/pyodide/pyodide.asm.wasm')[1]['Content-type'], 'application/wasm')

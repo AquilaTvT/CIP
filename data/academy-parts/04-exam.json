@@ -1,0 +1,1037 @@
+[
+  {
+    "id": "files-and-parsing",
+    "content": {
+      "zh": {
+        "title": "读取数据文件",
+        "summary": "打开考试提供的数据文件，把每一行变成记录，再按要求的格式输出结果。",
+        "objectives": [
+          "用 with 和明确的编码打开文件，并逐行读取",
+          "把行拆成有类型的字段，跳过空行和注释，用字典分组汇总",
+          "一次性组织输出，并检查末行没有换行等边界情况"
+        ],
+        "sections": [
+          {
+            "title": "数据从哪里来",
+            "body": "上机考试中，输入常常不是逐行键入的，而是一个文件：题目给出 data.txt 这样的文件名，程序从当前目录打开它。读文件和读标准输入是同一种能力，只是来源不同。open('data.txt', encoding='utf-8') 返回一个文件对象；with 语句在代码块结束时自动关闭文件，即使中途出错也一样。务必写明编码：默认编码取决于操作系统，含日文的文件可能在一台机器上正常、在另一台上解码失败。\n\ndata.txt 这样的相对路径是相对于工作目录，而不是脚本所在的文件夹，所以考试会说明在哪里运行程序。在本课程和题目工作区中，数据文件会在代码运行之前放进工作目录，open('data.txt') 的行为与在终端里完全相同。",
+            "code": "with open('data.txt', encoding='utf-8') as f:\n    text = f.read()\nprint(len(text))\nprint(repr(text[:12]))\n",
+            "exampleFiles": {
+              "data.txt": "alice 82\nbob 75\n"
+            },
+            "output": "16\n'alice 82\\nbob'\n"
+          },
+          {
+            "title": "每一行都带着换行符",
+            "body": "遍历文件对象时每次得到一行，除最后一行可能例外，每行末尾都带有 '\\n'。直接 print 这一行会多出一个空行，拿它和单词比较也会失败。line.rstrip('\\n') 只去掉换行；line.strip() 还会去掉两端的空格以及 Windows 的 '\\r'；line.split() 去掉所有空白，返回各个字段。要有意识地选择：行内空格有意义时（例如句子）只去掉末尾；一行由若干字段组成时，split() 最稳妥。\n\n逐行遍历对大文件也省内存，而 f.read() 一次读入全部内容，对考试中的数据规模没有问题。一个常见错误是在循环里调用 f.readline()，却不检查表示文件结束的空字符串；for 循环会替你处理这件事。",
+            "code": "with open('data.txt', encoding='utf-8') as f:\n    for line in f:\n        print(repr(line), line.split())\n",
+            "exampleFiles": {
+              "data.txt": "alice 82\n  bob   75 \n"
+            },
+            "output": "'alice 82\\n' ['alice', '82']\n'  bob   75 \\n' ['bob', '75']\n"
+          },
+          {
+            "title": "从字段到有类型的记录",
+            "body": "split() 返回的是字符串，数字需要转换：name, score = line.split() 之后再 int(score)。解包到具名变量同时检查了字段个数：多一个字段的行会立即引发 ValueError，而不是悄悄错位。字段个数不定时，用切片 words[1:]，或者带星号的写法 name, *values = line.split()。逗号分隔的数据用 line.split(',') 会保留字段两侧的空格，需要逐个 strip，或者使用 csv 模块。\n\n读入时就完成转换，把记录存成元组，例如 (name, subject, score)；之后的代码只处理干净的值，不必再次解析文本。时间和日期的表示也要尽早决定：把 09:05:30 换算成 32730 秒，比较和求差都变成简单的整数运算。",
+            "code": "def seconds(clock):\n    h, m, s = map(int, clock.split(':'))\n    return h * 3600 + m * 60 + s\n\nrecords = []\nwith open('log.txt', encoding='utf-8') as f:\n    for line in f:\n        clock, user, status = line.split()\n        records.append((seconds(clock), user, int(status)))\nprint(records)\n",
+            "exampleFiles": {
+              "log.txt": "09:00:00 alice 200\n09:05:30 bob 500\n"
+            },
+            "output": "[(32400, 'alice', 200), (32730, 'bob', 500)]\n"
+          },
+          {
+            "title": "跳过不是数据的行",
+            "body": "真实的文件里有空行、注释和表头。先判断出它们再 continue：if not line.strip() or line.lstrip().startswith('#'): continue。表示个数的表头（例如第一行是 N）可以在循环之前用 next(f) 或 f.readline() 读出，调试时再核对记录数是否与它一致。\n\n另一种写法是用 open(...).read().split() 一次读出全部记号。它完全忽略行结构，适合整个文件就是一串数字的情形：第一个记号是个数，其余是数值。只在行的边界没有意义时才这样做，因为字段个数不固定时，它分不清一条记录在哪里结束。无论哪种写法，都把解析集中在一处——一个函数或者程序的开头——让其余代码只面对记录，而不是原始文本。",
+            "code": "tokens = open('grid.txt', encoding='utf-8').read().split()\nh, w = int(tokens[0]), int(tokens[1])\nrows = tokens[2:2 + h]\nprint(h, w, rows)\n",
+            "exampleFiles": {
+              "grid.txt": "3 4\n#..#\n....\n##.#\n"
+            },
+            "output": "3 4 ['#..#', '....', '##.#']\n"
+          },
+          {
+            "title": "用字典分组",
+            "body": "关于数据文件的问题，问的通常是每个键的总和、每个类别的个数，或者每组包含哪些元素。从键到累计值的字典能直接表达这些：totals[name] = totals.get(name, 0) + score 维护累加和；groups.setdefault(key, []).append(item) 建立列表；collections.Counter 统计出现次数；collections.defaultdict(int) 或 defaultdict(list) 则省去了 get 和 setdefault。\n\n分组之后再排序，得到最终顺序：sorted(totals.items(), key=lambda kv: (-kv[1], kv[0])) 让总和大的在前，相同时按名字排列。次序规则必须与题目完全一致；题目说按名字的字典序时，对 ASCII 名字直接比较字符串就是对的。字典会保持插入顺序，但题目规定了别的顺序时，依赖它来输出是靠不住的。",
+            "code": "from collections import defaultdict\n\ntotals = defaultdict(int)\nwith open('scores.txt', encoding='utf-8') as f:\n    for line in f:\n        name, subject, score = line.split()\n        totals[name] += int(score)\nfor name, total in sorted(totals.items(), key=lambda kv: (-kv[1], kv[0])):\n    print(name, total)\n",
+            "exampleFiles": {
+              "scores.txt": "bob math 70\nalice math 82\nbob english 90\nalice english 78\ncarol math 95\n"
+            },
+            "output": "alice 160\nbob 160\ncarol 95\n"
+          },
+          {
+            "title": "一次性写出输出",
+            "body": "输出格式是逐个字符核对的，所以要严格按规定构造每一行：分隔符、小数位数和大小写都不能错。f 字符串能满足大部分需要：f'{name} {total}'，或者用 f'{ratio:.3f}' 保留三位小数。行数很多时，把字符串收集到列表里，最后用 print('\\n'.join(lines)) 一次输出；这比成千上万次 print 更快，也方便在输出前检查结果。\n\nprint 本身会加换行，所以 join 的结果末尾不要再加一个。没有内容可输出时（例如某一组为空），要确认题目要求的是空行、占位符，还是什么都不输出。如果考试要求写入文件而不是打印，就用 'w' 模式打开，写入同样拼好的文本，并在末尾加一个换行。",
+            "code": "rows = [('alice', 160), ('bob', 160), ('carol', 95)]\nlines = [f'{name:<6}{total:>4}' for name, total in rows]\nprint('\\n'.join(lines))\naverage = sum(total for _, total in rows) / len(rows)\nprint(f'average {average:.2f}')\n",
+            "output": "alice  160\nbob    160\ncarol   95\naverage 138.33\n"
+          },
+          {
+            "title": "用小文件测试",
+            "body": "不要只拿考试给的大文件运行，而要自己做几个小文件，每个只针对一条规则：只有一条记录的文件检查最基本的情况；含空行和注释的文件检查跳过逻辑；最后一行没有换行的文件检查末条记录有没有丢；键重复的文件检查分组；同分的文件检查排序。运行之前先手算出答案，再与程序的输出比较。\n\n对大文件，打印中间的计数，例如读到的记录数、不同键的个数，再用文本编辑器或终端里的 wc -l 粗略核对。答案错了时，找出第一个不一致的阶段——读入、解析、分组还是输出——而不是同时改动好几处。"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "为什么在 for line in f 中直接 print(line) 通常是错的？",
+            "answer": "每行末尾已经有换行，print 又加了一个，于是出现空行。应先 strip 或 split。"
+          },
+          {
+            "question": "什么时候不适合用 open(...).read().split()？",
+            "answer": "行的边界有意义时，例如每条记录的字段数不固定；不同行的记号会混在一起，无法区分。"
+          }
+        ],
+        "exerciseTitle": "成绩汇总",
+        "task": "文件 scores.txt 每行一条记录，格式为“姓名 科目 分数”，分数是 0 到 100 的整数。空行和以 # 开头的行是注释。对每个学生，求其分数总和与记录条数，并按总分从高到低输出所有学生；总分相同时按姓名的字典序。",
+        "input": "没有标准输入。从当前目录读取 scores.txt。至少有一条记录；姓名和科目都由小写英文字母组成。",
+        "output": "每个学生输出一行：姓名、总分、记录条数，以空格分隔。",
+        "hint": "先跳过空行和注释行，再把每条记录拆成三个字段。用两个字典累计总分和条数，排序时用键 (-总分, 姓名)。",
+        "explanation": "逐行读取文件，跳过 strip() 之后为空的行，以及第一个非空白字符是 # 的行。其余每行恰好拆成三个字段，分数用 int 转换。以姓名为键，用字典累计总分和条数。按键 (-总分, 姓名) 排序，总分大的在前，总分相同时按字母顺序。R 条记录的时间为 O(R log R)。最后一行没有换行、或者使用 Windows 换行的文件也能正确处理，因为 split() 不依赖换行符。"
+      },
+      "en": {
+        "title": "Reading data files",
+        "summary": "Open the files an exam provides, turn each line into a record, and print the results in exactly the required format.",
+        "objectives": [
+          "Open a file by name with with and an explicit encoding, and read it line by line",
+          "Split lines into typed fields, skip blank and comment lines, and group records in dictionaries",
+          "Assemble the output in one pass and check edge cases such as a missing final newline"
+        ],
+        "sections": [
+          {
+            "title": "Where the data comes from",
+            "body": "In the programming exam, input often arrives as a file rather than as typed lines: the statement names a file such as data.txt, and your program opens it from the current directory. Reading a file and reading standard input are the same skill with a different source. open('data.txt', encoding='utf-8') returns a file object, and the with statement closes it when the block ends, even if an error occurs. Always state the encoding: the default depends on the operating system, and a file containing Japanese text may decode on one machine and fail on another.\n\nA relative name such as data.txt is resolved against the working directory, not the folder that contains your script, which is why the exam says where to run the program. In this course and in the problem workspace, data files are placed in the working directory before your code runs, so open('data.txt') behaves exactly as it does in a terminal.",
+            "code": "with open('data.txt', encoding='utf-8') as f:\n    text = f.read()\nprint(len(text))\nprint(repr(text[:12]))\n",
+            "exampleFiles": {
+              "data.txt": "alice 82\nbob 75\n"
+            },
+            "output": "16\n'alice 82\\nbob'\n"
+          },
+          {
+            "title": "Lines keep their newline",
+            "body": "Iterating over a file yields one line at a time, and every line except possibly the last still ends with '\\n'. Printing such a line produces an extra blank line, and comparing it with a word fails. line.rstrip('\\n') removes only the newline; line.strip() also removes surrounding spaces and a Windows '\\r'; line.split() discards all whitespace and returns the fields. Choose deliberately: when spaces inside the line matter, as in a sentence, strip only the end; when a line is a list of fields, split() is the safest choice.\n\nIterating line by line also keeps memory small for large files, while f.read() loads everything at once, which is fine at exam sizes. A common bug is calling f.readline() in a loop without checking for the empty string that marks the end of the file; a for loop handles that for you.",
+            "code": "with open('data.txt', encoding='utf-8') as f:\n    for line in f:\n        print(repr(line), line.split())\n",
+            "exampleFiles": {
+              "data.txt": "alice 82\n  bob   75 \n"
+            },
+            "output": "'alice 82\\n' ['alice', '82']\n'  bob   75 \\n' ['bob', '75']\n"
+          },
+          {
+            "title": "From fields to typed records",
+            "body": "split() returns strings, so numbers must be converted: name, score = line.split() followed by int(score). Unpacking into named variables also checks the field count: a line with an extra field raises ValueError at once instead of silently shifting the columns. When the number of fields varies, use a slice such as words[1:] or the starred form name, *values = line.split(). For comma-separated data, line.split(',') keeps the spaces around fields, so strip each part or use the csv module.\n\nConvert once, while reading, and store records as tuples such as (name, subject, score); the rest of the program then works with clean values and never parses text twice. Decide early how to represent times and dates: converting 09:05:30 to 32730 seconds turns comparisons and differences into plain integer arithmetic.",
+            "code": "def seconds(clock):\n    h, m, s = map(int, clock.split(':'))\n    return h * 3600 + m * 60 + s\n\nrecords = []\nwith open('log.txt', encoding='utf-8') as f:\n    for line in f:\n        clock, user, status = line.split()\n        records.append((seconds(clock), user, int(status)))\nprint(records)\n",
+            "exampleFiles": {
+              "log.txt": "09:00:00 alice 200\n09:05:30 bob 500\n"
+            },
+            "output": "[(32400, 'alice', 200), (32730, 'bob', 500)]\n"
+          },
+          {
+            "title": "Skipping what is not data",
+            "body": "Real files contain blank lines, comments and headers. Test for them first and continue: if not line.strip() or line.lstrip().startswith('#'): continue. A header that gives a count, such as a first line N, can be read with next(f) or f.readline() before the loop; while debugging, check that the number of records agrees with it.\n\nAnother style reads every token at once with open(...).read().split(). It ignores line structure entirely and suits a file that is just a stream of numbers: the first token is the count and the rest are values. Use it only when line boundaries carry no meaning, because with a varying number of fields it cannot tell where one record ends. Whichever style you choose, keep the parsing in one place, a function or the top of the program, so that the rest of the code sees records and never raw text.",
+            "code": "tokens = open('grid.txt', encoding='utf-8').read().split()\nh, w = int(tokens[0]), int(tokens[1])\nrows = tokens[2:2 + h]\nprint(h, w, rows)\n",
+            "exampleFiles": {
+              "grid.txt": "3 4\n#..#\n....\n##.#\n"
+            },
+            "output": "3 4 ['#..#', '....', '##.#']\n"
+          },
+          {
+            "title": "Grouping with dictionaries",
+            "body": "Questions about data files usually ask for a total per key, a count per category or the members of each group. A dictionary from key to accumulated value expresses this directly. totals[name] = totals.get(name, 0) + score keeps a running sum; groups.setdefault(key, []).append(item) builds lists; collections.Counter counts occurrences; and collections.defaultdict(int) or defaultdict(list) removes the need for get and setdefault.\n\nAfter grouping, sorting produces the final order: sorted(totals.items(), key=lambda kv: (-kv[1], kv[0])) puts the largest totals first and breaks ties by name. The tie-break must match the statement exactly; when it says lexicographic order of names, plain string comparison is correct for ASCII names. Dictionaries keep insertion order, but relying on it for output is fragile when the statement asks for a different order.",
+            "code": "from collections import defaultdict\n\ntotals = defaultdict(int)\nwith open('scores.txt', encoding='utf-8') as f:\n    for line in f:\n        name, subject, score = line.split()\n        totals[name] += int(score)\nfor name, total in sorted(totals.items(), key=lambda kv: (-kv[1], kv[0])):\n    print(name, total)\n",
+            "exampleFiles": {
+              "scores.txt": "bob math 70\nalice math 82\nbob english 90\nalice english 78\ncarol math 95\n"
+            },
+            "output": "alice 160\nbob 160\ncarol 95\n"
+          },
+          {
+            "title": "Writing output in one pass",
+            "body": "Output is checked character by character, so build each line exactly as specified: separators, decimal places and capitalisation all count. f-strings cover most needs: f'{name} {total}', or f'{ratio:.3f}' for three decimals. For many lines, collect strings in a list and print '\\n'.join(lines) once at the end; this is faster than thousands of separate print calls and lets you inspect the result before printing.\n\nprint already adds a newline, so the joined text must not end with another. When there is nothing to print, such as an empty group, check whether the statement wants an empty line, a placeholder or no line at all. If the exam asks you to write a file instead, open it with 'w' and write the same joined text followed by one final newline.",
+            "code": "rows = [('alice', 160), ('bob', 160), ('carol', 95)]\nlines = [f'{name:<6}{total:>4}' for name, total in rows]\nprint('\\n'.join(lines))\naverage = sum(total for _, total in rows) / len(rows)\nprint(f'average {average:.2f}')\n",
+            "output": "alice  160\nbob    160\ncarol   95\naverage 138.33\n"
+          },
+          {
+            "title": "Testing with small files",
+            "body": "Do not only run the large file from the exam; make tiny files of your own that each target one rule. A file with a single record checks the base case; one with a blank line and a comment checks skipping; one whose last line has no newline checks that the final record is not lost; duplicate keys check grouping; ties check the order. Work out the expected answers by hand before you run the program and compare.\n\nFor large files, print intermediate counts such as the number of records read and the number of distinct keys, and compare them with a quick look in a text editor or with wc -l in a terminal. When an answer is wrong, find the first stage that disagrees, reading, parsing, grouping or printing, instead of changing several things at once."
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "Why is print(line) inside for line in f usually wrong?",
+            "answer": "Each line already ends with a newline and print adds another, producing blank lines. Strip or split the line first."
+          },
+          {
+            "question": "When is open(...).read().split() a poor choice?",
+            "answer": "When line boundaries matter, for example when records have different numbers of fields; tokens from different lines become indistinguishable."
+          }
+        ],
+        "exerciseTitle": "Score report",
+        "task": "The file scores.txt holds one record per line in the form “name subject score”, where the score is an integer from 0 to 100. Blank lines and lines starting with # are comments. For every student, compute the total of their scores and the number of their records, and print all students in decreasing order of total, breaking ties by name in lexicographic order.",
+        "input": "There is no standard input. Read scores.txt from the current directory. There is at least one record, and names and subjects consist of lowercase letters.",
+        "output": "For each student, print the name, the total and the number of records on one line, separated by spaces.",
+        "hint": "Skip blank and comment lines first, then split each record into three fields. Keep the totals and counts in two dictionaries and sort with the key (-total, name).",
+        "explanation": "Read the file line by line, skipping lines that are empty after strip() and lines whose first non-space character is #. Every remaining line splits into exactly three fields; convert the score with int. Accumulate totals and counts in dictionaries keyed by name. Sorting with the key (-total, name) puts larger totals first and orders equal totals alphabetically. The work is O(R log R) for R records. Files whose last line has no newline, or that use Windows line endings, work too, because split() does not depend on the newline characters."
+      },
+      "ja": {
+        "title": "データファイルを読む",
+        "summary": "試験で与えられるファイルを開き、各行をレコードに変換し、指定どおりの形式で結果を出力します。",
+        "objectives": [
+          "with と明示的なエンコーディングでファイルを開き、行ごとに読む",
+          "行を型のあるフィールドに分け、空行やコメントを飛ばし、辞書で集計する",
+          "出力をまとめて書き出し、最終行に改行がない場合などの境界を確かめる"
+        ],
+        "sections": [
+          {
+            "title": "データはどこから来るか",
+            "body": "プログラミング試験では、入力が 1 行ずつ打ち込まれるのではなく、ファイルとして与えられることがよくあります。問題文が data.txt のようなファイル名を示し、プログラムはカレントディレクトリからそれを開きます。ファイルを読むことと標準入力を読むことは、入力元が違うだけの同じ技術です。open('data.txt', encoding='utf-8') はファイルオブジェクトを返し、with 文はブロックの終わりで、途中でエラーが起きた場合も含めて、自動的にファイルを閉じます。エンコーディングは必ず明示します。既定値は OS によって異なり、日本語を含むファイルがあるマシンでは読めても、別のマシンでは失敗することがあります。\n\ndata.txt のような相対パスは、スクリプトのあるフォルダーではなく作業ディレクトリを基準に解決されます。そのため試験では、どこでプログラムを実行するかが指定されます。このコースと問題のワークスペースでは、コードの実行前にデータファイルが作業ディレクトリに置かれるので、open('data.txt') は端末で実行したときとまったく同じように動きます。",
+            "code": "with open('data.txt', encoding='utf-8') as f:\n    text = f.read()\nprint(len(text))\nprint(repr(text[:12]))\n",
+            "exampleFiles": {
+              "data.txt": "alice 82\nbob 75\n"
+            },
+            "output": "16\n'alice 82\\nbob'\n"
+          },
+          {
+            "title": "行には改行が残っている",
+            "body": "ファイルを反復すると 1 行ずつ得られ、最後の行を除いて、各行の末尾には '\\n' が付いています。そのまま print すると空行が余分に出力され、単語と比較しても一致しません。line.rstrip('\\n') は改行だけを取り除き、line.strip() は前後の空白と Windows の '\\r' も取り除き、line.split() はすべての空白を捨ててフィールドのリストを返します。意識して使い分けましょう。文のように行内の空白に意味があるなら末尾だけを除き、行がフィールドの並びなら split() が最も安全です。\n\n行ごとの反復は大きなファイルでもメモリを節約できます。f.read() は全体を一度に読み込みますが、試験の規模なら問題ありません。よくある誤りは、ループで f.readline() を呼びながら、ファイルの終わりを示す空文字列を確かめないことです。for 文なら、その処理を任せられます。",
+            "code": "with open('data.txt', encoding='utf-8') as f:\n    for line in f:\n        print(repr(line), line.split())\n",
+            "exampleFiles": {
+              "data.txt": "alice 82\n  bob   75 \n"
+            },
+            "output": "'alice 82\\n' ['alice', '82']\n'  bob   75 \\n' ['bob', '75']\n"
+          },
+          {
+            "title": "フィールドから型のあるレコードへ",
+            "body": "split() が返すのは文字列なので、数値は変換が必要です。name, score = line.split() のあとで int(score) とします。名前付きの変数へのアンパックは、フィールド数の検査も兼ねます。フィールドが 1 つ多い行があれば、列が黙ってずれるのではなく、すぐに ValueError になります。フィールド数が一定でないときは、words[1:] のようなスライスや、name, *values = line.split() という星付きの形を使います。カンマ区切りのデータでは line.split(',') がフィールドの前後の空白を残すので、各部分を strip するか、csv モジュールを使います。\n\n変換は読み込むときに一度だけ行い、(name, subject, score) のようなタプルとして保存します。以降のコードはきれいな値だけを扱い、文字列を二度解析せずに済みます。時刻や日付の表し方も早めに決めます。09:05:30 を 32730 秒に変換すれば、比較も差も単純な整数演算になります。",
+            "code": "def seconds(clock):\n    h, m, s = map(int, clock.split(':'))\n    return h * 3600 + m * 60 + s\n\nrecords = []\nwith open('log.txt', encoding='utf-8') as f:\n    for line in f:\n        clock, user, status = line.split()\n        records.append((seconds(clock), user, int(status)))\nprint(records)\n",
+            "exampleFiles": {
+              "log.txt": "09:00:00 alice 200\n09:05:30 bob 500\n"
+            },
+            "output": "[(32400, 'alice', 200), (32730, 'bob', 500)]\n"
+          },
+          {
+            "title": "データでない行を飛ばす",
+            "body": "実際のファイルには空行・コメント・見出し行が含まれます。最初にそれらを判定して continue します：if not line.strip() or line.lstrip().startswith('#'): continue。1 行目が件数 N であるような見出しは、ループの前に next(f) や f.readline() で読み、デバッグ中はレコード数がそれと一致するかを確かめます。\n\n別の書き方として、open(...).read().split() で全トークンを一度に読む方法があります。行の構造を完全に無視するので、ファイル全体が数の列であるときに便利です。先頭のトークンが個数、残りが値になります。ただし、行の区切りに意味がない場合に限って使います。フィールド数がまちまちだと、どこでレコードが終わるのかが分からなくなるからです。どちらの書き方でも、解析は関数やプログラムの冒頭など 1 か所にまとめ、残りのコードが生の文字列ではなくレコードだけを扱うようにします。",
+            "code": "tokens = open('grid.txt', encoding='utf-8').read().split()\nh, w = int(tokens[0]), int(tokens[1])\nrows = tokens[2:2 + h]\nprint(h, w, rows)\n",
+            "exampleFiles": {
+              "grid.txt": "3 4\n#..#\n....\n##.#\n"
+            },
+            "output": "3 4 ['#..#', '....', '##.#']\n"
+          },
+          {
+            "title": "辞書でグループ化する",
+            "body": "データファイルに関する問題では、キーごとの合計、分類ごとの個数、各グループに属する要素などが問われます。キーから累積値への辞書が、それを素直に表します。totals[name] = totals.get(name, 0) + score で合計を更新し、groups.setdefault(key, []).append(item) でリストを作ります。collections.Counter は出現回数を数え、collections.defaultdict(int) や defaultdict(list) を使えば get や setdefault も不要です。\n\nグループ化のあとで並べ替えて、最終的な順序を作ります。sorted(totals.items(), key=lambda kv: (-kv[1], kv[0])) は合計の大きい順に並べ、等しいときは名前順にします。同順位の扱いは問題文と完全に一致させる必要があります。名前の辞書順と書かれていれば、ASCII の名前なら文字列をそのまま比べれば正しくなります。辞書は挿入順を保ちますが、問題が別の順序を指定しているときにそれに頼るのは危険です。",
+            "code": "from collections import defaultdict\n\ntotals = defaultdict(int)\nwith open('scores.txt', encoding='utf-8') as f:\n    for line in f:\n        name, subject, score = line.split()\n        totals[name] += int(score)\nfor name, total in sorted(totals.items(), key=lambda kv: (-kv[1], kv[0])):\n    print(name, total)\n",
+            "exampleFiles": {
+              "scores.txt": "bob math 70\nalice math 82\nbob english 90\nalice english 78\ncarol math 95\n"
+            },
+            "output": "alice 160\nbob 160\ncarol 95\n"
+          },
+          {
+            "title": "出力はまとめて書き出す",
+            "body": "出力形式は 1 文字ずつ照合されるので、区切り文字、小数の桁数、大文字・小文字まで指定どおりに各行を組み立てます。ほとんどは f 文字列で足ります。f'{name} {total}' や、小数点以下 3 桁なら f'{ratio:.3f}' です。行数が多いときは文字列をリストに集め、最後に print('\\n'.join(lines)) で一度に出力します。何千回も print を呼ぶより速く、出力前に結果を確かめるのも簡単です。\n\nprint は改行を付けるので、join の結果の末尾にさらに改行を足してはいけません。空のグループのように出力するものがないときは、空行、代わりの記号、何も出さない、のどれが求められているかを確認します。画面への出力ではなくファイルへの書き込みを求められたら、'w' モードで開いて同じ文字列を書き、最後に改行を 1 つ加えます。",
+            "code": "rows = [('alice', 160), ('bob', 160), ('carol', 95)]\nlines = [f'{name:<6}{total:>4}' for name, total in rows]\nprint('\\n'.join(lines))\naverage = sum(total for _, total in rows) / len(rows)\nprint(f'average {average:.2f}')\n",
+            "output": "alice  160\nbob    160\ncarol   95\naverage 138.33\n"
+          },
+          {
+            "title": "小さなファイルで試す",
+            "body": "試験の大きなファイルを実行するだけでなく、規則を 1 つずつ狙った小さなファイルを自分で作りましょう。レコードが 1 件だけのファイルで基本の場合を、空行とコメントを含むファイルで読み飛ばしを、最終行に改行がないファイルで最後のレコードが失われないことを、キーが重複するファイルでグループ化を、同点のあるファイルで並び順を確かめます。実行する前に手で答えを求めておき、プログラムの出力と比べます。\n\n大きなファイルでは、読み込んだレコード数や異なるキーの数などの途中経過を出力し、テキストエディタや端末の wc -l でおおまかに照合します。答えが違ったら、読み込み・解析・集計・出力のどの段階で最初に食い違うかを探し、複数の箇所を同時に変えないようにします。"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "for line in f の中で print(line) とするのが、たいてい誤りなのはなぜですか。",
+            "answer": "各行の末尾にはすでに改行があり、print がもう 1 つ加えるので空行が出ます。先に strip か split をします。"
+          },
+          {
+            "question": "open(...).read().split() が向かないのはどんなときですか。",
+            "answer": "レコードごとにフィールド数が違うなど、行の区切りに意味があるときです。別の行のトークンが混ざり、区別できなくなります。"
+          }
+        ],
+        "exerciseTitle": "成績の集計",
+        "task": "ファイル scores.txt には 1 行に 1 件ずつ、「名前 科目 点数」の形式でレコードが書かれています。点数は 0 以上 100 以下の整数です。空行と # で始まる行はコメントです。学生ごとに点数の合計とレコード数を求め、合計の大きい順にすべての学生を出力してください。合計が等しい場合は名前の辞書順とします。",
+        "input": "標準入力はありません。カレントディレクトリの scores.txt を読み込みます。レコードは 1 件以上あり、名前と科目は英小文字からなります。",
+        "output": "学生ごとに、名前、合計、レコード数を空白で区切って 1 行に出力してください。",
+        "hint": "まず空行とコメント行を飛ばし、各レコードを 3 つのフィールドに分けます。2 つの辞書で合計と件数を数え、キー (-合計, 名前) で並べ替えます。",
+        "explanation": "ファイルを 1 行ずつ読み、strip() すると空になる行と、最初の空白でない文字が # の行を飛ばします。残りの各行はちょうど 3 つのフィールドに分かれるので、点数を int で変換します。名前をキーとする辞書に合計と件数を加えていきます。キー (-合計, 名前) で並べ替えると、合計の大きい順、等しければアルファベット順になります。R 件のレコードに対して O(R log R) です。最終行に改行がないファイルや Windows の改行を使うファイルも、split() は改行文字に依存しないので正しく処理できます。"
+      }
+    },
+    "order": 25,
+    "stage": "exam",
+    "minutes": 50,
+    "prerequisiteIds": [
+      "exam-workflow"
+    ],
+    "relatedProblems": [
+      "CI-LOG-1",
+      "CI-LOG-2",
+      "CI-MAP-1"
+    ],
+    "solution": "totals = {}\ncounts = {}\nwith open('scores.txt', encoding='utf-8') as f:\n    for line in f:\n        if not line.strip() or line.lstrip().startswith('#'):\n            continue\n        name, subject, score = line.split()\n        totals[name] = totals.get(name, 0) + int(score)\n        counts[name] = counts.get(name, 0) + 1\nfor name in sorted(totals, key=lambda name: (-totals[name], name)):\n    print(name, totals[name], counts[name])\n",
+    "starter": "totals = {}\ncounts = {}\nwith open('scores.txt', encoding='utf-8') as f:\n    for line in f:\n        # TODO: skip blank and comment lines, then read name, subject and score\n        pass\n",
+    "tests": [
+      {
+        "input": "",
+        "expected": "alice 160 2\nbob 160 2\ncarol 95 1\n",
+        "files": {
+          "scores.txt": "alice math 82\nbob math 70\nalice english 78\nbob english 90\ncarol math 95\n"
+        }
+      },
+      {
+        "input": "",
+        "expected": "kenta 50 2\nmei 50 1\n",
+        "files": {
+          "scores.txt": "# term 1\n\nkenta math 50\n   # an indented comment\nmei math 50\n\nkenta art 0\n"
+        }
+      },
+      {
+        "input": "",
+        "expected": "zoe 100 1\n",
+        "files": {
+          "scores.txt": "zoe music 100"
+        }
+      },
+      {
+        "input": "",
+        "expected": "a 6 3\n",
+        "files": {
+          "scores.txt": "a x 1\na y 2\na z 3\n"
+        }
+      },
+      {
+        "input": "",
+        "expected": "cat 1 1\namy 0 1\nbob 0 1\n",
+        "files": {
+          "scores.txt": "bob a 0\namy b 0\ncat c 1\n"
+        }
+      },
+      {
+        "input": "",
+        "expected": "eve 41 1\ndan 40 1\n",
+        "files": {
+          "scores.txt": "dan math 40\r\neve math 41\r\n"
+        }
+      }
+    ]
+  },
+  {
+    "id": "recursion-and-memoization",
+    "content": {
+      "zh": {
+        "title": "递归与记忆化",
+        "summary": "编写调用自身的函数，缓存重复的子问题，并知道递归深度什么时候会成为问题。",
+        "objectives": [
+          "写出带有正确基本情形的递归函数，并说明它的调用栈",
+          "用 functools.cache 把指数时间的递归变成多项式时间",
+          "认识递归深度的上限，必要时用显式栈或循环代替深递归"
+        ],
+        "sections": [
+          {
+            "title": "调用自身的函数",
+            "body": "递归函数通过解决同一问题的更小实例来解决问题。它需要两部分：可以直接给出答案的基本情形，以及缩小输入、再组合结果的递归情形。例如 n 的各位数字之和：n < 10 时就是 n 本身，否则是末位 n % 10 加上 n // 10 的各位数字之和。每次调用都在调用栈上等待更小的调用返回，所以调用结束的顺序与开始的顺序相反。\n\n如果缩小没有朝着基本情形推进——例如在 f(n) 中又调用 f(n)——程序会一直递归下去，直到 Python 以 RecursionError 终止它。写递归之前，先用一句话说清楚函数对任意参数返回什么；代码就是基本情形，加上把这句话用在更小的参数上。",
+            "code": "def digit_sum(n):\n    if n < 10:\n        return n\n    return n % 10 + digit_sum(n // 10)\n\nprint(digit_sum(2026))\nprint(digit_sum(7))\n",
+            "output": "10\n7\n"
+          },
+          {
+            "title": "递归顺着嵌套结构走",
+            "body": "数据本身是嵌套结构时，递归最自然：可能包含列表的列表、包含目录的目录、包含括号表达式的表达式、由员工及其下属构成的树。函数只处理一层，把每个嵌套的部分交给递归调用。求嵌套列表中所有数之和：遍历各元素，数字直接相加，内层列表则加上递归求出的总和。基本情形是隐含的：不含内层列表的列表不会再发起调用。\n\n用循环写同样的计算，就得自己管理一个“待处理列表”的栈。只要题目用自身来定义某个东西——例如表达式的文法，或者从文件读入的树——考试中就会出现这种结构。",
+            "code": "def total(items):\n    result = 0\n    for item in items:\n        if isinstance(item, list):\n            result += total(item)\n        else:\n            result += item\n    return result\n\nprint(total([1, [2, 3], [[4], 5], []]))\n",
+            "output": "15\n"
+          },
+          {
+            "title": "重复的子问题会爆炸",
+            "body": "递归定义可以是正确的，却仍然毫无希望。每次走 1 级或 2 级台阶，走完 n 级的方法数是 ways(n − 1) + ways(n − 2)，其中 ways(0) = ways(1) = 1。照这个定义直接写，ways(n − 2) 会在 ways(n − 1) 内部计算一次，又被调用者再计算一次，而这种重复在每一层都会发生：调用次数像斐波那契数本身一样增长，大约是 1.6 的 n 次方。\n\nn = 40 时要调用数亿次，而答案只依赖 41 个不同的参数。像示例那样数一数调用次数，是发现问题的快捷实验。解决办法不是更聪明的公式，而是在第一次算出每个答案时把它记下来。",
+            "code": "calls = 0\n\ndef ways(n):\n    global calls\n    calls += 1\n    if n <= 1:\n        return 1\n    return ways(n - 1) + ways(n - 2)\n\nprint(ways(20), calls)\n",
+            "output": "10946 21891\n"
+          },
+          {
+            "title": "用 functools.cache 记忆化",
+            "body": "记忆化把每个结果存进以参数为键的表中，之后的调用直接返回存好的值。装饰器 @functools.cache（较旧的 Python 用 @functools.lru_cache(maxsize=None)）可以对参数可哈希的任何函数做到这一点。加上它之后，ways(n) 对每个不同的参数只计算一次，时间就变成“状态数 × 每个状态的工作量”，这里是 O(n)。也可以用字典手写同样的效果：若 n 已在 memo 中就返回 memo[n]，否则算出结果、存入 memo 后再返回。\n\n参数必须是不可变的：用元组或字符串代替列表，或者把数据放在函数外面、只传递下标。被缓存的函数还必须是纯函数，只依赖参数；如果它读取的全局变量在两次调用之间发生变化，缓存会返回过时的答案。记忆化递归与自底向上的动态规划计算的是同一张表；递归照着定义走，往往更容易先写出来，而且只访问真正需要的状态。",
+            "code": "from functools import cache\n\n@cache\ndef ways(n):\n    if n <= 1:\n        return 1\n    return ways(n - 1) + ways(n - 2)\n\nprint(ways(90))\n",
+            "output": "4660046610375530309\n"
+          },
+          {
+            "title": "递归深度的上限",
+            "body": "Python 限制嵌套调用的深度，默认是 1000 层，超过就引发 RecursionError。对长度为 n 的列表递归会达到 n 层，所以即使算法没有问题，对 10⁴ 个下标做记忆化递归也会在默认上限下失败。sys.setrecursionlimit(10**6) 可以提高上限。从 Python 3.11 起（包括这里使用的 3.12），普通的 Python 函数互相调用不再消耗 C 栈，提高上限之后，深度达到 10⁵ 也能运行。\n\n经过 C 代码的调用则不同。@cache 生成的包装器就是用 C 写的，所以带缓存的递归另有上限：在 CPython 3.12 及以后的版本中，无论 setrecursionlimit 设成多少都只有几千层；在本应用的浏览器运行环境中只有几百层，再深程序就会因错误而停止。较旧的版本和其他环境遇到深递归，甚至可能直接崩溃。深度可能达到输入规模时，改用以字典作备忘录的普通函数，或者用循环自底向上填表，或者像在大网格上做深度优先搜索那样维护一个显式的栈。",
+            "code": "import sys\nsys.setrecursionlimit(10**6)\n\ndef length(items, i=0):\n    return 0 if i == len(items) else 1 + length(items, i + 1)\n\nprint(length(list(range(50000))))\n",
+            "output": "50000\n"
+          },
+          {
+            "title": "从递归到循环",
+            "body": "每个记忆化递归都有一个自底向上的孪生版本。找出所有状态以及它们之间的依赖顺序：ways(n) 需要更小的 n，所以从 0 往上循环，依次填好 dp[0]、dp[1]……，每一项都由已经算好的项得到。循环没有深度限制，也没有函数调用的开销，这在 Python 中很重要。\n\n递归形式仍然有用：它可以作为规格说明，也适合难以排定顺序的状态，例如字符串的区间或游戏中的局面。这时先写记忆化版本，在小输入上测试，只在深度或速度需要时再改写。在随机输入上比较两个版本，也是测试其中任何一个的好办法。",
+            "code": "n = 90\ndp = [1, 1] + [0] * (n - 1)\nfor i in range(2, n + 1):\n    dp[i] = dp[i - 1] + dp[i - 2]\nprint(dp[n])\n",
+            "output": "4660046610375530309\n"
+          },
+          {
+            "title": "设计状态",
+            "body": "最难的一步是决定参数代表什么。参数必须包含影响后续的一切，而且不多于此。对数字串的解码来说，状态只需位置 i：s[i:] 的解码方法数与 s[:i] 是怎样解码的无关。对于可能还剩一次捷径可用的网格路径，状态需要位置，以及捷径是否已经用过。信息太少会得到错误的答案；太多则会让状态数和运行时间成倍增加。\n\n写代码之前，数一数状态数和每个状态的工作量：n 个位置、每个两种选择是 O(n)，而 n 个物品的全部子集是 2ⁿ。最后，明确写出最小状态的基本情形，包括空后缀——它通常算作一种方法，而不是零种。"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "为什么用 @cache 装饰的函数，参数必须可哈希？",
+            "answer": "缓存是以参数为键的字典；列表不能作字典的键，所以要用元组或下标。"
+          },
+          {
+            "question": "对 n = 20000 个位置使用 @cache 的递归，因为太深而出错。有哪两种改法？",
+            "answer": "改用以字典作备忘录的普通函数，并用 sys.setrecursionlimit 提高上限；或者改写成自底向上的循环，不经递归地填同一张表。"
+          }
+        ],
+        "exerciseTitle": "数字串的解码",
+        "task": "一条由大写字母组成的消息，按 A→1、B→2、……、Z→26 的规则编码后把数字连在一起，例如 ABZ 编码为 1226。给定数字串 s，求有多少条消息恰好编码为 s，答案对 1000000007 取模。例如 1226 可以解码为 1 2 2 6、1 22 6、1 2 26、12 2 6 和 12 26，答案为 5。编码没有前导零，所以 06 不是合法的编码；30 这样的串没有任何解码方法。",
+        "input": "一行，数字串 s，长度为 1 到 2000。",
+        "output": "输出解码方法数对 1000000007 取模的结果。",
+        "hint": "设 f(i) 为后缀 s[i:] 的解码方法数。则 f(len(s)) = 1；s[i] 为 0 时 f(i) = 0；否则 f(i) = f(i + 1)，若 s[i:i + 2] 在 10 到 26 之间，再加上 f(i + 2)。每个 f(i) 算出后存进字典。",
+        "explanation": "状态是位置 i，因为前缀怎样解码不影响后缀。从 i 出发，s[i] 不为 0 时可以取一位数；s[i] 不为 0 且 s[i:i+2] 不超过 26 时，还可以取两位数。空后缀恰有一种解码方法。记忆化之后每个位置只计算一次，时间为 O(n)；每一步都对 1000000007 取模。递归深度达到 n = 2000：这超过了默认上限，所以参考答案提高了上限；也超过了浏览器中经由 @cache 的递归所能达到的深度，所以备忘录用的是普通函数里的字典。从末尾开始用循环填数组，可以完全不用递归。"
+      },
+      "en": {
+        "title": "Recursion and memoization",
+        "summary": "Write functions that call themselves, cache repeated subproblems, and recognise when recursion depth becomes a problem.",
+        "objectives": [
+          "Write a recursive function with a correct base case and explain its call stack",
+          "Turn exponential recursion into polynomial time with functools.cache",
+          "Recognise the recursion limit and replace deep recursion with an explicit stack or a loop"
+        ],
+        "sections": [
+          {
+            "title": "A function that calls itself",
+            "body": "A recursive function solves a problem by solving smaller instances of the same problem. It needs two parts: a base case answered directly, and a recursive case that shrinks the input and combines the results. The digit sum of n, for example, is n itself when n < 10, and otherwise the last digit n % 10 plus the digit sum of n // 10. Each call waits on the call stack until the smaller call returns, so calls finish in the reverse of the order in which they started.\n\nIf the input does not shrink toward the base case, as when f(n) calls f(n), the program recurses until Python stops it with RecursionError. Before writing any recursion, state in one sentence what the function returns for an arbitrary argument; the code is then the base case plus that sentence applied to smaller arguments.",
+            "code": "def digit_sum(n):\n    if n < 10:\n        return n\n    return n % 10 + digit_sum(n // 10)\n\nprint(digit_sum(2026))\nprint(digit_sum(7))\n",
+            "output": "10\n7\n"
+          },
+          {
+            "title": "Recursion follows nested structure",
+            "body": "Recursion is most natural when the data itself is nested: a list that may contain lists, a directory containing directories, an expression containing parenthesised expressions, or a tree of employees and their reports. The function handles one level and hands each nested part to a recursive call. To total the numbers in a nested list, go through its items, add numbers directly, and add the total of each inner list computed recursively. The base case is implicit: a list without inner lists makes no further calls.\n\nWriting the same computation with loops would mean managing your own stack of pending lists. This shape appears in the exam whenever a statement defines something in terms of itself, such as an expression grammar or a tree read from a file.",
+            "code": "def total(items):\n    result = 0\n    for item in items:\n        if isinstance(item, list):\n            result += total(item)\n        else:\n            result += item\n    return result\n\nprint(total([1, [2, 3], [[4], 5], []]))\n",
+            "output": "15\n"
+          },
+          {
+            "title": "Repeated subproblems explode",
+            "body": "A recursive definition can be correct and still hopeless. The number of ways to climb n stairs taking 1 or 2 steps at a time is ways(n − 1) + ways(n − 2), with ways(0) = ways(1) = 1. Written directly, ways(n − 2) is computed inside ways(n − 1) and again by the caller, and this duplication repeats at every level: the number of calls grows like the Fibonacci numbers themselves, roughly 1.6 to the power n.\n\nFor n = 40 that is hundreds of millions of calls, for an answer that depends on only 41 distinct arguments. Counting calls, as the example does, is a quick experiment that exposes the problem. The cure is not a cleverer formula but remembering each answer the first time it is computed.",
+            "code": "calls = 0\n\ndef ways(n):\n    global calls\n    calls += 1\n    if n <= 1:\n        return 1\n    return ways(n - 1) + ways(n - 2)\n\nprint(ways(20), calls)\n",
+            "output": "10946 21891\n"
+          },
+          {
+            "title": "Memoization with functools.cache",
+            "body": "Memoization stores each result in a table keyed by the arguments and returns the stored value on later calls. The decorator @functools.cache, or @functools.lru_cache(maxsize=None) on older Pythons, does this for any function whose arguments are hashable. With it, ways(n) computes each distinct argument once, so the time becomes the number of states times the work per state, O(n) here. The same effect can be written by hand with a dictionary: return memo[n] if n is already in memo, and otherwise compute the result and store it before returning.\n\nArguments must be immutable: pass tuples or strings instead of lists, or keep the data outside the function and pass indices. A cached function must also be pure, depending only on its arguments; if it reads a global that changes between calls, the cache returns stale answers. Memoized recursion and bottom-up dynamic programming compute the same table. Recursion follows the definition, so it is often easier to write first, and it visits only the states that are actually needed.",
+            "code": "from functools import cache\n\n@cache\ndef ways(n):\n    if n <= 1:\n        return 1\n    return ways(n - 1) + ways(n - 2)\n\nprint(ways(90))\n",
+            "output": "4660046610375530309\n"
+          },
+          {
+            "title": "The recursion limit",
+            "body": "Python limits the depth of nested calls, by default to 1000, and raises RecursionError beyond it. Recursion over a list of length n reaches depth n, so a memoized function over 10⁴ indices fails under the default limit even though the algorithm is fine. sys.setrecursionlimit(10**6) raises the limit. Since Python 3.11, including the 3.12 runtime used here, ordinary Python-to-Python calls no longer consume the C stack, and a depth of 10⁵ works once the limit is raised.\n\nCalls that pass through code written in C are different. The wrapper created by @cache is such code, so cached recursion has a separate cap: a few thousand levels in CPython 3.12 and later, whatever setrecursionlimit says, and a few hundred in this app’s browser runtime, where going deeper stops the program with an error. Older versions and other environments may simply crash on deep recursion. When the depth can reach the size of the input, use a plain function with a dictionary as the memo, fill the table bottom-up in a loop, or keep an explicit stack, as in a depth-first search on a large grid.",
+            "code": "import sys\nsys.setrecursionlimit(10**6)\n\ndef length(items, i=0):\n    return 0 if i == len(items) else 1 + length(items, i + 1)\n\nprint(length(list(range(50000))))\n",
+            "output": "50000\n"
+          },
+          {
+            "title": "From recursion to a loop",
+            "body": "Every memoized recursion has a bottom-up twin. Identify the states and the order in which they depend on one another: ways(n) needs smaller n, so a loop from 0 upward fills dp[0], dp[1] and so on, each from entries already computed. The loop has no depth limit and no call overhead, which matters in Python.\n\nThe recursive form remains useful as a specification and for states that are hard to order, such as intervals of a string or positions in a game. There, write the memoized version first, test it on small inputs, and convert it only if depth or speed requires. Comparing the two versions on random inputs is also a good way to test either of them.",
+            "code": "n = 90\ndp = [1, 1] + [0] * (n - 1)\nfor i in range(2, n + 1):\n    dp[i] = dp[i - 1] + dp[i - 2]\nprint(dp[n])\n",
+            "output": "4660046610375530309\n"
+          },
+          {
+            "title": "Designing the state",
+            "body": "The hardest step is deciding what the arguments represent. They must contain everything that affects the future, and nothing more. For decoding a string of digits, the state is just the position i: the number of ways to decode s[i:] does not depend on how s[:i] was decoded. For a grid path that may still use one shortcut, the state needs the position and whether the shortcut has been used. Too little information gives wrong answers; too much multiplies the number of states and the running time.\n\nCount the states and the work per state before coding: n positions with two choices each is O(n), while all subsets of n items is 2ⁿ. Finally, write the base cases for the smallest states explicitly, including the empty suffix, which usually counts as one way rather than zero."
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "Why must the arguments of a function decorated with @cache be hashable?",
+            "answer": "The cache is a dictionary keyed by the arguments, and lists cannot be dictionary keys; use tuples or indices instead."
+          },
+          {
+            "question": "A function decorated with @cache over n = 20000 positions fails because the recursion is too deep. Name two fixes.",
+            "answer": "Replace @cache with a dictionary memo in a plain function and raise the limit with sys.setrecursionlimit, or rewrite it as a bottom-up loop that fills the same table without recursion."
+          }
+        ],
+        "exerciseTitle": "Decoding digits",
+        "task": "A message of capital letters is encoded by replacing A with 1, B with 2, …, Z with 26 and joining the numbers, so ABZ becomes 1226. Given a digit string s, count the messages whose encoding is exactly s, modulo 1000000007. For example, 1226 can be decoded as 1 2 2 6, 1 22 6, 1 2 26, 12 2 6 and 12 26, so the answer is 5. Codes never have a leading zero, so 06 is not a valid code, and a string such as 30 has no decoding at all.",
+        "input": "One line containing s, a string of 1 to 2000 digits.",
+        "output": "Print the number of decodings modulo 1000000007.",
+        "hint": "Let f(i) be the number of ways to decode the suffix s[i:]. Then f(len(s)) = 1; f(i) = 0 if s[i] is 0; otherwise f(i) = f(i + 1), plus f(i + 2) when s[i:i + 2] is between 10 and 26. Keep each f(i) in a dictionary once it is computed.",
+        "explanation": "The state is the position i, because how the prefix was decoded does not affect the suffix. From i, a one-digit code is possible when s[i] is not 0, and a two-digit code when s[i] is not 0 and s[i:i+2] is at most 26. The empty suffix has exactly one decoding. With memoization each position is computed once, so the time is O(n); take the remainder modulo 1000000007 at every step. The recursion depth reaches n = 2000. That exceeds the default limit, so the reference solution raises it, and it is deeper than recursion through @cache can go in the browser, so the memo is a dictionary in a plain function. Filling an array from the end in a loop avoids recursion altogether."
+      },
+      "ja": {
+        "title": "再帰とメモ化",
+        "summary": "自分自身を呼び出す関数を書き、重複する部分問題をキャッシュし、再帰の深さが問題になる場面を見極めます。",
+        "objectives": [
+          "正しい基底を持つ再帰関数を書き、その呼び出しスタックを説明する",
+          "functools.cache で指数時間の再帰を多項式時間にする",
+          "再帰の深さの上限を理解し、必要なら明示的なスタックやループに置き換える"
+        ],
+        "sections": [
+          {
+            "title": "自分を呼び出す関数",
+            "body": "再帰関数は、同じ問題のより小さな場合を解くことで問題を解きます。必要なのは 2 つです。直接答えを返す基底と、入力を小さくして結果を組み合わせる再帰の場合です。例えば n の各桁の和は、n < 10 なら n 自身、そうでなければ末尾の桁 n % 10 と、n // 10 の各桁の和との和です。各呼び出しは、より小さな呼び出しが戻るまで呼び出しスタック上で待つので、呼び出しは始まった順と逆の順に終わります。\n\nf(n) の中で f(n) を呼ぶように、入力が基底に向かって小さくならないと、Python が RecursionError で止めるまで再帰が続きます。再帰を書く前に、任意の引数に対して関数が何を返すのかを一文で言えるようにしましょう。コードは、基底と、その一文をより小さな引数に適用したものになります。",
+            "code": "def digit_sum(n):\n    if n < 10:\n        return n\n    return n % 10 + digit_sum(n // 10)\n\nprint(digit_sum(2026))\nprint(digit_sum(7))\n",
+            "output": "10\n7\n"
+          },
+          {
+            "title": "再帰は入れ子の構造に沿う",
+            "body": "データ自体が入れ子になっているとき、再帰は最も自然です。リストを含みうるリスト、ディレクトリを含むディレクトリ、括弧で囲まれた式を含む式、社員と部下からなる木などです。関数は 1 段だけを処理し、入れ子の部分はそれぞれ再帰呼び出しに任せます。入れ子のリストに含まれる数の総和なら、要素を順に見て、数はそのまま足し、内側のリストは再帰で求めた総和を足します。基底は暗黙的で、内側のリストを含まないリストはそれ以上呼び出しをしません。\n\n同じ計算をループで書くと、未処理のリストを積むスタックを自分で管理しなければなりません。式の文法やファイルから読む木のように、問題文が何かをそれ自身で定義しているとき、試験でもこの形が現れます。",
+            "code": "def total(items):\n    result = 0\n    for item in items:\n        if isinstance(item, list):\n            result += total(item)\n        else:\n            result += item\n    return result\n\nprint(total([1, [2, 3], [[4], 5], []]))\n",
+            "output": "15\n"
+          },
+          {
+            "title": "重複する部分問題は爆発する",
+            "body": "再帰的な定義は、正しくても役に立たないことがあります。1 段か 2 段ずつ上るとき、n 段の階段の上り方は ways(n − 1) + ways(n − 2) 通りで、ways(0) = ways(1) = 1 です。これをそのまま書くと、ways(n − 2) は ways(n − 1) の中で一度、呼び出し元でもう一度計算され、この重複があらゆる段で起こります。呼び出し回数はフィボナッチ数そのもののように、およそ 1.6 の n 乗で増えます。\n\nn = 40 では何億回もの呼び出しになりますが、答えが依存する引数は 41 通りしかありません。例のように呼び出し回数を数えるのは、問題を見つける手軽な実験です。解決策は賢い公式ではなく、それぞれの答えを最初に計算したときに覚えておくことです。",
+            "code": "calls = 0\n\ndef ways(n):\n    global calls\n    calls += 1\n    if n <= 1:\n        return 1\n    return ways(n - 1) + ways(n - 2)\n\nprint(ways(20), calls)\n",
+            "output": "10946 21891\n"
+          },
+          {
+            "title": "functools.cache によるメモ化",
+            "body": "メモ化は、各結果を引数をキーとする表に保存し、次からは保存した値を返す手法です。デコレータ @functools.cache（古い Python では @functools.lru_cache(maxsize=None)）は、引数がハッシュ可能な任意の関数にこれを施します。これを付けると ways(n) は異なる引数ごとに 1 回だけ計算されるので、時間は「状態数 × 状態あたりの仕事量」になり、ここでは O(n) です。辞書を使って同じことを手で書くこともできます。n がすでに memo にあれば memo[n] を返し、なければ結果を計算して memo に保存してから返します。\n\n引数は不変でなければなりません。リストの代わりにタプルや文字列を渡すか、データは関数の外に置いて添字だけを渡します。キャッシュする関数は純粋で、引数だけに依存する必要もあります。呼び出しの合間に変わるグローバル変数を読むと、キャッシュは古い答えを返します。メモ化再帰とボトムアップの動的計画法は同じ表を計算します。再帰は定義をそのままたどるので先に書きやすく、実際に必要な状態だけを訪れるという利点もあります。",
+            "code": "from functools import cache\n\n@cache\ndef ways(n):\n    if n <= 1:\n        return 1\n    return ways(n - 1) + ways(n - 2)\n\nprint(ways(90))\n",
+            "output": "4660046610375530309\n"
+          },
+          {
+            "title": "再帰の深さの上限",
+            "body": "Python は入れ子の呼び出しの深さを制限しており、既定では 1000 段を超えると RecursionError になります。長さ n のリストに対する再帰は深さ n に達するので、アルゴリズムが正しくても、10⁴ 個の添字に対するメモ化再帰は既定の上限で失敗します。sys.setrecursionlimit(10**6) で上限を上げられます。Python 3.11 以降（ここで使う 3.12 を含む）では、通常の Python 関数どうしの呼び出しは C のスタックを消費しないので、上限を上げれば深さ 10⁵ でも動きます。\n\nC で書かれたコードを経由する呼び出しは事情が違います。@cache が作るラッパーはまさにそのようなコードなので、キャッシュ付きの再帰には別の上限があります。CPython 3.12 以降では setrecursionlimit の値にかかわらず数千段まで、このアプリのブラウザー実行環境では数百段までで、それより深いとプログラムはエラーで止まります。古いバージョンや別の環境では、深い再帰でそのまま異常終了することもあります。深さが入力の大きさに達しうるときは、辞書をメモとして使う普通の関数にするか、ループでボトムアップに表を埋めるか、大きなグリッドでの深さ優先探索のように明示的なスタックを使います。",
+            "code": "import sys\nsys.setrecursionlimit(10**6)\n\ndef length(items, i=0):\n    return 0 if i == len(items) else 1 + length(items, i + 1)\n\nprint(length(list(range(50000))))\n",
+            "output": "50000\n"
+          },
+          {
+            "title": "再帰からループへ",
+            "body": "どのメモ化再帰にも、ボトムアップの双子があります。状態と、それらが互いに依存する順序を見つけます。ways(n) はより小さい n を必要とするので、0 から上へ向かうループで dp[0]、dp[1]、… を、すでに計算した項から順に埋めます。ループには深さの制限も関数呼び出しのオーバーヘッドもなく、これは Python では重要です。\n\nそれでも再帰の形は役に立ちます。仕様として読みやすく、文字列の区間やゲームの局面のように順序を決めにくい状態にも向いています。その場合はまずメモ化版を書いて小さな入力で試し、深さや速度が問題になったときだけ書き換えます。2 つの版をランダムな入力で比べることは、どちらのテストとしても有効です。",
+            "code": "n = 90\ndp = [1, 1] + [0] * (n - 1)\nfor i in range(2, n + 1):\n    dp[i] = dp[i - 1] + dp[i - 2]\nprint(dp[n])\n",
+            "output": "4660046610375530309\n"
+          },
+          {
+            "title": "状態を設計する",
+            "body": "最も難しいのは、引数が何を表すかを決める段階です。引数には将来に影響するすべてが含まれ、それ以上は含まれてはいけません。数字列の復号では、状態は位置 i だけで十分です。s[i:] の復号の仕方の数は、s[:i] がどう復号されたかに依存しないからです。近道をあと 1 回使えるかもしれないグリッドの経路なら、状態には位置と、近道を使ったかどうかが必要です。情報が少なすぎると答えが誤り、多すぎると状態数と実行時間が何倍にも膨らみます。\n\nコードを書く前に、状態数と状態あたりの仕事量を見積もりましょう。n 個の位置にそれぞれ 2 通りの選択なら O(n) ですが、n 個の品物のすべての部分集合なら 2ⁿ です。最後に、最小の状態の基底を明示的に書きます。空の接尾辞は、たいてい 0 通りではなく 1 通りと数えます。"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "@cache を付けた関数の引数が、ハッシュ可能でなければならないのはなぜですか。",
+            "answer": "キャッシュは引数をキーとする辞書だからです。リストは辞書のキーにできないので、タプルや添字を使います。"
+          },
+          {
+            "question": "n = 20000 個の位置に対する @cache 付きの再帰が、深すぎるためにエラーになりました。直し方を 2 つ挙げてください。",
+            "answer": "@cache の代わりに辞書をメモとする普通の関数にして sys.setrecursionlimit で上限を上げるか、再帰を使わずに同じ表を埋めるボトムアップのループに書き換えます。"
+          }
+        ],
+        "exerciseTitle": "数字列の復号",
+        "task": "英大文字からなるメッセージを、A を 1、B を 2、…、Z を 26 に置き換えて数字を連結することで符号化します。例えば ABZ は 1226 になります。数字列 s が与えられたとき、ちょうど s に符号化されるメッセージの個数を 1000000007 で割った余りを求めてください。例えば 1226 は 1 2 2 6、1 22 6、1 2 26、12 2 6、12 26 と復号できるので、答えは 5 です。符号に先頭の 0 はないので 06 は正しい符号ではなく、30 のような列には復号の仕方がありません。",
+        "input": "1 行に、長さ 1 以上 2000 以下の数字列 s が与えられます。",
+        "output": "復号の仕方の数を 1000000007 で割った余りを出力してください。",
+        "hint": "f(i) を接尾辞 s[i:] の復号の仕方の数とします。f(len(s)) = 1、s[i] が 0 なら f(i) = 0、そうでなければ f(i) = f(i + 1) で、s[i:i + 2] が 10 以上 26 以下なら f(i + 2) を加えます。求めた f(i) は辞書に保存します。",
+        "explanation": "接頭辞の復号の仕方は接尾辞に影響しないので、状態は位置 i です。i からは、s[i] が 0 でなければ 1 桁の符号を、s[i] が 0 でなく s[i:i+2] が 26 以下なら 2 桁の符号を取れます。空の接尾辞の復号はちょうど 1 通りです。メモ化により各位置は 1 回だけ計算され、時間は O(n) です。各段階で 1000000007 の余りを取ります。再帰の深さは n = 2000 に達します。既定の上限を超えるので模範解答では上限を上げており、ブラウザーで @cache を経由する再帰が届く深さも超えるので、メモには普通の関数と辞書を使っています。末尾から配列をループで埋めれば、再帰をまったく使わずに済みます。"
+      }
+    },
+    "order": 26,
+    "stage": "exam",
+    "minutes": 55,
+    "prerequisiteIds": [
+      "files-and-parsing"
+    ],
+    "relatedProblems": [
+      "CI-RLE-4",
+      "CI-VM-4",
+      "ABC291D"
+    ],
+    "solution": "import sys\n\nsys.setrecursionlimit(10000)\ns = input().strip()\nMOD = 1_000_000_007\nmemo = {}\n\n\ndef ways(i):\n    \"\"\"The number of ways to decode s[i:].\"\"\"\n    if i == len(s):\n        return 1                  # the empty suffix\n    if i in memo:\n        return memo[i]\n    result = 0\n    if s[i] != '0':               # no code starts with 0\n        result = ways(i + 1)\n        if i + 1 < len(s) and int(s[i:i + 2]) <= 26:\n            result += ways(i + 2)\n    memo[i] = result % MOD\n    return memo[i]\n\n\nprint(ways(0))\n",
+    "starter": "import sys\n\nsys.setrecursionlimit(10000)\ns = input().strip()\nMOD = 1_000_000_007\nmemo = {}\n\n\ndef ways(i):\n    # the number of ways to decode s[i:]; keep each result in memo\n    pass\n\n\nprint(ways(0))\n",
+    "tests": [
+      {
+        "input": "1226\n",
+        "expected": "5\n"
+      },
+      {
+        "input": "30\n",
+        "expected": "0\n"
+      },
+      {
+        "input": "101\n",
+        "expected": "1\n"
+      },
+      {
+        "input": "2626\n",
+        "expected": "4\n"
+      },
+      {
+        "input": "1111111111\n",
+        "expected": "89\n"
+      },
+      {
+        "input": "27\n",
+        "expected": "1\n"
+      },
+      {
+        "input": "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111\n",
+        "expected": "276439883\n"
+      }
+    ]
+  },
+  {
+    "id": "heaps-and-shortest-paths",
+    "content": {
+      "zh": {
+        "title": "优先队列与最短路",
+        "summary": "用 heapq 每次取出最小的元素，并在此基础上实现带权图的 Dijkstra 算法。",
+        "objectives": [
+          "用 heapq 压入和弹出元素，包括元组，以及用取负实现的最大堆",
+          "实现带惰性删除的 Dijkstra 算法，并说明它为什么正确",
+          "把附加条件建模为更大的状态，并识别 Dijkstra 不适用的情形"
+        ],
+        "sections": [
+          {
+            "title": "一次又一次地取最小值",
+            "body": "许多算法反复取出剩余元素中最小的一个，同时又不断有新元素加入：模拟中的下一个事件、最便宜的未探索选项、最早的截止时间。只排序一次是不够的，因为集合在变化。二叉堆能以 O(log n) 完成这两种操作。\n\nPython 的 heapq 模块把普通列表维护成堆的顺序：heappush(h, x) 加入元素，heappop(h) 删除并返回最小值，h[0] 只查看最小值而不删除。heapify(h) 以 O(n) 把已有列表变成堆。这个列表并不是有序的，只保证最小值在最前；不要指望列表中间的元素有什么顺序。",
+            "code": "import heapq\n\nh = []\nfor x in [5, 1, 8, 3, 2]:\n    heapq.heappush(h, x)\nprint(h[0])\nprint([heapq.heappop(h) for _ in range(3)])\nprint(h)\n",
+            "output": "1\n[1, 2, 3]\n[5, 8]\n"
+          },
+          {
+            "title": "元组、平局与最大优先",
+            "body": "元素之间用 < 比较，所以可以自然地使用元组：heappush(h, (priority, name)) 按优先级排序，优先级相同时比较名字。如果第二个元素可能无法比较（例如字典），就在中间插入一个计数器：(priority, sequence_number, item)。heapq 只提供最小堆；要让大的先出，就压入取负的优先级，弹出时再取负。\n\n一个典型的用法是用大小为 k 的堆保留数据流中最大的 k 个值：每压入一个值，若堆的大小超过 k 就弹出最小值。这样只需 O(n log k)，而不必把全部数据排序。",
+            "code": "import heapq\n\ndef largest(values, k):\n    h = []\n    for v in values:\n        heapq.heappush(h, v)\n        if len(h) > k:\n            heapq.heappop(h)\n    return sorted(h, reverse=True)\n\nprint(largest([7, 2, 9, 4, 9, 1, 6], 3))\ntasks = [(3, 'write'), (1, 'read'), (3, 'test')]\nheapq.heapify(tasks)\nprint([heapq.heappop(tasks)[1] for _ in range(3)])\n",
+            "output": "[9, 9, 7]\n['read', 'test', 'write']\n"
+          },
+          {
+            "title": "有权时 BFS 不够用",
+            "body": "所有边的代价相同时，广度优先搜索能求出最短路，因为它按边数的顺序确定各个顶点。代价不同时，边数多的路径反而可能更短：两条长度为 1 的边胜过一条长度为 5 的边。\n\nDijkstra 算法把 BFS 的队列换成以暂定距离为键的优先队列。每一步取出暂定距离最小的未确定顶点，这个距离就是最终的答案：任何别的路线都必须先经过某个距离不小于它的顶点才能离开已确定的区域，而边权非负，此后只会更长。然后松弛这个顶点的边：如果经过它能让某个邻居的距离变小，就更新这个距离并压入堆中。"
+          },
+          {
+            "title": "带惰性删除的 Dijkstra",
+            "body": "heapq 无法减小已在堆中的元素的键，所以改为：每当距离变小，就压入一个新元素，旧的留在堆里。弹出元素时把它与记录的距离比较：如果比记录的大，它就是过期的元素，直接跳过。这种惰性删除让代码很短，每次松弛至多增加一个元素，堆中共有 O(E) 个元素，总时间为 O((V + E) log V)。\n\n把距离初始化为无穷大，起点设为 0，并压入 (0, 起点)。图用邻接表表示，每一项是 (邻居, 权)；无向图要把每条边按两个方向各加一次。",
+            "code": "import heapq\n\ndef dijkstra(graph, source):\n    dist = [float('inf')] * len(graph)\n    dist[source] = 0\n    heap = [(0, source)]\n    while heap:\n        d, u = heapq.heappop(heap)\n        if d > dist[u]:\n            continue                      # a stale entry\n        for v, w in graph[u]:\n            if d + w < dist[v]:\n                dist[v] = d + w\n                heapq.heappush(heap, (d + w, v))\n    return dist\n\ngraph = [[(1, 5), (2, 1)], [(3, 1)], [(1, 1), (3, 6)], []]\nprint(dijkstra(graph, 0))\n",
+            "output": "[0, 2, 1, 3]\n"
+          },
+          {
+            "title": "还原路径",
+            "body": "距离只回答“有多远”，不回答“怎么走”。每当某条边改进了 dist[v]，就记录 v 的最佳路径上的前一个顶点 prev[v] = u。算法结束后，从终点沿 prev 回溯到起点，再把列表反转。如果终点从未到达，它的距离仍是无穷大，也就没有路径；回溯之前要先检查这一点。\n\n存在多条最短路时，还原出哪一条取决于松弛的顺序。如果题目要求特定的一条，例如字典序最小的，这个要求必须写进比较之中，或者另做一遍处理。",
+            "code": "import heapq\n\ngraph = [[(1, 5), (2, 1)], [(3, 1)], [(1, 1), (3, 6)], []]\ndist = [float('inf')] * 4\nprev = [None] * 4\ndist[0] = 0\nheap = [(0, 0)]\nwhile heap:\n    d, u = heapq.heappop(heap)\n    if d > dist[u]:\n        continue\n    for v, w in graph[u]:\n        if d + w < dist[v]:\n            dist[v], prev[v] = d + w, u\n            heapq.heappush(heap, (d + w, v))\n\npath, v = [], 3\nwhile v is not None:\n    path.append(v)\n    v = prev[v]\nprint(path[::-1], dist[3])\n",
+            "output": "[0, 2, 1, 3] 3\n"
+          },
+          {
+            "title": "状态更大，算法不变",
+            "body": "考试题常常加上一个条件：换乘要额外花时间、钥匙能打开门、可以打破一堵墙。只要状态包含了这个条件，算法就不变。如果换乘要花 T，状态就是 (车站, 线路)：乘车是同一线路上两个状态之间的边，换乘是同一车站上两个状态之间权为 T 的边。如果代价是一对数，例如 (打破的墙数, 步数)，Python 的元组按字典序比较，可以直接当作距离使用，只要加上一条边永远不会让代价变小。\n\n写代码之前先数状态数：车站数 × 线路数，或格子数 × 钥匙状态数，在 Python 中应控制在几百万以内。边权只有 0 和 1 的网格问题可以用双端队列代替堆（0-1 BFS），但 Dijkstra 总是正确的后备方案。"
+          },
+          {
+            "title": "Dijkstra 失效的时候，以及如何测试",
+            "body": "证明需要边权非负。有负权边时，一个早早确定的顶点之后可能以更低的代价到达，答案会悄无声息地出错；这类问题需要 Bellman–Ford 算法，或者换一种建模方式。权为 0 没有问题。\n\n常见的错误有：忘记检查过期元素（算法变慢，但仍然正确）；在压入时而不是弹出时把顶点标为已访问（结果错误）；没有事先一次建好邻接表。测试时，在随机的小图上与 Floyd–Warshall 算法比较：三重循环以 O(V³) 求出所有点对之间的距离，很容易写对，能抓住快速版本中的错误。",
+            "code": "INF = float('inf')\nn = 4\nd = [[0 if i == j else INF for j in range(n)] for i in range(n)]\nfor u, v, w in [(0, 1, 5), (0, 2, 1), (1, 3, 1), (2, 1, 1), (2, 3, 6)]:\n    d[u][v] = min(d[u][v], w)\nfor k in range(n):\n    for i in range(n):\n        for j in range(n):\n            d[i][j] = min(d[i][j], d[i][k] + d[k][j])\nprint(d[0])\n",
+            "output": "[0, 2, 1, 3]\n"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "为什么从堆中弹出的元素有时可以直接跳过？",
+            "answer": "它被压入之后又找到了更短的距离，所以它的值大于 dist[u]，这个顶点已经用更好的距离处理过了。"
+          },
+          {
+            "question": "Dijkstra 能处理权为 −2 的边吗？",
+            "answer": "不能。证明依赖于边权非负；负权边可能在某个顶点确定之后又改进它的距离。"
+          }
+        ],
+        "exerciseTitle": "最短距离",
+        "task": "某城市有 N 个路口，编号为 1 到 N，有 M 条双向道路；第 i 条道路连接 u_i 和 v_i，通行需要 w_i 分钟。同一对路口之间可能有多条道路，道路也可能连接一个路口和它自身。对每个路口，求从路口 1 出发的最短时间；无法到达时输出 -1。",
+        "input": "第一行是 N M，接下来 M 行，每行是 u v w。1 ≤ N ≤ 100000，0 ≤ M ≤ 200000，0 ≤ w ≤ 10^9。",
+        "output": "输出 N 行，第 k 行是从 1 到 k 的最短时间，或者 -1。",
+        "hint": "建立双向的邻接表，从顶点 1 运行带惰性删除的 Dijkstra，距离仍为无穷大的顶点输出 -1。",
+        "explanation": "边权非负，可以使用 Dijkstra。用 adj[u] = [(v, w), …] 存图，每条道路按两个方向各加一次；平行的道路和自环都不需要特殊处理。从 dist[1] = 0 开始，弹出最小的元素，过期的跳过，否则松弛它的边。每条道路至多引起两次压入，堆中有 O(M) 个元素，时间为 O((N + M) log N)。距离可能达到约 10^14，Python 的整数可以精确表示。最后把各行收集起来一次输出。"
+      },
+      "en": {
+        "title": "Priority queues and shortest paths",
+        "summary": "Use heapq to take the smallest item every time, and build Dijkstra’s algorithm for weighted graphs on top of it.",
+        "objectives": [
+          "Push and pop with heapq, including tuples and a max-heap by negation",
+          "Implement Dijkstra’s algorithm with lazy deletion and explain why it is correct",
+          "Model extra conditions as larger states and recognise when Dijkstra does not apply"
+        ],
+        "sections": [
+          {
+            "title": "The smallest item, again and again",
+            "body": "Many algorithms repeatedly take the smallest remaining item while new items keep arriving: the next event in a simulation, the cheapest unexplored option, the earliest deadline. Sorting once is not enough, because the set keeps changing. A binary heap supports both operations in O(log n).\n\nPython’s heapq module keeps a plain list in heap order: heappush(h, x) adds an item, heappop(h) removes and returns the smallest, and h[0] looks at the smallest without removing it. heapify(h) turns an existing list into a heap in O(n). The list is not sorted; it only guarantees that the smallest item comes first, so never expect the items in the middle to be in any order.",
+            "code": "import heapq\n\nh = []\nfor x in [5, 1, 8, 3, 2]:\n    heapq.heappush(h, x)\nprint(h[0])\nprint([heapq.heappop(h) for _ in range(3)])\nprint(h)\n",
+            "output": "1\n[1, 2, 3]\n[5, 8]\n"
+          },
+          {
+            "title": "Tuples, ties and largest-first",
+            "body": "Items are compared with <, so tuples work naturally: heappush(h, (priority, name)) orders by priority and breaks ties by name. If the second element might not be comparable, such as a dictionary, put a counter between them: (priority, sequence_number, item). heapq only provides a min-heap; for largest-first, push the negated priority and negate it again when popping.\n\nA typical use is keeping the k largest values of a stream in a heap of size k: push each value and pop the smallest whenever the size exceeds k. This costs O(n log k) instead of sorting everything.",
+            "code": "import heapq\n\ndef largest(values, k):\n    h = []\n    for v in values:\n        heapq.heappush(h, v)\n        if len(h) > k:\n            heapq.heappop(h)\n    return sorted(h, reverse=True)\n\nprint(largest([7, 2, 9, 4, 9, 1, 6], 3))\ntasks = [(3, 'write'), (1, 'read'), (3, 'test')]\nheapq.heapify(tasks)\nprint([heapq.heappop(tasks)[1] for _ in range(3)])\n",
+            "output": "[9, 9, 7]\n['read', 'test', 'write']\n"
+          },
+          {
+            "title": "Why BFS is not enough with weights",
+            "body": "Breadth-first search finds shortest paths when every edge costs the same, because it settles vertices in order of the number of edges. With different weights, a path with more edges can be shorter: two edges of length 1 beat one edge of length 5.\n\nDijkstra’s algorithm replaces the BFS queue with a priority queue keyed by tentative distance. Each step takes the unsettled vertex with the smallest tentative distance, and that distance is final: any other route must leave the settled region through some vertex at least as far away, and with non-negative weights it can only grow from there. The vertex’s edges are then relaxed: if going through it gives a neighbour a smaller distance, that distance is updated and pushed."
+          },
+          {
+            "title": "Dijkstra with lazy deletion",
+            "body": "heapq cannot decrease the key of an item already in the heap, so push a new entry whenever a distance improves and leave the old one inside. When an entry is popped, compare it with the recorded distance: if it is larger, the entry is stale and is skipped. This lazy deletion keeps the code short and adds at most one entry per relaxation, so the heap holds O(E) entries and the total time is O((V + E) log V).\n\nInitialise every distance to infinity, set the source to 0 and push (0, source). Represent the graph as an adjacency list of (neighbour, weight) pairs; for an undirected graph, add each edge in both directions.",
+            "code": "import heapq\n\ndef dijkstra(graph, source):\n    dist = [float('inf')] * len(graph)\n    dist[source] = 0\n    heap = [(0, source)]\n    while heap:\n        d, u = heapq.heappop(heap)\n        if d > dist[u]:\n            continue                      # a stale entry\n        for v, w in graph[u]:\n            if d + w < dist[v]:\n                dist[v] = d + w\n                heapq.heappush(heap, (d + w, v))\n    return dist\n\ngraph = [[(1, 5), (2, 1)], [(3, 1)], [(1, 1), (3, 6)], []]\nprint(dijkstra(graph, 0))\n",
+            "output": "[0, 2, 1, 3]\n"
+          },
+          {
+            "title": "Recovering the path",
+            "body": "Distances say how far, not which way. Whenever an edge improves dist[v], record the previous vertex on its best known path, prev[v] = u. When the algorithm finishes, follow prev from the target back to the source and reverse the list. If the target was never reached, its distance is still infinite and there is no path, so check that before following pointers.\n\nWhen several shortest paths exist, the one recovered depends on the order of relaxations. If a statement asks for a particular one, such as the lexicographically smallest, that requirement must be built into the comparison or handled in a second pass.",
+            "code": "import heapq\n\ngraph = [[(1, 5), (2, 1)], [(3, 1)], [(1, 1), (3, 6)], []]\ndist = [float('inf')] * 4\nprev = [None] * 4\ndist[0] = 0\nheap = [(0, 0)]\nwhile heap:\n    d, u = heapq.heappop(heap)\n    if d > dist[u]:\n        continue\n    for v, w in graph[u]:\n        if d + w < dist[v]:\n            dist[v], prev[v] = d + w, u\n            heapq.heappush(heap, (d + w, v))\n\npath, v = [], 3\nwhile v is not None:\n    path.append(v)\n    v = prev[v]\nprint(path[::-1], dist[3])\n",
+            "output": "[0, 2, 1, 3] 3\n"
+          },
+          {
+            "title": "Bigger states, same algorithm",
+            "body": "Exam problems often add a condition: changing lines costs extra, a key opens doors, or one wall may be broken. Once the state includes the condition, the algorithm stays the same. If changing trains costs T, a state is (station, line): riding is an edge between states on the same line, and changing is an edge of weight T between states at the same station. If the cost is a pair, such as (walls broken, steps), Python tuples compare lexicographically and can serve as distances directly, as long as adding an edge never makes a cost smaller.\n\nCount the states before coding: stations times lines, or cells times key combinations, must stay within a few million in Python. Grid problems whose weights are only 0 and 1 can use a deque instead of a heap (0-1 BFS), but Dijkstra is always a correct fallback."
+          },
+          {
+            "title": "When Dijkstra fails, and how to test it",
+            "body": "The proof needs non-negative edge weights. With a negative edge, a vertex settled early could later be reached more cheaply, and the answer silently goes wrong; such problems need Bellman–Ford or a different model. Zero weights are fine.\n\nCommon bugs are forgetting the stale-entry check, which makes the algorithm slower but still correct; marking a vertex visited when it is pushed rather than when it is popped, which makes it wrong; and not building the adjacency list once, up front. To test, compare with Floyd–Warshall on random small graphs: three nested loops computing every pair in O(V³) are easy to get right and catch errors in the faster code.",
+            "code": "INF = float('inf')\nn = 4\nd = [[0 if i == j else INF for j in range(n)] for i in range(n)]\nfor u, v, w in [(0, 1, 5), (0, 2, 1), (1, 3, 1), (2, 1, 1), (2, 3, 6)]:\n    d[u][v] = min(d[u][v], w)\nfor k in range(n):\n    for i in range(n):\n        for j in range(n):\n            d[i][j] = min(d[i][j], d[i][k] + d[k][j])\nprint(d[0])\n",
+            "output": "[0, 2, 1, 3]\n"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "Why may an entry popped from the heap be skipped?",
+            "answer": "A shorter distance was found after it was pushed, so its value is larger than dist[u] and the vertex has already been processed with the better distance."
+          },
+          {
+            "question": "Can Dijkstra handle an edge of weight −2?",
+            "answer": "No. The proof relies on non-negative weights; a negative edge can improve a vertex after its distance has been finalised."
+          }
+        ],
+        "exerciseTitle": "Shortest distances",
+        "task": "A city has N intersections numbered 1 to N and M two-way roads; road i joins u_i and v_i and takes w_i minutes. Several roads may join the same pair, and a road may join an intersection to itself. For every intersection, find the shortest travel time from intersection 1, or print -1 if it cannot be reached.",
+        "input": "N M on the first line, then M lines u v w. 1 ≤ N ≤ 100000, 0 ≤ M ≤ 200000 and 0 ≤ w ≤ 10^9.",
+        "output": "Print N lines; line k is the shortest time from 1 to k, or -1.",
+        "hint": "Build an adjacency list with both directions, run Dijkstra with lazy deletion from vertex 1, and print -1 for distances that are still infinite.",
+        "explanation": "The weights are non-negative, so Dijkstra applies. Store the graph as adj[u] = [(v, w), …] with each road added in both directions; parallel roads and self-loops need no special handling. Start from dist[1] = 0, pop the smallest entry, skip it if it is stale, and otherwise relax its edges. Each road causes at most two pushes, so the heap holds O(M) entries and the time is O((N + M) log N). Distances can reach about 10^14, which Python integers represent exactly. Collect the lines and print them at once."
+      },
+      "ja": {
+        "title": "優先度付きキューと最短経路",
+        "summary": "heapq で常に最小の要素を取り出し、その上に重み付きグラフのダイクストラ法を組み立てます。",
+        "objectives": [
+          "heapq でのプッシュとポップ、タプルの利用、符号反転による最大ヒープを使いこなす",
+          "遅延削除を用いたダイクストラ法を実装し、それが正しい理由を説明する",
+          "追加の条件をより大きな状態として表し、ダイクストラ法が使えない場合を見分ける"
+        ],
+        "sections": [
+          {
+            "title": "最小の要素を何度も取り出す",
+            "body": "多くのアルゴリズムは、新しい要素が加わり続ける中で、残りの要素のうち最小のものを繰り返し取り出します。シミュレーションの次のイベント、最も安い未探索の選択肢、最も早い締め切りなどです。集合が変化するので、一度ソートするだけでは足りません。二分ヒープはどちらの操作も O(log n) で行えます。\n\nPython の heapq モジュールは、普通のリストをヒープの順序に保ちます。heappush(h, x) で要素を加え、heappop(h) で最小の要素を取り除いて返し、h[0] で取り除かずに最小値を見ます。heapify(h) は既存のリストを O(n) でヒープにします。リストはソートされているわけではなく、最小の要素が先頭にあることだけが保証されます。途中の要素に順序を期待してはいけません。",
+            "code": "import heapq\n\nh = []\nfor x in [5, 1, 8, 3, 2]:\n    heapq.heappush(h, x)\nprint(h[0])\nprint([heapq.heappop(h) for _ in range(3)])\nprint(h)\n",
+            "output": "1\n[1, 2, 3]\n[5, 8]\n"
+          },
+          {
+            "title": "タプル、同点、大きい順",
+            "body": "要素は < で比較されるので、タプルが自然に使えます。heappush(h, (priority, name)) は優先度の順に並び、等しければ名前で比べます。2 番目の要素が辞書のように比較できない可能性があるなら、間にカウンタを挟んで (priority, sequence_number, item) とします。heapq は最小ヒープしか提供しないので、大きい順に取り出したいときは優先度の符号を反転して入れ、取り出すときに戻します。\n\n典型的な使い方は、大きさ k のヒープでデータ列の上位 k 個を保つことです。値を入れるたびに、大きさが k を超えたら最小値を取り出します。全体をソートせずに O(n log k) で済みます。",
+            "code": "import heapq\n\ndef largest(values, k):\n    h = []\n    for v in values:\n        heapq.heappush(h, v)\n        if len(h) > k:\n            heapq.heappop(h)\n    return sorted(h, reverse=True)\n\nprint(largest([7, 2, 9, 4, 9, 1, 6], 3))\ntasks = [(3, 'write'), (1, 'read'), (3, 'test')]\nheapq.heapify(tasks)\nprint([heapq.heappop(tasks)[1] for _ in range(3)])\n",
+            "output": "[9, 9, 7]\n['read', 'test', 'write']\n"
+          },
+          {
+            "title": "重みがあると BFS では足りない",
+            "body": "すべての辺のコストが等しいとき、幅優先探索は辺の数の順に頂点を確定させるので、最短経路が求まります。コストが異なると、辺の多い経路のほうが短いことがあります。長さ 1 の辺 2 本は、長さ 5 の辺 1 本より短いのです。\n\nダイクストラ法は、BFS のキューを暫定距離をキーとする優先度付きキューに置き換えます。各段階で暫定距離が最小の未確定の頂点を取り出すと、その距離は確定します。他の経路は、確定した領域から距離がそれ以上の頂点を通って出ていくしかなく、重みが非負ならそこから長くなる一方だからです。そのあと、その頂点の辺を緩和します。それを経由すると隣の頂点の距離が小さくなるなら、距離を更新してヒープに入れます。"
+          },
+          {
+            "title": "遅延削除によるダイクストラ法",
+            "body": "heapq では、ヒープにすでにある要素のキーを小さくすることができません。代わりに、距離が改善するたびに新しい要素を入れ、古い要素はそのまま残します。取り出した要素は記録された距離と比べ、それより大きければ古い要素なので飛ばします。この遅延削除によってコードは短くなり、緩和 1 回につき要素は高々 1 つ増えるだけなので、ヒープの要素数は O(E)、全体の時間は O((V + E) log V) です。\n\n距離を無限大で初期化し、始点を 0 にして (0, 始点) を入れます。グラフは (隣接頂点, 重み) の組の隣接リストで表し、無向グラフなら各辺を両方向に加えます。",
+            "code": "import heapq\n\ndef dijkstra(graph, source):\n    dist = [float('inf')] * len(graph)\n    dist[source] = 0\n    heap = [(0, source)]\n    while heap:\n        d, u = heapq.heappop(heap)\n        if d > dist[u]:\n            continue                      # a stale entry\n        for v, w in graph[u]:\n            if d + w < dist[v]:\n                dist[v] = d + w\n                heapq.heappush(heap, (d + w, v))\n    return dist\n\ngraph = [[(1, 5), (2, 1)], [(3, 1)], [(1, 1), (3, 6)], []]\nprint(dijkstra(graph, 0))\n",
+            "output": "[0, 2, 1, 3]\n"
+          },
+          {
+            "title": "経路を復元する",
+            "body": "距離は「どれだけ遠いか」には答えますが、「どう行くか」には答えません。辺によって dist[v] が改善されるたびに、v への最良の経路における直前の頂点 prev[v] = u を記録します。アルゴリズムが終わったら、終点から prev をたどって始点まで戻り、リストを反転します。終点に一度も到達していなければ距離は無限大のままで、経路はありません。たどる前に確認しましょう。\n\n最短経路が複数あるとき、どれが復元されるかは緩和の順序に依存します。辞書順最小のように特定の経路が求められているなら、その要求を比較に組み込むか、別の処理を加える必要があります。",
+            "code": "import heapq\n\ngraph = [[(1, 5), (2, 1)], [(3, 1)], [(1, 1), (3, 6)], []]\ndist = [float('inf')] * 4\nprev = [None] * 4\ndist[0] = 0\nheap = [(0, 0)]\nwhile heap:\n    d, u = heapq.heappop(heap)\n    if d > dist[u]:\n        continue\n    for v, w in graph[u]:\n        if d + w < dist[v]:\n            dist[v], prev[v] = d + w, u\n            heapq.heappush(heap, (d + w, v))\n\npath, v = [], 3\nwhile v is not None:\n    path.append(v)\n    v = prev[v]\nprint(path[::-1], dist[3])\n",
+            "output": "[0, 2, 1, 3] 3\n"
+          },
+          {
+            "title": "状態を大きくしてもアルゴリズムは同じ",
+            "body": "試験の問題には、乗り換えに余分な時間がかかる、鍵で扉が開く、壁を 1 つ壊せる、といった条件がよく加わります。状態がその条件を含めば、アルゴリズムは変わりません。乗り換えに T かかるなら、状態は (駅, 路線) です。乗車は同じ路線上の状態どうしの辺、乗り換えは同じ駅の状態どうしを結ぶ重み T の辺になります。コストが (壊した壁の数, 歩数) のような組なら、Python のタプルは辞書式に比較されるので、辺を加えてコストが小さくなることがない限り、そのまま距離として使えます。\n\nコードを書く前に状態数を数えましょう。駅の数 × 路線の数、あるいはマスの数 × 鍵の状態の数が、Python では数百万程度に収まる必要があります。重みが 0 と 1 だけのグリッドなら、ヒープの代わりに両端キューを使う 0-1 BFS も使えますが、ダイクストラ法は常に正しい代替手段です。"
+          },
+          {
+            "title": "ダイクストラ法が使えないとき、そして試し方",
+            "body": "証明には、辺の重みが非負であることが必要です。負の辺があると、早く確定した頂点に、あとからもっと安く到達できることがあり、答えが知らないうちに誤ります。そのような問題には、ベルマン–フォード法か別の定式化が必要です。重み 0 は問題ありません。\n\nよくある誤りは、古い要素の検査を忘れる（遅くなるが正しい）、頂点を取り出したときではなく入れたときに訪問済みにする（誤った答えになる）、隣接リストを最初に一度で作らない、などです。テストには、ランダムな小さいグラフでワーシャル–フロイド法と比べます。O(V³) の三重ループですべての組の距離を求めるコードは正しく書きやすく、速い版の誤りを見つけてくれます。",
+            "code": "INF = float('inf')\nn = 4\nd = [[0 if i == j else INF for j in range(n)] for i in range(n)]\nfor u, v, w in [(0, 1, 5), (0, 2, 1), (1, 3, 1), (2, 1, 1), (2, 3, 6)]:\n    d[u][v] = min(d[u][v], w)\nfor k in range(n):\n    for i in range(n):\n        for j in range(n):\n            d[i][j] = min(d[i][j], d[i][k] + d[k][j])\nprint(d[0])\n",
+            "output": "[0, 2, 1, 3]\n"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "ヒープから取り出した要素を飛ばしてよいのはなぜですか。",
+            "answer": "入れたあとに、もっと短い距離が見つかったからです。その値は dist[u] より大きく、頂点はすでにより良い距離で処理されています。"
+          },
+          {
+            "question": "重み −2 の辺をダイクストラ法で扱えますか。",
+            "answer": "扱えません。証明は重みが非負であることに依存しており、負の辺は確定後の頂点の距離を改善しうるからです。"
+          }
+        ],
+        "exerciseTitle": "最短距離",
+        "task": "ある都市には、1 から N の番号が付いた N 個の交差点と、M 本の双方向の道路があります。道路 i は u_i と v_i を結び、通るのに w_i 分かかります。同じ 2 つの交差点を結ぶ道路が複数あることも、交差点とそれ自身を結ぶ道路があることもあります。各交差点について、交差点 1 からの最短の所要時間を求めてください。到達できない場合は -1 を出力します。",
+        "input": "1 行目に N M、続く M 行に u v w が与えられます。1 ≤ N ≤ 100000、0 ≤ M ≤ 200000、0 ≤ w ≤ 10^9 です。",
+        "output": "N 行出力してください。k 行目は 1 から k への最短の所要時間、または -1 です。",
+        "hint": "双方向の隣接リストを作り、頂点 1 から遅延削除を用いたダイクストラ法を実行して、距離が無限大のままの頂点には -1 を出力します。",
+        "explanation": "重みは非負なので、ダイクストラ法が使えます。グラフは adj[u] = [(v, w), …] として持ち、各道路を両方向に加えます。平行な道路や自己ループに特別な処理は要りません。dist[1] = 0 から始め、最小の要素を取り出し、古ければ飛ばし、そうでなければその辺を緩和します。各道路が引き起こすプッシュは高々 2 回なので、ヒープの要素数は O(M)、時間は O((N + M) log N) です。距離は約 10^14 に達しますが、Python の整数で正確に扱えます。出力の各行は集めてから、まとめて出力します。"
+      }
+    },
+    "order": 27,
+    "stage": "exam",
+    "minutes": 55,
+    "prerequisiteIds": [
+      "recursion-and-memoization"
+    ],
+    "relatedProblems": [
+      "ABC340D",
+      "CI-RAIL-2",
+      "CI-MAP-4"
+    ],
+    "solution": "import heapq\nimport sys\n\ndata = sys.stdin.read().split()\nn, m = int(data[0]), int(data[1])\nadj = [[] for _ in range(n + 1)]\nfor i in range(m):\n    u, v, w = int(data[2 + 3 * i]), int(data[3 + 3 * i]), int(data[4 + 3 * i])\n    adj[u].append((v, w))\n    adj[v].append((u, w))\n\nINF = float('inf')\ndist = [INF] * (n + 1)\ndist[1] = 0\nheap = [(0, 1)]\nwhile heap:\n    d, u = heapq.heappop(heap)\n    if d > dist[u]:\n        continue\n    for v, w in adj[u]:\n        if d + w < dist[v]:\n            dist[v] = d + w\n            heapq.heappush(heap, (d + w, v))\n\nprint('\\n'.join(str(d) if d < INF else '-1' for d in dist[1:]))\n",
+    "starter": "import heapq\nimport sys\n\ndata = sys.stdin.read().split()\nn, m = int(data[0]), int(data[1])\nadj = [[] for _ in range(n + 1)]\n# TODO: read the roads, run Dijkstra from 1 and print the distances\n",
+    "tests": [
+      {
+        "input": "4 5\n1 2 5\n1 3 1\n3 2 1\n2 4 1\n3 4 6\n",
+        "expected": "0\n2\n1\n3\n"
+      },
+      {
+        "input": "3 1\n1 2 7\n",
+        "expected": "0\n7\n-1\n"
+      },
+      {
+        "input": "1 0\n",
+        "expected": "0\n"
+      },
+      {
+        "input": "3 4\n1 2 10\n1 2 3\n2 2 1\n2 3 0\n",
+        "expected": "0\n3\n3\n"
+      },
+      {
+        "input": "3 2\n1 2 1000000000\n2 3 1000000000\n",
+        "expected": "0\n1000000000\n2000000000\n"
+      },
+      {
+        "input": "5 6\n1 2 1\n2 3 1\n3 4 1\n4 5 1\n1 5 10\n1 3 5\n",
+        "expected": "0\n1\n2\n3\n4\n"
+      }
+    ]
+  },
+  {
+    "id": "simulation-and-parsing",
+    "content": {
+      "zh": {
+        "title": "模拟与解析",
+        "summary": "把规则写成逐步执行的代码：先把输入解析成数据，让状态一目了然，状态重复时跳过剩余的周期。",
+        "objectives": [
+          "在执行之前把命令解析成结构化的数据",
+          "写出状态明确、步数清楚的模拟循环",
+          "用字典检测重复的状态，并跳过剩余的周期"
+        ],
+        "sections": [
+          {
+            "title": "状态、规则与终止",
+            "body": "模拟题描述一个系统以及它变化的规则：按命令移动的机器人、运行程序的机器、排队的顾客。写代码之前，先写下三件事。状态：下一步所依赖的每一个值，例如位置和方向，或者程序计数器和栈。规则：一步如何改变状态。终止条件：最后一条指令、步数上限或者某个事件。\n\n如果两种情况今后的表现不同，而你的状态却无法区分它们，状态就不完整。模拟中的许多错误答案，源于状态散落在一堆命名随意的变量里；把它们归在一起，哪怕只是一个元组，也会让每一步更容易检查。",
+            "code": "moves = {'N': (0, 1), 'E': (1, 0), 'S': (0, -1), 'W': (-1, 0)}\nright = {'N': 'E', 'E': 'S', 'S': 'W', 'W': 'N'}\nleft = {after: before for before, after in right.items()}\n\nx, y, facing = 0, 0, 'N'\nfor command in 'FFRFFRFLF':\n    if command == 'F':\n        dx, dy = moves[facing]\n        x, y = x + dx, y + dy\n    elif command == 'R':\n        facing = right[facing]\n    else:\n        facing = left[facing]\nprint(x, y, facing)\n",
+            "output": "3 1 E\n"
+          },
+          {
+            "title": "先解析，再执行",
+            "body": "把读入和运行分开。把输入的每一行变成一条小记录，例如 ('PUSH', 5) 或 ('JMP', 'loop')，解析时顺便把标签或名字存进字典。之后的执行循环只处理干净的数据：最内层的循环里不再拆分字符串，也不会被多余的空格坑到。\n\n解析也是做检查的地方：未知的指令或缺少的参数，在还知道行号的时候报告最容易。对文本形式的指令，用 line.split() 拆出名字和参数通常就够了；maxsplit=1 能完整保留一个自由文本的参数。错误信息需要引用行号时，让每条记录都带上原来的行号。",
+            "code": "source = \"\"\"PUSH 3\nPUSH 4\nADD\nPRINT\"\"\"\nprogram = []\nfor number, line in enumerate(source.splitlines(), 1):\n    name, *args = line.split()\n    program.append((number, name, [int(a) for a in args]))\nprint(program)\n",
+            "output": "[(1, 'PUSH', [3]), (2, 'PUSH', [4]), (3, 'ADD', []), (4, 'PRINT', [])]\n"
+          },
+          {
+            "title": "表达式的记号",
+            "body": "像 12*(3+4) 这样的表达式分两步解析。记号化把文本切成数字、运算符和括号；re.findall(r'\\d+|[-+*/()]', text) 一行就能完成，并且自动跳过空格。然后由解析器按照文法处理。\n\n对于通常的优先级，每一层写一个函数：表达式是用 + 和 - 连接的项，项是用 * 连接的因子，因子是一个数或者括号里的表达式。各函数从共享的位置读取记号，返回一个值，或者在编译器中生成指令。这种递归下降与文法的对应如此紧密，可以逐行对照文法检查代码。",
+            "code": "import re\n\ndef evaluate(text):\n    tokens = re.findall(r'\\d+|[-+*()]', text)\n    pos = 0\n\n    def expression():\n        nonlocal pos\n        value = term()\n        while pos < len(tokens) and tokens[pos] in ('+', '-'):\n            op = tokens[pos]\n            pos += 1\n            value = value + term() if op == '+' else value - term()\n        return value\n\n    def term():\n        nonlocal pos\n        value = factor()\n        while pos < len(tokens) and tokens[pos] == '*':\n            pos += 1\n            value *= factor()\n        return value\n\n    def factor():\n        nonlocal pos\n        token = tokens[pos]\n        pos += 1\n        if token == '(':\n            value = expression()\n            pos += 1                      # skip ')'\n            return value\n        return int(token)\n\n    return expression()\n\nprint(evaluate('12 * (3 + 4) - 5'))\nprint(evaluate('2 - 3 - 4'))\n",
+            "output": "79\n-5\n"
+          },
+          {
+            "title": "步进循环",
+            "body": "写主循环时，让每次迭代恰好对应规则中的一步：取出当前的指令或事件，检查终止条件，应用规则，更新计数器，并且始终保持同样的顺序。要精确决定计数的对象：最后的 HALT 算不算一步，转向是否耗时，上限是在一步之前还是之后检查。\n\n步数上的差一错误是这类题中最常见的错误，所以要用一个能手工数清的小例子来测试。有步数上限时，把检查放在循环的开头，这样恰好在上限处停止的程序不会被误判。用字典把每个指令名映射到一个小函数，可以让一长串 if 语句保持可读。",
+            "code": "program = [('PUSH', 3), ('PUSH', 4), ('ADD', None), ('PRINT', None), ('HALT', None), ('PUSH', 9)]\nstack, pc, steps = [], 0, 0\nwhile pc < len(program):\n    op, arg = program[pc]\n    pc += 1\n    steps += 1\n    if op == 'PUSH':\n        stack.append(arg)\n    elif op == 'ADD':\n        b, a = stack.pop(), stack.pop()\n        stack.append(a + b)\n    elif op == 'PRINT':\n        print(stack.pop())\n    elif op == 'HALT':\n        break\nprint('steps', steps)\n",
+            "output": "7\nsteps 5\n"
+          },
+          {
+            "title": "当状态重复时",
+            "body": "有的问题要求经过极多步——例如 10^18 步——之后的状态，无法一步一步模拟。如果状态空间是有限的，状态序列终究会重复，此后便进入循环。用字典记录每个状态第一次出现时的步数；当前状态已经在字典里时，两个步数之差就是周期的长度。剩余的步数对周期长度取模，只需再模拟余下的那几步。\n\n用作键的状态必须完整：如果只存了位置，而方向同样重要，那么两次到达同一位置并不是同一个状态，跳跃就会出错。",
+            "code": "def state_after(start, step, k):\n    seen = {}\n    x, t = start, 0\n    while t < k:\n        if x in seen:\n            cycle = t - seen[x]\n            for _ in range((k - t) % cycle):\n                x = step(x)\n            return x\n        seen[x] = t\n        x = step(x)\n        t += 1\n    return x\n\nf = lambda x: (x * x + 1) % 100\nprint([state_after(3, f, k) for k in range(8)])\nprint(state_after(3, f, 10**18))\n",
+            "output": "[3, 10, 1, 2, 5, 26, 77, 30]\n5\n"
+          },
+          {
+            "title": "让模拟可以检查",
+            "body": "模拟是由许多小规则组成的长代码，所以要准备好观察内部的手段。用一个开关控制的跟踪模式在每一步之后打印状态，就能把错误的答案变成一串可以与手算比较的状态。断言写出必须成立的不变量，例如栈为空时不能弹出、位置必须在网格之内；它们抓住的是第一次违规，而不是最后的症状。\n\n用只包含某一条规则的程序或命令串，单独测试每条规则。涉及周期跳跃时，对几百以内的每个 k，把快速版本与朴素的模拟比较：任何不一致，都说明周期的计算有差一错误。"
+          },
+          {
+            "title": "读长题目",
+            "body": "模拟题的题面很长，因为每条规则都必须说清楚。拿着笔读：划出每条规则，记下每个数字及其单位，写下题面已经说明的边界情况，例如到达边界或出现平局时会怎样。动手写代码之前，先手工复现样例；如果手算的结果与样例输出不一致，误解出在阅读上，再怎么调试也修不好。\n\n在多小问的考题中，后面的小问通常会扩展同一个模拟，所以第一问的代码就要考虑到这一点：解析函数、状态和单步函数容易扩展，一整块嵌套循环则不然。"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "为什么在执行带跳转的程序之前，要先解析所有的行？",
+            "answer": "跳转的目标标签可能在后面；先解析能记下每个标签，执行时处理的是干净的记录及其行号。"
+          },
+          {
+            "question": "机器人的位置出现了重复，但跳过周期之后的答案是错的。可能的原因是什么？",
+            "answer": "状态不完整：方向或命令的下标也决定今后的行为，必须作为字典键的一部分。"
+          }
+        ],
+        "exerciseTitle": "传送门",
+        "task": "有 N 个城镇，编号为 1 到 N。城镇 i 有一个传送门，会把人送到城镇 A_i。你从城镇 1 出发，恰好使用传送门 K 次。最后你在哪个城镇？",
+        "input": "第一行是 N K，第二行是 A_1 … A_N。1 ≤ N ≤ 200000，1 ≤ A_i ≤ N，1 ≤ K ≤ 10^18。",
+        "output": "输出最后所在的城镇。",
+        "hint": "模拟的同时，记录第一次到达每个城镇时的步数。某个城镇再次出现时，把剩余的步数对周期长度取模。",
+        "explanation": "状态就是当前所在的城镇，至多有 N 种，所以 N + 1 步之内必有城镇重复。记录 first[v] = t，表示第 t 步时第一次到达 v。当前城镇 v 在第 t 步时已经出现过，那么此后的行程以长度 t − first[v] 循环。把剩余的 K − t 步对周期长度取模后直接模拟，至多再走 N 步。如果在出现重复之前就已走完 K 步，模拟本身就给出了答案。总时间为 O(N)。同样的思路适用于任何状态空间小、步数巨大的确定性过程。"
+      },
+      "en": {
+        "title": "Simulation and parsing",
+        "summary": "Turn rules into code that executes them step by step: parse the input into data first, keep the state explicit, and skip ahead when the state repeats.",
+        "objectives": [
+          "Parse commands into structured data before executing them",
+          "Write a simulation loop with an explicit state and a clear step count",
+          "Detect a repeated state with a dictionary and jump over the remaining cycles"
+        ],
+        "sections": [
+          {
+            "title": "State, rules, stopping",
+            "body": "A simulation problem describes a system and the rules by which it changes: a robot following commands, a machine running a program, a queue of customers. Before coding, write down three things. The state: every value the next step depends on, such as a position and a direction, or a program counter and a stack. The rules: how one step transforms the state. The stopping condition: a final instruction, a step limit or some event.\n\nIf two situations would behave differently later but your state cannot tell them apart, the state is incomplete. Many wrong answers in simulations come from state spread across loosely named variables; grouping it, even in a tuple, makes each step easier to check.",
+            "code": "moves = {'N': (0, 1), 'E': (1, 0), 'S': (0, -1), 'W': (-1, 0)}\nright = {'N': 'E', 'E': 'S', 'S': 'W', 'W': 'N'}\nleft = {after: before for before, after in right.items()}\n\nx, y, facing = 0, 0, 'N'\nfor command in 'FFRFFRFLF':\n    if command == 'F':\n        dx, dy = moves[facing]\n        x, y = x + dx, y + dy\n    elif command == 'R':\n        facing = right[facing]\n    else:\n        facing = left[facing]\nprint(x, y, facing)\n",
+            "output": "3 1 E\n"
+          },
+          {
+            "title": "Parse first, then execute",
+            "body": "Separate reading from running. Turn each input line into a small record, such as ('PUSH', 5) or ('JMP', 'loop'), and store labels or names in a dictionary while parsing. The execution loop then works with clean data: no string splitting inside the innermost loop, and no surprises from stray spaces.\n\nParsing is also the place to validate: an unknown instruction or a missing argument is easiest to report while you still know the line number. For instructions written as text, line.split() into a name and arguments is usually enough, and maxsplit=1 keeps a free-text argument intact. Keep the original line number in each record when error messages must refer to it.",
+            "code": "source = \"\"\"PUSH 3\nPUSH 4\nADD\nPRINT\"\"\"\nprogram = []\nfor number, line in enumerate(source.splitlines(), 1):\n    name, *args = line.split()\n    program.append((number, name, [int(a) for a in args]))\nprint(program)\n",
+            "output": "[(1, 'PUSH', [3]), (2, 'PUSH', [4]), (3, 'ADD', []), (4, 'PRINT', [])]\n"
+          },
+          {
+            "title": "Tokens for expressions",
+            "body": "An expression such as 12*(3+4) is parsed in two steps. A tokenizer splits the text into numbers, operators and parentheses; re.findall(r'\\d+|[-+*/()]', text) does it in one line and skips the spaces. A parser then follows the grammar.\n\nFor the usual precedence, write one function per level: an expression is terms joined by + and -, a term is factors joined by *, and a factor is a number or a parenthesised expression. Each function consumes tokens from a shared position and returns a value, or emits instructions in a compiler. This recursive descent mirrors the grammar so closely that the code can be checked against it line by line.",
+            "code": "import re\n\ndef evaluate(text):\n    tokens = re.findall(r'\\d+|[-+*()]', text)\n    pos = 0\n\n    def expression():\n        nonlocal pos\n        value = term()\n        while pos < len(tokens) and tokens[pos] in ('+', '-'):\n            op = tokens[pos]\n            pos += 1\n            value = value + term() if op == '+' else value - term()\n        return value\n\n    def term():\n        nonlocal pos\n        value = factor()\n        while pos < len(tokens) and tokens[pos] == '*':\n            pos += 1\n            value *= factor()\n        return value\n\n    def factor():\n        nonlocal pos\n        token = tokens[pos]\n        pos += 1\n        if token == '(':\n            value = expression()\n            pos += 1                      # skip ')'\n            return value\n        return int(token)\n\n    return expression()\n\nprint(evaluate('12 * (3 + 4) - 5'))\nprint(evaluate('2 - 3 - 4'))\n",
+            "output": "79\n-5\n"
+          },
+          {
+            "title": "The step loop",
+            "body": "Write the main loop so that one iteration is exactly one step of the rules: fetch the current instruction or event, check the stopping conditions, apply the rule and update the counters, always in the same order. Decide precisely what is counted: whether the final HALT is a step, whether turning takes time, and whether a limit is checked before or after a step.\n\nOff-by-one errors in step counts are the most common mistake in these problems, so test on a tiny case you can count by hand. When a step limit applies, put the check at the top of the loop, so that a program stopping exactly at the limit is not misreported. A dictionary that maps each instruction name to a small function keeps a long chain of if statements readable.",
+            "code": "program = [('PUSH', 3), ('PUSH', 4), ('ADD', None), ('PRINT', None), ('HALT', None), ('PUSH', 9)]\nstack, pc, steps = [], 0, 0\nwhile pc < len(program):\n    op, arg = program[pc]\n    pc += 1\n    steps += 1\n    if op == 'PUSH':\n        stack.append(arg)\n    elif op == 'ADD':\n        b, a = stack.pop(), stack.pop()\n        stack.append(a + b)\n    elif op == 'PRINT':\n        print(stack.pop())\n    elif op == 'HALT':\n        break\nprint('steps', steps)\n",
+            "output": "7\nsteps 5\n"
+          },
+          {
+            "title": "When the state repeats",
+            "body": "Some problems ask for the state after an enormous number of steps, such as 10^18 moves, which cannot be simulated one by one. If the state space is finite, the sequence of states must eventually repeat, and from then on it cycles. Store the step at which each state was first seen in a dictionary; when the current state is already there, the difference between the two steps is the cycle length. Reduce the remaining steps modulo that length and simulate only the remainder.\n\nThe state used as the key must be complete: if only the position is stored but the direction matters too, two visits to the same position are not the same state, and the jump goes wrong.",
+            "code": "def state_after(start, step, k):\n    seen = {}\n    x, t = start, 0\n    while t < k:\n        if x in seen:\n            cycle = t - seen[x]\n            for _ in range((k - t) % cycle):\n                x = step(x)\n            return x\n        seen[x] = t\n        x = step(x)\n        t += 1\n    return x\n\nf = lambda x: (x * x + 1) % 100\nprint([state_after(3, f, k) for k in range(8)])\nprint(state_after(3, f, 10**18))\n",
+            "output": "[3, 10, 1, 2, 5, 26, 77, 30]\n5\n"
+          },
+          {
+            "title": "Make the simulation checkable",
+            "body": "A simulation is long code made of many small rules, so build ways to look inside it. A trace mode, switched on by a flag, that prints the state after every step turns a wrong answer into a list of states you can compare with a hand calculation. Assertions state invariants that must hold, such as never popping an empty stack or a position staying inside the grid; they catch the first violation instead of the final symptom.\n\nTest each rule with a program or command string that uses only that rule. When cycle skipping is involved, compare the fast version with plain simulation for every k up to a few hundred: any mismatch points to an off-by-one in the cycle arithmetic."
+          },
+          {
+            "title": "Reading a long statement",
+            "body": "Simulation statements are long because every rule has to be specified. Read them with a pencil: underline each rule, note every number with its unit, and write down the edge cases the statement settles, such as what happens at a border or on a tie. Then reproduce the sample by hand before coding; if your hand calculation disagrees with the sample output, the misunderstanding is in the reading, and no amount of debugging will fix it.\n\nIn a multi-part exam question, later parts usually extend the same simulation, so structure the code for the first part with that in mind: a parsing function, a state and a step function are easy to extend; one block of nested loops is not."
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "Why parse every line before executing a program with jumps?",
+            "answer": "A jump may target a label further down. Parsing first records every label, and execution then works with clean records and their line numbers."
+          },
+          {
+            "question": "A robot’s position repeats, but the answer after skipping cycles is wrong. What is a likely cause?",
+            "answer": "The state is incomplete: the direction or the command index also determines the future and must be part of the dictionary key."
+          }
+        ],
+        "exerciseTitle": "Teleporters",
+        "task": "There are N towns numbered 1 to N. Town i has a teleporter that sends you to town A_i. You start in town 1 and use a teleporter exactly K times. In which town do you end up?",
+        "input": "N K on the first line and A_1 … A_N on the second. 1 ≤ N ≤ 200000, 1 ≤ A_i ≤ N and 1 ≤ K ≤ 10^18.",
+        "output": "Print the final town.",
+        "hint": "Simulate while recording the step at which each town is first reached. When a town repeats, reduce the remaining steps modulo the cycle length.",
+        "explanation": "The state is the current town, so there are at most N states, and some town repeats within N + 1 steps. Record first[v] = t, the step at which v was first reached. When the current town v at step t has been seen before, the walk from then on repeats with cycle length t − first[v]. Reduce the remaining K − t steps modulo that length and simulate the rest directly, at most N more steps. If K steps are completed before anything repeats, the simulation itself gives the answer. The total time is O(N), and the same idea works for any deterministic process with a small state space and a huge number of steps."
+      },
+      "ja": {
+        "title": "シミュレーションと構文解析",
+        "summary": "規則を 1 ステップずつ実行するコードにします。入力を先にデータへ解析し、状態をはっきり持ち、状態が繰り返したら残りの周期を飛ばします。",
+        "objectives": [
+          "実行の前に命令を構造化されたデータへ解析する",
+          "状態が明確で、ステップ数のはっきりしたシミュレーションのループを書く",
+          "辞書で状態の繰り返しを検出し、残りの周期を飛ばす"
+        ],
+        "sections": [
+          {
+            "title": "状態、規則、停止",
+            "body": "シミュレーションの問題は、ある系と、それが変化する規則を記述します。命令に従って動くロボット、プログラムを実行する機械、列に並ぶ客などです。コードを書く前に 3 つのことを書き出します。状態は、次のステップが依存するすべての値で、位置と向き、あるいはプログラムカウンタとスタックなどです。規則は、1 ステップで状態がどう変わるかです。停止条件は、最後の命令、ステップ数の上限、何らかの出来事です。\n\n今後のふるまいが異なる 2 つの状況を、あなたの状態が区別できないなら、状態は不完全です。シミュレーションの誤答の多くは、状態がいい加減な名前の変数に散らばっていることから生じます。タプルでもよいのでまとめておくと、各ステップを確かめやすくなります。",
+            "code": "moves = {'N': (0, 1), 'E': (1, 0), 'S': (0, -1), 'W': (-1, 0)}\nright = {'N': 'E', 'E': 'S', 'S': 'W', 'W': 'N'}\nleft = {after: before for before, after in right.items()}\n\nx, y, facing = 0, 0, 'N'\nfor command in 'FFRFFRFLF':\n    if command == 'F':\n        dx, dy = moves[facing]\n        x, y = x + dx, y + dy\n    elif command == 'R':\n        facing = right[facing]\n    else:\n        facing = left[facing]\nprint(x, y, facing)\n",
+            "output": "3 1 E\n"
+          },
+          {
+            "title": "先に解析し、それから実行する",
+            "body": "読み込みと実行を分けます。入力の各行を ('PUSH', 5) や ('JMP', 'loop') のような小さなレコードに変換し、解析の途中でラベルや名前を辞書に記録します。実行ループはきれいなデータだけを扱うので、内側のループで文字列を分割することも、余分な空白に悩まされることもありません。\n\n解析は検査の場でもあります。未知の命令や引数の不足は、行番号が分かっているうちに報告するのが最も簡単です。テキストで書かれた命令なら、line.split() で名前と引数に分ければたいてい十分で、maxsplit=1 を使えば自由な文字列の引数をそのまま残せます。エラーで行番号を示す必要があるなら、各レコードに元の行番号を持たせます。",
+            "code": "source = \"\"\"PUSH 3\nPUSH 4\nADD\nPRINT\"\"\"\nprogram = []\nfor number, line in enumerate(source.splitlines(), 1):\n    name, *args = line.split()\n    program.append((number, name, [int(a) for a in args]))\nprint(program)\n",
+            "output": "[(1, 'PUSH', [3]), (2, 'PUSH', [4]), (3, 'ADD', []), (4, 'PRINT', [])]\n"
+          },
+          {
+            "title": "式のトークン",
+            "body": "12*(3+4) のような式は 2 段階で解析します。字句解析で文字列を数・演算子・括弧に分けます。re.findall(r'\\d+|[-+*/()]', text) なら 1 行で済み、空白も読み飛ばされます。次に、構文解析器が文法に従って処理します。\n\n通常の優先順位なら、段階ごとに 1 つの関数を書きます。式は + と - で結ばれた項、項は * で結ばれた因子、因子は数か括弧で囲まれた式です。各関数は共有の位置からトークンを読み、値を返すか、コンパイラなら命令を出力します。この再帰下降は文法と非常によく対応するので、コードを文法と 1 行ずつ照らし合わせて確かめられます。",
+            "code": "import re\n\ndef evaluate(text):\n    tokens = re.findall(r'\\d+|[-+*()]', text)\n    pos = 0\n\n    def expression():\n        nonlocal pos\n        value = term()\n        while pos < len(tokens) and tokens[pos] in ('+', '-'):\n            op = tokens[pos]\n            pos += 1\n            value = value + term() if op == '+' else value - term()\n        return value\n\n    def term():\n        nonlocal pos\n        value = factor()\n        while pos < len(tokens) and tokens[pos] == '*':\n            pos += 1\n            value *= factor()\n        return value\n\n    def factor():\n        nonlocal pos\n        token = tokens[pos]\n        pos += 1\n        if token == '(':\n            value = expression()\n            pos += 1                      # skip ')'\n            return value\n        return int(token)\n\n    return expression()\n\nprint(evaluate('12 * (3 + 4) - 5'))\nprint(evaluate('2 - 3 - 4'))\n",
+            "output": "79\n-5\n"
+          },
+          {
+            "title": "ステップのループ",
+            "body": "メインループは、1 回の反復がちょうど規則の 1 ステップになるように書きます。現在の命令や出来事を取り出し、停止条件を調べ、規則を適用し、カウンタを更新します。順序は常に同じにします。何を数えるかを正確に決めましょう。最後の HALT を 1 ステップと数えるか、向きを変えるのに時間がかかるか、上限をステップの前と後のどちらで調べるか、などです。\n\nステップ数の 1 ずれは、この種の問題で最もよくある誤りなので、手で数えられる小さな例で試します。ステップ数に上限があるなら、検査をループの先頭に置けば、ちょうど上限で止まるプログラムを誤って判定しません。命令名から小さな関数への辞書を使うと、長い if の連鎖も読みやすく保てます。",
+            "code": "program = [('PUSH', 3), ('PUSH', 4), ('ADD', None), ('PRINT', None), ('HALT', None), ('PUSH', 9)]\nstack, pc, steps = [], 0, 0\nwhile pc < len(program):\n    op, arg = program[pc]\n    pc += 1\n    steps += 1\n    if op == 'PUSH':\n        stack.append(arg)\n    elif op == 'ADD':\n        b, a = stack.pop(), stack.pop()\n        stack.append(a + b)\n    elif op == 'PRINT':\n        print(stack.pop())\n    elif op == 'HALT':\n        break\nprint('steps', steps)\n",
+            "output": "7\nsteps 5\n"
+          },
+          {
+            "title": "状態が繰り返すとき",
+            "body": "10^18 回の移動のように、とてつもない数のステップのあとの状態を問う問題があります。1 ステップずつシミュレーションすることはできません。状態空間が有限なら、状態の列はいつか必ず繰り返し、それ以降は周期的になります。各状態が最初に現れたステップを辞書に記録し、現在の状態がすでに辞書にあれば、2 つのステップの差が周期の長さです。残りのステップ数を周期の長さで割った余りを求め、その分だけシミュレーションすれば済みます。\n\nキーとして使う状態は完全でなければなりません。位置だけを記録していても向きが重要なら、同じ位置に 2 度来ても同じ状態ではなく、飛ばし方が誤ります。",
+            "code": "def state_after(start, step, k):\n    seen = {}\n    x, t = start, 0\n    while t < k:\n        if x in seen:\n            cycle = t - seen[x]\n            for _ in range((k - t) % cycle):\n                x = step(x)\n            return x\n        seen[x] = t\n        x = step(x)\n        t += 1\n    return x\n\nf = lambda x: (x * x + 1) % 100\nprint([state_after(3, f, k) for k in range(8)])\nprint(state_after(3, f, 10**18))\n",
+            "output": "[3, 10, 1, 2, 5, 26, 77, 30]\n5\n"
+          },
+          {
+            "title": "シミュレーションを確かめられるようにする",
+            "body": "シミュレーションは小さな規則がたくさん集まった長いコードなので、中を観察する手段を用意します。フラグで切り替えるトレース表示で各ステップのあとの状態を出力すれば、誤った答えを、手計算と比べられる状態の列に変えられます。アサーションは、空のスタックから取り出さない、位置がグリッドの中にある、といった成り立つべき不変条件を書くもので、最後の症状ではなく最初の違反を捉えます。\n\n各規則は、その規則だけを使うプログラムや命令列で個別に試します。周期の飛ばしを含むときは、数百までの各 k について、速い版と素朴なシミュレーションを比べます。食い違いがあれば、周期の計算に 1 ずれがあります。"
+          },
+          {
+            "title": "長い問題文を読む",
+            "body": "シミュレーションの問題文は、すべての規則を明記する必要があるので長くなります。鉛筆を持って読みましょう。各規則に線を引き、数値は単位とともに書き留め、境界に達したときや同点のときにどうなるかなど、問題文が定めている境界の場合を例として書き出します。そしてコードを書く前に、入力例を手で再現します。手計算が出力例と合わないなら、誤解は読解にあり、いくらデバッグしても直りません。\n\n複数の小問からなる試験問題では、後の小問がたいてい同じシミュレーションを拡張するので、最初の小問のコードからそれを意識した構成にします。解析の関数、状態、1 ステップの関数は拡張しやすく、ひとかたまりの入れ子のループはそうではありません。"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "ジャンプを含むプログラムを実行する前に、すべての行を解析するのはなぜですか。",
+            "answer": "ジャンプ先のラベルが後ろにあることがあるからです。先に解析すればすべてのラベルが記録され、実行時はきれいなレコードとその行番号だけを扱えます。"
+          },
+          {
+            "question": "ロボットの位置が繰り返したのに、周期を飛ばしたあとの答えが誤っています。考えられる原因は何ですか。",
+            "answer": "状態が不完全です。向きや命令の添字も今後のふるまいを決めるので、辞書のキーに含める必要があります。"
+          }
+        ],
+        "exerciseTitle": "テレポーター",
+        "task": "1 から N の番号が付いた N 個の町があります。町 i にはテレポーターがあり、町 A_i へ送られます。町 1 から出発し、テレポーターをちょうど K 回使います。最後にいる町はどこですか。",
+        "input": "1 行目に N K、2 行目に A_1 … A_N が与えられます。1 ≤ N ≤ 200000、1 ≤ A_i ≤ N、1 ≤ K ≤ 10^18 です。",
+        "output": "最後にいる町を出力してください。",
+        "hint": "シミュレーションしながら、各町に最初に着いたステップを記録します。町が再び現れたら、残りのステップ数を周期の長さで割った余りにします。",
+        "explanation": "状態は現在いる町なので高々 N 通りで、N + 1 ステップ以内に必ずどこかの町が繰り返します。first[v] = t として、町 v に最初に着いたステップを記録します。ステップ t で現在の町 v がすでに現れていれば、そこから先の移動は長さ t − first[v] の周期で繰り返します。残りの K − t ステップを周期の長さで割った余りの分だけ直接シミュレーションすれば、多くても N ステップで済みます。繰り返しが起きる前に K ステップに達したら、シミュレーションそのものが答えです。全体で O(N) です。同じ考え方は、状態空間が小さくステップ数が巨大な決定的な過程なら、何にでも使えます。"
+      }
+    },
+    "order": 28,
+    "stage": "exam",
+    "minutes": 55,
+    "prerequisiteIds": [
+      "heaps-and-shortest-paths"
+    ],
+    "relatedProblems": [
+      "CI-VM-3",
+      "CI-LOG-3",
+      "ABC344E"
+    ],
+    "solution": "n, k = map(int, input().split())\na = [0] + list(map(int, input().split()))\nfirst = {}                  # town -> the step at which it was first reached\ntown, t = 1, 0\nwhile t < k:\n    if town in first:\n        cycle = t - first[town]\n        for _ in range((k - t) % cycle):\n            town = a[town]\n        break\n    first[town] = t\n    town = a[town]\n    t += 1\nprint(town)\n",
+    "starter": "n, k = map(int, input().split())\na = [0] + list(map(int, input().split()))\n# TODO: walk from town 1, remember when each town was first reached, and skip the cycle\n",
+    "tests": [
+      {
+        "input": "4 5\n2 4 1 3\n",
+        "expected": "2\n"
+      },
+      {
+        "input": "6 999999999999999999\n4 1 6 5 6 3\n",
+        "expected": "6\n"
+      },
+      {
+        "input": "1 1000000000000000000\n1\n",
+        "expected": "1\n"
+      },
+      {
+        "input": "5 2\n2 3 4 5 5\n",
+        "expected": "3\n"
+      },
+      {
+        "input": "5 10\n2 3 4 5 3\n",
+        "expected": "5\n"
+      },
+      {
+        "input": "3 3\n2 3 1\n",
+        "expected": "1\n"
+      }
+    ]
+  }
+]

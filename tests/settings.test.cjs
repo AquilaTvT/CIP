@@ -5,7 +5,7 @@ const vm = require('node:vm');
 const path = require('node:path');
 const scope = {window:{}, Intl};
 vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../settings.js'),'utf8'),scope);
-const settings = scope.window.AquilaSettings;
+const settings = scope.window.PlumeSettings;
 const plain = value => JSON.parse(JSON.stringify(value));
 
 test('defaults are independently normalized without mutating the caller', () => {
@@ -82,7 +82,7 @@ test('all settings sections and all languages render complete documents', () => 
     const html = settings.render({uiLang:lang,section,state:settings.defaults});
     assert.ok(html.includes('class="settings-content"'),`${lang}/${section}`);
     assert.ok(!/undefined|\[object Object\]|NaN/.test(html),`${lang}/${section}`);
-    assert.equal((html.match(/data-settings-section=/g)||[]).length,7);
+    assert.equal((html.match(/data-settings-section=/g)||[]).length,8);
   }
 });
 
@@ -103,19 +103,41 @@ test('preview styles are normalized numbers, never imported arbitrary CSS', () =
 });
 
 test('backup controls share a row, expose import input, and keep reset explicit', () => {
-  const html = settings.render({section:'data',uiLang:'en',counts:{total:221,statements:663,samples:630,metadata:214},environment:{storageBytes:2048}});
+  const html = settings.render({section:'data',uiLang:'en',environment:{storageBytes:2048,lastBackupAt:Date.UTC(2026,9,1)}});
   assert.ok(html.includes('id="settingsImportFile" type="file"'));
   assert.ok(html.includes('data-settings-action="import"'));
   assert.ok(html.includes('data-settings-action="export"'));
   assert.ok(html.includes('data-settings-action="reset"'));
-  assert.ok(html.includes('data-settings-action="refresh-metadata"'));
-  assert.ok(html.includes('214 / 221'));
-  assert.ok(html.includes('<strong>663</strong>'));
+  assert.ok(html.includes('id="storagePersistence"'));
   assert.ok(html.includes('2 KB'));
+  assert.ok(html.includes('2026'));
+  assert.ok(settings.render({section:'data',uiLang:'en',environment:{isNative:true}}).includes('id="storagePersistence"'));
 });
 
-test('guide contains exactly six complete original articles in every language', () => {
-  assert.equal(Object.keys(settings.helpArticles).length,6);
+test('the library section lists packs, keeps bundled packs, and offers import, template and export', () => {
+  const packs = [
+    {id:'ci-original',title:'CI Original Sets',bundled:true,problems:24,sets:6,author:'Plume'},
+    {id:'my-practice',title:'<b>My</b> practice',bundled:false,problems:3,sets:0}
+  ];
+  const html = settings.render({section:'library',uiLang:'en',packs,counts:{total:245,statements:663,samples:630,metadata:214}});
+  assert.ok(html.includes('data-settings-action="refresh-metadata"'));
+  assert.ok(html.includes('214 / 245'));
+  assert.ok(html.includes('<strong>663</strong>'));
+  assert.ok(html.includes('id="packImportFile" type="file"'));
+  assert.ok(html.includes('data-settings-action="import-pack"'));
+  assert.ok(html.includes('data-settings-action="pack-template"'));
+  assert.equal((html.match(/data-settings-action="export-pack"/g)||[]).length,2);
+  assert.equal((html.match(/data-settings-action="remove-pack"/g)||[]).length,1);
+  assert.ok(html.includes('data-pack="my-practice"'));
+  assert.ok(!html.includes('<b>My</b>'));
+  assert.ok(html.includes('&lt;b&gt;My&lt;/b&gt;'));
+  const empty = settings.render({section:'library',uiLang:'ja'});
+  assert.ok(empty.includes('data-settings-action="import-pack"'));
+  assert.ok(!empty.includes('data-settings-action="remove-pack"'));
+});
+
+test('guide contains exactly seven complete original articles in every language', () => {
+  assert.deepEqual(Object.keys(settings.helpArticles),['start','editor','scoring','sync','backup','academy','packs']);
   for(const [id,article] of Object.entries(settings.helpArticles)) for(const lang of ['zh','ja','en']) {
     const entry = article[lang];
     assert.ok(entry.title.length>4,`${id}/${lang} title`);
@@ -142,7 +164,7 @@ test('unknown and inherited article names return the guide index', () => {
   for(const id of ['missing','constructor','__proto__']) {
     const html = settings.render({section:'guide',article:id,uiLang:'en'});
     assert.ok(html.includes('class="settings-guide-list"'));
-    assert.equal((html.match(/data-help-article=/g)||[]).length,6);
+    assert.equal((html.match(/data-help-article=/g)||[]).length,7);
     assert.ok(!html.includes('<article'));
   }
 });
@@ -159,7 +181,8 @@ test('product identity is Plume with a discreet independent Aquila signature', (
   const html = settings.render({section:'about',uiLang:'en'});
   assert.ok(html.includes('<h2>Plume</h2>'));
   assert.ok(html.includes('data-settings-action="signature">Aquila</button>'));
-  assert.ok(html.includes('Version 1.1.0'));
+  assert.ok(html.includes(`Version ${settings.version}`));
+  assert.equal(settings.version,'1.2.0');
   assert.ok(html.includes('href="https://github.com/AquilaTvT/CIP"'));
   assert.ok(!html.includes('Aquila profile'));
   assert.ok(settings.render({section:'about',uiLang:'zh'}).includes('<h2>Plume</h2>'));
