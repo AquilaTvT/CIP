@@ -1,0 +1,1790 @@
+[
+  {
+    "id": "first-program",
+    "order": 1,
+    "stage": "start",
+    "minutes": 40,
+    "prerequisiteIds": [],
+    "relatedProblems": [
+      "PracticeA"
+    ],
+    "content": {
+      "zh": {
+        "title": "第一个程序",
+        "summary": "运行、输出与错误信息。",
+        "sections": [
+          {
+            "title": "程序、输入与输出",
+            "body": "程序是一组让计算机按规则执行的指令。本课程使用 Python：你把指令写在编辑器中，再点击运行。编辑器保存的是程序文本；输入框保存的是本次给程序的数据；输出区域显示程序执行后写出的结果。这三个位置承担不同角色。把答案写在输入框中，不会自动成为程序输出；修改代码后，也需要重新运行才能看到新结果。\n\n先把一次运行想成“代码加上输入，产生输出”。本课没有输入，程序直接生成固定的两行文字或数字。之后同一份程序会接收不同输入，输出也会随之变化。自动检查会多次执行同一份代码，因此程序应该依据本次的数据计算，而不是依赖上次运行的变量。本地练习环境每次运行都会从新的 Python 状态开始。\n\n编程的第一步是能说清自己准备让程序做什么。运行前预测结果，运行后逐行比较，发现差异时回到对应语句。这比随机修改符号更容易找到原因。现在先只关注代码与输出；文件、账户和网络都不是本课所需的条件。"
+          },
+          {
+            "title": "读懂一条 print 语句",
+            "body": "观察 print(\"Python\")。print 是 Python 已经提供的函数名，可以先把函数理解成一个有名字的操作。圆括号表示调用这个操作，括号内是交给它的内容。英文双引号把 Python 标记为字符串，也就是一段文字。引号用来告诉解释器文字从哪里开始、到哪里结束，它们本身不会出现在输出中。单引号也可以，但两端必须配对，不能一端单引号、一端双引号。\n\n字符串外的空格可以帮助排版，而字符串内的空格是实际数据。print(\"a b\") 会输出中间那个空格。print(\"ab\") 则没有空格。中文输入法常产生弯引号或全角括号，它们不能代替 Python 语法中的半角引号与括号。练习时先确认使用英文标点。\n\nprint 默认在末尾写入一个换行。因此两条连续的 print 通常显示为两行。若一条 print 内有多个值，用逗号分隔，它默认用空格连接这些值。这是输出接口的规则，不是编辑器替你整理答案。把标点、文字与实际输出逐项对应，才能稳定地控制格式。",
+            "code": "print(\"Python\")\nprint(\"a b\")\nprint(3, 4)\n",
+            "output": "Python\na b\n3 4\n"
+          },
+          {
+            "title": "表达式先计算，再输出",
+            "body": "括号内可以放文字，也可以放计算式。print(3 + 4) 的执行过程分两步：先计算 3 + 4 得到整数 7，再把 7 写入输出。print(\"3 + 4\") 则把整个内容当作文字，不会进行加法。看到引号时，先问自己这里是在表示文本，还是本来想让 Python 计算。\n\n整数可以直接写成 0、8、56 等形式。加法用 +，减法用 -，乘法用 *。计算遵守常见的优先级：乘法先于加减，括号中的部分先计算。例如 2 + 3 * 4 得到 14，而 (2 + 3) * 4 得到 20。程序不会从左到右无条件地把所有运算按同一优先级处理。\n\n预测下面程序时，给每一行写出中间计算结果，然后再写最终显示内容。第一行是文字，第二行是按优先级计算，第三行由括号改变顺序。最后一行用一个 print 同时输出两个结果，结果之间有一个空格。这样跟踪小例子，可以把“代码看起来像什么”与“计算机实际执行什么”区分开来。",
+            "code": "print(\"2 + 3 * 4\")\nprint(2 + 3 * 4)\nprint((2 + 3) * 4)\nprint(10 - 3, 2 * 6)\n",
+            "output": "2 + 3 * 4\n14\n20\n7 12\n"
+          },
+          {
+            "title": "完整程序的逐行核对",
+            "body": "现在把多个输出步骤组成一个完整程序。假设题目要求第一行输出 Items，第二行输出 3 盒、每盒 4 件的总件数，第三行输出比总件数多 2 的数。先用自己的话写出三步：输出固定标题，计算 3 × 4，计算 3 × 4 + 2。再把每一步对应到一条 print，而不是边运行边猜需要多少行。\n\n执行从第一行开始，依次向下。注释以 # 开始，用来解释代码，Python 不把它当成指令。空白行也不产生输出。请注意“源码中的空行”和“输出中的空行”不同：前者只是分隔代码，后者要由 print() 等语句实际写出。下面的注释与空行不会让答案多出行。\n\n这段程序没有变量，也不读取输入。每次运行都应得到同样的三行。先记录预测结果，再运行，并比较行数、文字大小写和数字。若只观察最后一个数字，很容易漏掉前面的格式错误。算法题中格式是接口的一部分，因此完整核对输出，也是编程本身的一项技能。",
+            "code": "# Three boxes, four items each\nprint(\"Items\")\n\nprint(3 * 4)\nprint(3 * 4 + 2)\n",
+            "output": "Items\n12\n14\n"
+          },
+          {
+            "title": "从错误信息定位问题",
+            "body": "程序不能运行时，先读错误种类和行号，不要把整段代码重写。SyntaxError 表示 Python 没能按语法理解代码。常见原因是漏掉右括号、漏掉引号、使用中文标点。报错箭头指出解释器发现问题的位置，但真正漏掉的符号可能在前一行，所以要连同附近一起查看。修改一处后重新运行，确认新的结果。\n\nNameError 常见于把文字写在引号外。例如想输出 hello 却写 print(hello)，Python 会把 hello 当成一个名字，尝试寻找它对应的值。本课没有给这个名字赋值，因此不能使用它。正确的固定文字输出是 print(\"hello\")。这里不需要去定义一个变量来绕开问题，先理解文字与名字的区别。\n\n程序能运行但输出不同，是另一类问题。print(\"56\") 与 print(56) 在此例中显示相同，可是 print(\"8 * 7\") 不会计算。多余的提示语、额外空行、大小写错误也不会造成语法错误，却会使检查失败。把“无法执行”和“执行后结果不符”分开判断，才能选择合适的修正方向。"
+          },
+          {
+            "title": "把题目要求变成可检查的程序",
+            "body": "开始练习前，先圈出输入、处理、输出三个部分。本题明确没有输入，因此不要调用 input；处理包含一次乘法；输出要求两行。再把固定不变的文字与需要计算的值分开：Hello, Aquila! 是原样输出的问候，8 × 7 是需要转换成 Python 算式的计算。示例中的 Aquila 只是这句问候的一部分，不是让你填写用户名。\n\n然后列一个很小的核对表：第一行是否包含正确的逗号、一个空格和感叹号；第二行是否只含 56；是否一共两行。因为本题只有固定输出，一个测试就足够覆盖要求。这里不需要为了增加测试数量而给无输入的程序塞进随机数据。后面的输入题才需要用不同数据验证分支与边界。\n\n遇到新题时保留这个顺序：读格式，写处理步骤，预测一个结果，写代码，再比较完整输出。自动检查只能显示所测情况是否匹配，阅读题目和解释代码的能力不能由绿色标记替代。完成本课后，你应能够不用运行就说明每一条 print 的作用，以及为什么它产生了对应的一行。"
+          }
+        ],
+        "exerciseTitle": "两行输出",
+        "task": "不读取任何输入。第一行输出 Hello, Aquila!，第二行输出算式 8 × 7 的值。使用 Python 计算第二行。",
+        "input": "无输入。",
+        "output": "输出恰好两行：第一行为 Hello, Aquila!，第二行为整数结果。",
+        "hint": "分别写两条 print()。Python 的乘法运算符是 *。",
+        "explanation": "这道练习不读取输入，因此代码只需要两条输出语句。第一条使用带引号的字符串，准确输出 Hello, Aquila!；这里 Aquila 只是示例问候中的名字，与账户、显示名称或个人资料无关。第二条把 8 * 7 放在引号外，让 Python 计算得到整数 56。两次 print 默认各加一个换行，恰好形成题目要求的两行。不要添加提示语、空行，也不要把乘号写成数学排版用的 ×。运行后先检查第一行的逗号、空格和感叹号，再核对第二行是否为 56。本题没有输入边界，唯一需要检查的是完整输出格式。",
+        "objectives": [
+          "区分程序、输入和输出，知道运行按钮执行的是哪段代码。",
+          "正确书写字符串、整数和算式，预测顺序执行的结果。",
+          "按题目格式输出，并利用报错行号修正语法问题。"
+        ],
+        "checkpoints": [
+          {
+            "question": "print(\"8 * 7\") 与 print(8 * 7) 的输出有什么不同？",
+            "answer": "前者输出引号内的文字 8 * 7；后者先计算乘法，再输出 56。"
+          },
+          {
+            "question": "为什么不要输出“答案是 56”？",
+            "answer": "题目只要求整数结果 56。说明性文字也是程序输出，会造成与期望格式不符。"
+          }
+        ]
+      },
+      "en": {
+        "title": "Your first program",
+        "summary": "Run code, print output, and read errors.",
+        "sections": [
+          {
+            "title": "A program, its input, and its output",
+            "body": "A program is a sequence of instructions for a computer. In this course those instructions are written in Python. The editor contains the program, the input area contains the data supplied for this particular run, and the output area shows what the program writes. They have different jobs: typing an answer into the input area does not make it the program’s output. After editing code, run it again to obtain a new result.\n\nThink of execution as code plus input producing output. This first lesson has no input, so the program produces fixed lines. Later, the same program will receive different data. Local checks start with fresh Python state, so you should not expect variables from an earlier run to remain available. Before each run, predict the result; afterward, compare it line by line. A specific difference gives you something concrete to investigate."
+          },
+          {
+            "title": "Read one print statement",
+            "body": "Look at print(\"Python\"). print is a function supplied by Python; for now, think of a function as a named operation. Parentheses call that operation, and the contents are its arguments. Ordinary quotation marks identify Python as text, called a string. The quotation marks tell the interpreter where the text begins and ends; they are not included in the output. Single quotes also work, provided the opening and closing marks match.\n\nSpaces inside a string are data: \"a b\" contains a space, while \"ab\" does not. Curly quotation marks and full-width parentheses from an input method are not substitutes for Python’s ordinary syntax characters. By default, print adds a newline after its arguments. When several values are separated by commas in one call, print normally places spaces between them. These rules let you predict the exact output.",
+            "code": "print(\"Python\")\nprint(\"a b\")\nprint(3, 4)\n",
+            "output": "Python\na b\n3 4\n"
+          },
+          {
+            "title": "Evaluate before printing",
+            "body": "The argument to print can be text or an expression. Executing print(3 + 4) first evaluates the addition to the integer 7 and then writes 7. In print(\"3 + 4\"), quotation marks make the entire argument text, so no addition occurs. Whenever you see quotes, decide whether the program needs literal text or a calculated value.\n\nWrite integers directly, such as 0, 8, or 56. Python uses + for addition, - for subtraction, and * for multiplication. Multiplication has priority over addition and subtraction; parentheses override that order. Thus 2 + 3 * 4 is 14, whereas (2 + 3) * 4 is 20. Trace the example before running it: identify the text line, evaluate each expression, and account for the space inserted between the two values in the final print call.",
+            "code": "print(\"2 + 3 * 4\")\nprint(2 + 3 * 4)\nprint((2 + 3) * 4)\nprint(10 - 3, 2 * 6)\n",
+            "output": "2 + 3 * 4\n14\n20\n7 12\n"
+          },
+          {
+            "title": "Trace a complete small program",
+            "body": "Combine the pieces into a complete program. Suppose the specification asks for Items on the first line, the number of items in three boxes of four on the second, and that total plus two on the third. Translate the request into three actions before writing code: print a fixed heading, calculate 3 × 4, and calculate 3 × 4 + 2. Assign one print call to each requested line.\n\nExecution proceeds downward. A comment starts with # and is not an instruction. An empty source line also produces no output: source formatting and output formatting are separate. In this example the comment and blank line do not add output lines. Because the program reads no input, repeated runs should produce the same result. Compare all three lines, including capitalization and line count, rather than checking only the final number.",
+            "code": "# Three boxes, four items each\nprint(\"Items\")\n\nprint(3 * 4)\nprint(3 * 4 + 2)\n",
+            "output": "Items\n12\n14\n"
+          },
+          {
+            "title": "Use errors as evidence",
+            "body": "When execution fails, start with the error type and line number instead of rewriting everything. SyntaxError means Python could not parse the code. Missing closing parentheses, unmatched quotes, and full-width punctuation are common causes. The arrow indicates where the parser noticed the problem, which can be just after the actual mistake; inspect the nearby line as well. Change one thing and run again.\n\nNameError can occur when intended text is left unquoted. In print(hello), Python treats hello as a name whose value should already exist. For fixed text, use print(\"hello\"). A program that runs but produces the wrong output needs a different investigation: look for uncalculated quoted expressions, extra prompts, unexpected empty lines, or incorrect capitalization. Distinguishing a failure to execute from an incorrect result makes debugging more systematic."
+          },
+          {
+            "title": "Turn a specification into checks",
+            "body": "Before the exercise, separate input, processing, and output. There is explicitly no input, so no input() call is needed. Processing consists of one multiplication, and output consists of two lines. Distinguish fixed text from a value to calculate: Hello, Aquila! is the literal greeting, while 8 × 7 must become a Python expression. Aquila is part of this example, not a request for your username.\n\nMake a short checklist: the first line has the correct comma, one space, and an exclamation mark; the second contains only 56; there are exactly two lines. One fixed-output test is appropriate here. Later input-based exercises will need varied boundary cases. Keep this workflow for future problems: read the format, state the steps, predict an example, implement it, and compare the entire output. You should be able to explain each statement without relying on a successful check alone."
+          }
+        ],
+        "exerciseTitle": "Two lines of output",
+        "task": "Read no input. Print Hello, Aquila! on the first line and the value of 8 × 7 on the second. Let Python calculate the second line.",
+        "input": "There is no input.",
+        "output": "Print exactly two lines: Hello, Aquila! followed by the integer result.",
+        "hint": "Use two print() calls. Multiplication in Python uses *.",
+        "explanation": "This exercise reads no input, so it needs only two output statements. The first passes the exact string Hello, Aquila! to print. Aquila is simply the name in this example greeting, not an account name or a value obtained from your profile. The second passes the unquoted expression 8 * 7, which Python evaluates to the integer 56. Each print adds one newline, producing exactly two lines. Do not add a prompt, an empty line, or the mathematical multiplication glyph × in your Python expression. Check the greeting’s comma, space, and exclamation mark before checking the second line. There are no input boundary cases; the complete output format is the condition to verify.",
+        "objectives": [
+          "Distinguish program, input, and output, and identify what Run executes.",
+          "Write strings, integers, and expressions, and predict sequential execution.",
+          "Match an output specification and use error locations to repair syntax."
+        ],
+        "checkpoints": [
+          {
+            "question": "How do print(\"8 * 7\") and print(8 * 7) differ?",
+            "answer": "The first prints the literal text 8 * 7. The second evaluates the multiplication and prints 56."
+          },
+          {
+            "question": "Why should the program not print “The answer is 56”?",
+            "answer": "The specification requests only 56. Additional explanatory text is part of the output and does not match that format."
+          }
+        ]
+      },
+      "ja": {
+        "title": "最初のプログラム",
+        "summary": "実行、出力、エラーの読み方。",
+        "sections": [
+          {
+            "title": "プログラム・入力・出力",
+            "body": "プログラムとは、コンピュータに行わせる処理を順番に書いたものです。このコースでは Python で記述し、エディタのコードを実行します。エディタには手順、入力欄には今回のデータ、出力欄にはプログラムが書き出した結果が入ります。3 つの役割を混同しないでください。入力欄に答えを書いても出力にはなりません。また、コードを書き換えただけでは結果は更新されず、再実行が必要です。\n\n1 回の実行を「コードと入力から出力を作る過程」と考えます。本課には入力がなく、決まった文字や数字を直接出力します。後の課では、同じコードに異なる入力を与えます。ローカルの確認では毎回新しい Python の状態から始まるため、前回の実行で作った変数が残っていることを期待してはいけません。\n\n実行前に結果を予想し、実行後に 1 行ずつ照合します。異なる行があれば、その行を出すコードへ戻ります。根拠なく記号を変えるよりも、違いを具体的に特定するほうが修正しやすくなります。今はコードと出力の関係に集中してください。ファイル操作やアカウント登録、通信の知識は必要ありません。"
+          },
+          {
+            "title": "print 文を分解する",
+            "body": "print(\"Python\") を見てみます。print は Python が用意している関数の名前です。今は「名前の付いた操作」と考えれば十分です。丸括弧でその操作を呼び出し、括弧内の内容を渡します。半角の引用符で囲んだ Python は文字列、つまり文字の並びです。引用符は文字列の開始と終了を伝えるための記号で、出力には含まれません。一重引用符でも書けますが、開きと閉じは同じ種類にそろえます。\n\n文字列の外側の空白と、内側の空白は役割が違います。\"a b\" の空白はデータなので表示されますが、\"ab\" にはありません。入力方式によって入る曲がった引用符や全角括弧は、Python の半角記号の代わりにはなりません。まず半角の記号で書いていることを確認します。\n\nprint は通常、最後に改行を追加します。連続した 2 回の print は 2 行の出力になります。また、1 回の呼び出しで値をカンマ区切りにすると、その間には通常空白が入ります。これは出力関数の規則です。記号と表示結果の対応を一つずつ理解すると、必要な形式を自分で制御できるようになります。",
+            "code": "print(\"Python\")\nprint(\"a b\")\nprint(3, 4)\n",
+            "output": "Python\na b\n3 4\n"
+          },
+          {
+            "title": "計算してから出力する",
+            "body": "print の括弧内には、文字列だけでなく式も書けます。print(3 + 4) では、まず加算を計算して整数 7 を得て、それを出力します。一方、print(\"3 + 4\") は全体が文字列なので加算をしません。引用符を見たら、文字をそのまま表示したいのか、計算した値が必要なのかを区別します。\n\n整数は 0、8、56 のように直接書けます。加算は +、減算は -、乗算は * を使います。演算には優先順位があり、乗算は加減算より先です。括弧内はさらに優先されます。したがって 2 + 3 * 4 は 14、(2 + 3) * 4 は 20 です。すべてを無条件に左から同じ優先度で処理するわけではありません。\n\n下の例は実行前に 1 行ずつ追ってください。最初の行は文字列、次の行は通常の優先順位による計算、その次は括弧で順序を変更した計算です。最後の print は 2 つの計算結果を 1 行に出し、その間に空白を置きます。小さな例の途中結果を書くことで、コードの見た目と実際に行われる処理を分けて考えられます。",
+            "code": "print(\"2 + 3 * 4\")\nprint(2 + 3 * 4)\nprint((2 + 3) * 4)\nprint(10 - 3, 2 * 6)\n",
+            "output": "2 + 3 * 4\n14\n20\n7 12\n"
+          },
+          {
+            "title": "短いプログラムを最後まで追う",
+            "body": "複数の出力を組み合わせて、1 つのプログラムにします。1 行目に Items、2 行目に「3 箱に各 4 個」の総数、3 行目に総数より 2 大きい数を出すとします。まず「固定の見出しを出す」「3 × 4 を計算する」「3 × 4 + 2 を計算する」の 3 手順に分けます。それぞれを 1 回の print に対応させれば、出力行数も明確になります。\n\n実行は先頭から下へ進みます。# で始まるコメントは説明のためのもので、処理として実行されません。ソース中の空行も出力を発生させません。「コードを読みやすくする空行」と「答えの空行」は別です。後者を出すには print() などの処理が必要です。例のコメントや空行で出力行数は増えません。\n\nこのプログラムは変数も入力も使わないので、何度実行しても同じ 3 行になります。先に予想を書き、実行結果の行数、文字の大文字・小文字、数値を照合します。最後の数字だけを見ると、前の行の形式の誤りを見落とします。出力形式を守ることも、問題を解くために必要な作業です。",
+            "code": "# Three boxes, four items each\nprint(\"Items\")\n\nprint(3 * 4)\nprint(3 * 4 + 2)\n",
+            "output": "Items\n12\n14\n"
+          },
+          {
+            "title": "エラーを手掛かりにする",
+            "body": "実行できない場合は、すべてを書き直す前にエラーの種類と行番号を読みます。SyntaxError は、Python が構文として読み取れなかったという意味です。閉じ括弧の不足、引用符の対応漏れ、全角記号などを調べます。矢印は問題を発見した位置を示すため、実際の原因が直前の行にある場合もあります。周辺も確認し、1 箇所直したら再実行します。\n\nNameError は、文字を引用符で囲み忘れた場合にも起こります。print(hello) と書くと、Python は hello を名前として扱い、対応する値を探します。本課ではその名前に値を代入していないので使えません。固定の文字なら print(\"hello\") とします。変数を増やして回避する前に、文字列と名前の違いを理解します。\n\n実行できても答えが違う場合は、別の調べ方が必要です。print(\"56\") と print(56) は同じ表示になりますが、print(\"8 * 7\") は計算をしません。余計な案内文や空行、大文字・小文字の違いも構文エラーにはならない一方で、出力の不一致を起こします。「実行不能」と「実行結果の誤り」を分けて考えると、修正する場所を絞れます。"
+          },
+          {
+            "title": "問題文を確認可能な手順にする",
+            "body": "演習の前に、入力・処理・出力の 3 部分を確認します。この問題には入力がないので input() は不要です。処理は乗算 1 回、出力は 2 行です。Hello, Aquila! はそのまま出す文字列であり、8 × 7 は Python の式に置き換える計算です。Aquila は挨拶の一部に使う例の名前で、あなたのユーザー名を記入する指示ではありません。\n\n確認項目を小さくまとめます。1 行目のカンマ・1 個の空白・感嘆符が正しいか、2 行目は 56 だけか、全部で 2 行かを見ます。固定出力しかない問題なので、テストは 1 個で要求を確認できます。入力を読まないプログラムへ適当な値を増やしても、新しい条件の確認にはなりません。後の課では入力を変えて分岐や境界を調べます。\n\n新しい問題でも「形式を読む、手順を書く、結果を予想する、実装する、全出力を比べる」の順番を保ちます。自動テストの通過だけでは、コードの意味を理解した証明にはなりません。各 print が何を受け取り、どの行を出すのかを、実行せず説明できることを本課の到達点にします。"
+          }
+        ],
+        "exerciseTitle": "2 行の出力",
+        "task": "入力はありません。1 行目に Hello, Aquila!、2 行目に 8 × 7 の値を出力してください。2 行目の値は Python で計算してください。",
+        "input": "入力はありません。",
+        "output": "Hello, Aquila! と計算結果の整数を、それぞれ 1 行ずつ、合計 2 行で出力してください。",
+        "hint": "print() を 2 回使います。Python の乗算演算子は * です。",
+        "explanation": "入力がないため、必要なのは出力文 2 個です。1 個目は引用符で囲んだ Hello, Aquila! をそのまま表示します。Aquila は例の挨拶に使う名前であり、アカウント名やプロフィールから取得する値ではありません。2 個目は 8 * 7 を引用符の外に書き、Python に整数 56 を計算させます。print はそれぞれ末尾に改行を付けるので、指定どおり 2 行になります。案内文や空行を追加せず、Python の式で乗算記号 × を使わないでください。最初の行のカンマ・空白・感嘆符と、次の行の 56 を順に確認します。入力の境界条件はなく、出力全体の形式が確認対象です。",
+        "objectives": [
+          "プログラム・入力・出力を区別し、実行するコードを確認する。",
+          "文字列・整数・式を正しく書き、実行順に結果を予測する。",
+          "指定の形式で出力し、エラーの行番号から構文を修正する。"
+        ],
+        "checkpoints": [
+          {
+            "question": "print(\"8 * 7\") と print(8 * 7) はどう違いますか。",
+            "answer": "前者は文字列 8 * 7 をそのまま表示します。後者は乗算を計算して 56 を表示します。"
+          },
+          {
+            "question": "「答えは 56」と出力してはいけないのはなぜですか。",
+            "answer": "指定は整数 56 だけです。説明文も出力の一部なので、要求された形式と一致しません。"
+          }
+        ]
+      }
+    },
+    "starter": "# TODO\n",
+    "solution": "print(\"Hello, Aquila!\")\nprint(8 * 7)\n",
+    "tests": [
+      {
+        "input": "",
+        "expected": "Hello, Aquila!\n56\n"
+      }
+    ]
+  },
+  {
+    "id": "input-and-numbers",
+    "order": 2,
+    "stage": "start",
+    "minutes": 50,
+    "prerequisiteIds": [
+      "first-program"
+    ],
+    "relatedProblems": [
+      "APG4bPython EX5",
+      "ABC302A"
+    ],
+    "content": {
+      "zh": {
+        "title": "输入与整数",
+        "summary": "把输入文字转换成可以计算的数。",
+        "sections": [
+          {
+            "title": "输入是一段文字，不是自动识别的数字",
+            "body": "上一课的程序总是输出固定结果。实际题目给出的是一类问题：同一份代码应处理不同的数字。input() 每次读取一行，并去掉末尾的换行符，结果仍是字符串。即使输入看起来全是数字，Python 也不会自动判断你想要整数。电话号码、编号也可能由数字组成，这正是输入与数值转换分开的原因。\n\n变量可以理解为当前指向某个值的名字。n = input() 的顺序是先执行右边，再把结果绑定到左边的 n。这里 = 是赋值，不是数学中的永久等式。之后写 n = int(n)，会先读取旧 n 的字符串值，转换后再让 n 指向新整数。也可以把两步写成 n = int(input())，但应先理解展开过程。\n\n输入一行 12 后，print(n + n) 的意义取决于 n 的类型：字符串连接得到 1212，整数相加得到 24。不要仅凭显示内容判断类型。变量名不会自动决定类型，叫 number 的变量也可能保存文字；真正决定类型的是读入和转换的操作。",
+            "code": "raw = input()\nprint(raw + raw)\nn = int(raw)\nprint(n + n)\n",
+            "output": "1212\n24\n",
+            "exampleInput": "12\n"
+          },
+          {
+            "title": "先拆分，再逐个转换",
+            "body": "题目常把多个整数写在同一行，例如 7 3。直接执行 int(input()) 会尝试把整段 \"7 3\" 转成一个整数，因中间含空白而失败。应先使用 split()：它按空白把一行拆成若干段，返回按原顺序排列的列表。列表会在后面的课程系统学习；现在只需知道 parts[0] 取第一段，parts[1] 取第二段，下标从 0 开始。\n\n先写易读的展开形式：line = input()；parts = line.split()；n = int(parts[0])；k = int(parts[1])。给定输入 7 3，line 是 \"7 3\"，parts 是两个字符串，n 与 k 最后才是整数。split() 不传参数时，会把连续空白作为分隔，因此一般不用自己数中间有几个空格。\n\n理解后再看 n, k = map(int, input().split())。map 把 int 应用于每一段，左边两个名字按顺序接收两个结果，这叫拆包。它并不比展开形式更正确，只是更短。输入规定只有两项时才能用两个名字接收；数量不符会报错。先依据题目的行结构读数据，再考虑简写。",
+            "code": "line = input()\nparts = line.split()\nn = int(parts[0])\nk = int(parts[1])\nprint(n + k)\n",
+            "output": "10\n",
+            "exampleInput": "7 3\n"
+          },
+          {
+            "title": "整除、余数与整数精度",
+            "body": "盒数、人数、步数等问题经常需要整数结果。Python 中 / 做普通除法，结果通常是浮点数，例如 7 / 3；// 是向下取整的除法，7 // 3 为 2；% 给出余数，7 % 3 为 1。对于非负 n 和正 k，始终有 n = (n // k) * k + n % k，且余数小于 k。这个关系可以用来检查自己的模型。\n\n向下取整不是向零截断。负数参与时，-7 // 3 为 -3，余数为 2。当前装盒练习只使用非负物品数，不需要处理这类情况，但记住运算符的真实含义，避免以后把不同语言中的除法行为混在一起。除数为 0 会产生 ZeroDivisionError，是否可能为零应先看约束。\n\nPython 的整数能按需要扩展，不会因为答案超过 32 位整数范围就自动溢出。不过把整数改为浮点数再转回去，可能失去精度。涉及整除和向上取整时，优先寻找纯整数式。下面程序同时输出商、余数和重建的原数，最后一行应与最初输入 n 相同。",
+            "code": "n, k = map(int, input().split())\nq = n // k\nr = n % k\nprint(q, r)\nprint(q * k + r)\n",
+            "output": "2 1\n7\n",
+            "exampleInput": "7 3\n"
+          },
+          {
+            "title": "逐步追踪变量的值",
+            "body": "赋值允许用旧值计算新值。假设有 balance = 100，再执行 balance = balance - 30：先读右边的旧 balance，得到 100 - 30 = 70，最后左边更新为 70。这不是要求求解等式 balance = balance - 30；赋值箭头在概念上从右边指向左边。多个语句按顺序执行，后面的语句看到前面更新后的值。\n\n下面程序读入预算、单价和数量。对输入 100、12 5，先得到三个整数；cost = price * quantity 得到 60；remaining = budget - cost 得到 40。输出要求是总花费和剩余预算，用一个 print(cost, remaining) 就能产生空格分隔的一行。不要在输入里额外写“预算：”，因为整数转换只接受数值文本。\n\n跟踪时可在纸上写“语句执行后”的变量表，一行对应一次更新。预算不改变、单价不改变，只有新变量 cost 和 remaining 被创建。学会区分输入量、中间量与答案，有助于避免重复读取输入，也能防止为了节省变量名而覆盖之后还需要的数据。",
+            "code": "budget = int(input())\nprice, quantity = map(int, input().split())\ncost = price * quantity\nremaining = budget - cost\nprint(cost, remaining)\n",
+            "output": "60 40\n",
+            "exampleInput": "100\n12 5\n"
+          },
+          {
+            "title": "常见输入错误与修正方法",
+            "body": "ValueError 常表示转换的文字不是合法整数，例如把 \"3.5\"、空字符串或 \"7 3\" 直接交给 int。先查看题目规定：若是一行多个整数，需要 split；若是小数，就不应使用整数读法；若漏填了测试输入，则应修正测试数据，而不是在程序里随意塞一个默认值。题目的约束决定程序可以假设哪些输入合法。\n\nEOFError 表示代码试图读取的行已经不存在。一个常见原因是题目把两个整数放在同一行，你却调用了两次 input。另一个原因是调试时又调用 input 来“看看读到了什么”，结果额外消耗了一行。每次 input 都会向后推进输入位置，不会重复返回刚才那一行。要查看已读内容，打印保存它的变量即可，提交前再移除调试输出。\n\n变量名大小写不同代表不同名字。读入 n 后使用 N，会出现 NameError。可以选择任何清楚且合法的名字，但同一含义应保持一致。不要把本来要提交的程序写成 input(\"请输入数字\")，这会把提示语写入标准输出，影响自动检查。本地练习和算法题都依赖约定好的输入格式，不需要交互式提示。"
+          },
+          {
+            "title": "从数量关系得到装盒公式",
+            "body": "不要一开始就背向上取整公式。先把物品分成装满的盒子和剩余部分。N = 7、K = 3 时，两盒各装三件，剩一件还要一盒，因此答案为三；N = 12、K = 4 时，三盒恰好装完，不应再加一。由此得到规则：整数商是基础盒数，只有余数大于零才多一盒。下一课将用条件分支直接表达这条规则。\n\n本课先使用等价表达式 (N + K - 1) // K。它在做整除前增加 K - 1，足以把任何正余数推到下一档，却不会让原本整除的数量再多一档。可以把 N 写成 qK + r，其中 0 ≤ r < K：若 r = 0，结果为 q；若 r > 0，结果为 q + 1。这解释了公式的原因，而不只是给出记忆方法。\n\n最后把题意转成三段程序：读取 N、K；计算答案；输出一个整数。测试选 0 件、恰好装满、刚超过一盒、大数。每个测试对应一个可能出错的逻辑点。若你只测 7 3，错误写法 N // K + 1 也会通过，所以测试必须区分“看似合理”和“覆盖边界”的算法。"
+          }
+        ],
+        "exerciseTitle": "分装盒子",
+        "task": "有 N 个物品，每个盒子最多装 K 个。求装下全部物品至少需要多少盒。0 ≤ N ≤ 10⁹，1 ≤ K ≤ 10⁹。",
+        "input": "一行包含两个整数 N K。",
+        "output": "输出所需盒数，一个整数。",
+        "hint": "N 能整除 K 时不加盒子；否则还需要一个盒子。也可以计算 (N + K - 1) // K。",
+        "explanation": "先确定 N 是物品数、K 是每盒容量，容量至少为 1，因此不会除以零。N // K 给出能装满的盒数，N % K 表示剩余物品；余数为 0 时无需额外盒子，否则再加一。将这个规则化简，可写成 (N + K - 1) // K。参考解采用后一种整数表达式，不把大整数转成浮点数。N = 0 时分子是 K - 1，整除结果为 0；N 能整除 K 时结果恰好是商；不能整除时结果比商多一。四个测试分别覆盖有余数、恰好整除、没有物品及大整数。运算次数固定，时间与额外空间为 O(1)。",
+        "objectives": [
+          "按行读取输入，区分字符串与整数。",
+          "先掌握 split、int 和拆包，再理解 map 的简写。",
+          "使用整除和余数建模，正确处理零与整除边界。"
+        ],
+        "checkpoints": [
+          {
+            "question": "input() 读到 12 后，得到整数还是字符串？",
+            "answer": "字符串 \"12\"。需要 int(input()) 才得到整数 12。"
+          },
+          {
+            "question": "N=12、K=4 时，为什么 N//K+1 不正确？",
+            "answer": "12 件恰好装满 3 盒，不需要第 4 盒。只有余数非零时才加一。"
+          }
+        ]
+      },
+      "en": {
+        "title": "Input and integers",
+        "summary": "Convert input text into values you can calculate with.",
+        "sections": [
+          {
+            "title": "Input begins as text",
+            "body": "The previous program always produced fixed output. An input-based problem asks one program to handle many values. Each input() reads one line and removes its final newline, but returns a string even when the characters look numeric. This separation matters because a telephone number or identifier may contain digits without being a quantity to calculate.\n\nA variable is a name referring to a current value. In n = input(), the right side runs first and its result is assigned to n. Assignment is not a permanent mathematical equation. n = int(n) converts the old string value and rebinds n to an integer. Combining the operations as n = int(input()) is convenient once you understand both steps. For input 12, string addition produces 1212 while integer addition produces 24; the name of a variable does not determine its type.",
+            "code": "raw = input()\nprint(raw + raw)\nn = int(raw)\nprint(n + n)\n",
+            "output": "1212\n24\n",
+            "exampleInput": "12\n"
+          },
+          {
+            "title": "Split first, then convert",
+            "body": "Problems often place several integers on one line, such as 7 3. int(input()) would try to convert the whole string \"7 3\" into one integer and fail. First call split(), which separates the line at whitespace and returns an ordered list of pieces. Lists are covered later; for now, parts[0] means the first piece and parts[1] the second, because indices start at zero.\n\nRead the expanded example before adopting shorthand. The line is text, its pieces are still text, and only int creates numeric values. With no argument, split() handles repeated whitespace. Once this is clear, n, k = map(int, input().split()) expresses the same idea: map applies int to each piece, and unpacking assigns the two results in order. The number of receiving names must match the number of values.",
+            "code": "line = input()\nparts = line.split()\nn = int(parts[0])\nk = int(parts[1])\nprint(n + k)\n",
+            "output": "10\n",
+            "exampleInput": "7 3\n"
+          },
+          {
+            "title": "Quotients, remainders, and exact integers",
+            "body": "Counts of boxes, people, or moves usually need integer results. In Python, / performs ordinary division and normally produces a floating-point number. // rounds the quotient downward: 7 // 3 is 2. % returns the remainder: 7 % 3 is 1. For nonnegative n and positive k, n equals (n // k) * k + n % k, with the remainder smaller than k. Use that identity to check your interpretation.\n\nFlooring is not truncation toward zero: -7 // 3 is -3, with remainder 2. The packing exercise uses nonnegative quantities, but the distinction matters later. Division by zero raises an error. Python integers can grow beyond fixed 32-bit limits; converting them to floating point can lose precision. Prefer integer formulas when the desired result is an exact count.",
+            "code": "n, k = map(int, input().split())\nq = n // k\nr = n % k\nprint(q, r)\nprint(q * k + r)\n",
+            "output": "2 1\n7\n",
+            "exampleInput": "7 3\n"
+          },
+          {
+            "title": "Trace changing values",
+            "body": "Assignment can use an old value to compute a new one. After balance = 100, the statement balance = balance - 30 evaluates the right side using 100 and then stores 70. It is not a mathematical equation to solve. Conceptually, the assignment moves a value from right to left. Later statements see updates performed by earlier statements.\n\nThe example reads a budget, a price, and a quantity. For the shown input, cost becomes 12 × 5 = 60 and remaining becomes 100 - 60 = 40. One print call separates those answers with a space. Do not add labels such as “budget:” to numeric input. When tracing, record values after each assignment. Distinguishing input values, intermediate values, and answers helps you avoid rereading data or overwriting a value you still need.",
+            "code": "budget = int(input())\nprice, quantity = map(int, input().split())\ncost = price * quantity\nremaining = budget - cost\nprint(cost, remaining)\n",
+            "output": "60 40\n",
+            "exampleInput": "100\n12 5\n"
+          },
+          {
+            "title": "Diagnose input mistakes",
+            "body": "ValueError often means that int received text that is not a valid integer, such as \"3.5\", an empty string, or the unsplit line \"7 3\". Compare your reading code with the specification: multiple integers need splitting; decimal values need a different conversion; missing test data should be repaired in the input, not concealed by an arbitrary default value. Constraints tell you which inputs the program may assume are valid.\n\nEOFError means another requested line does not exist. Perhaps two integers were on one line while your code called input twice. Every input() advances the input position; it does not repeat the previous line. Inspect a stored variable instead of reading again. Names are case-sensitive, so n and N differ. Finally, avoid input(\"Enter a number\"): its prompt becomes output and interferes with a judged program’s required format."
+          },
+          {
+            "title": "Derive the packing formula",
+            "body": "Do not begin by memorizing a ceiling formula. Separate full boxes from leftover items. With N = 7 and K = 3, two boxes hold six items and one remaining item needs another box. With N = 12 and K = 4, three boxes are already enough. Thus the quotient is the base count, with one added only for a positive remainder. The next lesson will express that rule with a branch.\n\nHere use the equivalent expression (N + K - 1) // K. Write N as qK + r, where 0 ≤ r < K. Adding K - 1 leaves an exact multiple in quotient q, but moves any positive remainder into quotient q + 1. Implement reading, calculation, and output as separate steps. Test zero, exact multiples, a leftover item, and large values; a single example cannot distinguish the correct rule from always adding one."
+          }
+        ],
+        "exerciseTitle": "Packing boxes",
+        "task": "There are N items and each box holds at most K items. Find the minimum number of boxes needed. 0 ≤ N ≤ 10⁹ and 1 ≤ K ≤ 10⁹.",
+        "input": "One line containing two integers N K.",
+        "output": "Print the number of boxes as one integer.",
+        "hint": "An exact multiple needs no extra box. Otherwise add one; equivalently, use (N + K - 1) // K.",
+        "explanation": "Identify N as the item count and K as capacity. K is at least 1, so division by zero cannot occur. N // K counts full boxes and N % K counts leftover items. A zero remainder needs no extra box; a positive remainder needs one. The equivalent integer formula is (N + K - 1) // K, which the reference uses without converting large integers to floating point. For N = 0, the numerator K - 1 yields zero boxes. Exact multiples yield the ordinary quotient; other inputs yield one more. The four checks cover a remainder, an exact multiple, no items, and a large integer. The number of operations is fixed, so time and extra space are O(1).",
+        "objectives": [
+          "Read input by line and distinguish strings from integers.",
+          "Understand split, int, and unpacking before using map as shorthand.",
+          "Model integer quantities with quotient and remainder, including zero and exact multiples."
+        ],
+        "checkpoints": [
+          {
+            "question": "Does input() reading 12 return an integer or a string?",
+            "answer": "It returns the string \"12\". int(input()) converts it to the integer 12."
+          },
+          {
+            "question": "Why is N//K+1 wrong for N=12 and K=4?",
+            "answer": "Twelve items fit exactly in three boxes. An additional box is needed only for a nonzero remainder."
+          }
+        ]
+      },
+      "ja": {
+        "title": "入力と整数",
+        "summary": "入力された文字列を計算できる数値に変換する。",
+        "sections": [
+          {
+            "title": "入力はまず文字列になる",
+            "body": "前課は固定の結果を出すプログラムでした。入力のある問題では、同じコードで異なる値を処理します。input() は 1 行を読み、末尾の改行を除きますが、結果は数字だけでも文字列です。電話番号や識別子のように、数字で書かれていても計算する量とは限らないため、入力と数値への変換は別の操作になっています。\n\n変数は、現在の値を参照する名前と考えます。n = input() は右側を先に実行して、その結果を n に代入します。= は永続的な数学の等式ではありません。n = int(n) と書けば、古い n の文字列を整数へ変換してから n を更新します。2 段階を理解すれば n = int(input()) とまとめられます。\n\n入力が 12 のとき、文字列の n + n は 1212、整数の n + n は 24 になります。画面に見える文字だけで型を判断しないでください。変数を number と名付けても整数になるわけではなく、どの操作で作った値かによって型が決まります。",
+            "code": "raw = input()\nprint(raw + raw)\nn = int(raw)\nprint(n + n)\n",
+            "output": "1212\n24\n",
+            "exampleInput": "12\n"
+          },
+          {
+            "title": "分割してから整数へ変換する",
+            "body": "問題では 7 3 のように、複数の整数を 1 行に書くことがあります。int(input()) では文字列 \"7 3\" 全体を 1 個の整数へ変えようとして失敗します。先に split() を使うと、空白で分かれた文字列の一覧を元の順番で得られます。リストは後で学びますが、ここでは parts[0] が最初、parts[1] が 2 番目で、番号が 0 から始まることを押さえます。\n\nまず例のように操作を展開します。line は行全体の文字列、parts の各要素も文字列で、int を使った後の n と k が整数です。引数なしの split() は連続する空白も区切りとして扱うので、空白の個数を数える必要はありません。\n\n理解できたら n, k = map(int, input().split()) という短い形を使えます。map は各要素に int を適用し、左の 2 つの名前が順に結果を受け取ります。これはアンパックと呼ばれます。短い形がより正しいわけではありません。受け取る名前の数と値の数が一致すること、問題文の行構造に沿って読むことが大切です。",
+            "code": "line = input()\nparts = line.split()\nn = int(parts[0])\nk = int(parts[1])\nprint(n + k)\n",
+            "output": "10\n",
+            "exampleInput": "7 3\n"
+          },
+          {
+            "title": "整数除算・余り・正確な整数",
+            "body": "箱数・人数・移動回数などは整数で答えることが多くあります。Python の / は通常の除算で、通常は浮動小数点数を返します。// は商の切り下げで、7 // 3 は 2、% は余りで、7 % 3 は 1 です。非負の n と正の k では n = (n // k) * k + n % k が成り立ち、余りは k より小さくなります。この関係で解釈を確かめられます。\n\n切り下げは 0 方向への切り捨てとは異なります。-7 // 3 は -3、余りは 2 です。今回の箱詰めは非負の個数だけですが、後で他の言語の除算と混同しないよう意味を覚えます。除数が 0 なら ZeroDivisionError になります。0 があり得るかは制約で確認します。\n\nPython の整数は必要に応じて大きくなるため、32 ビットの範囲を超えただけではオーバーフローしません。一方、浮動小数点数へ変換すると精度を失う場合があります。正確な個数が必要なら整数だけの式を優先します。例では商・余り・元の値の再構成を表示し、最後の値が n に一致することを確認します。",
+            "code": "n, k = map(int, input().split())\nq = n // k\nr = n % k\nprint(q, r)\nprint(q * k + r)\n",
+            "output": "2 1\n7\n",
+            "exampleInput": "7 3\n"
+          },
+          {
+            "title": "変数の値を順に追う",
+            "body": "代入では、古い値から新しい値を作れます。balance = 100 の後に balance = balance - 30 を実行すると、右辺の古い 100 で 100 - 30 = 70 を計算し、その後 balance を 70 に更新します。数学の等式を解いているのではありません。概念的には右から左へ値を渡します。後の文は、それまでの更新を反映した値を使います。\n\n例は予算、単価、個数を読みます。入力が 100 と 12 5 なら、cost = price * quantity で 60、remaining = budget - cost で 40 になります。print(cost, remaining) は空白区切りの 1 行を出力します。入力に「予算：」のような見出しを加えると、整数への変換は失敗します。\n\n追跡するときは、各文を実行した直後の値を表にします。budget・price・quantity は変わらず、cost と remaining が新たに作られます。入力の値、中間結果、最終的な答えを区別すると、同じ入力を繰り返し読んだり、後で必要な値を上書きしたりする誤りを避けられます。",
+            "code": "budget = int(input())\nprice, quantity = map(int, input().split())\ncost = price * quantity\nremaining = budget - cost\nprint(cost, remaining)\n",
+            "output": "60 40\n",
+            "exampleInput": "100\n12 5\n"
+          },
+          {
+            "title": "入力の誤りを切り分ける",
+            "body": "ValueError は、int に整数として解釈できない文字を渡した場合によく出ます。\"3.5\"、空文字列、分割前の \"7 3\" などです。問題の形式を確認し、1 行の複数整数なら split、小数なら適切な変換、入力欄が不足しているならテストデータを修正します。適当な既定値で隠すのではなく、どの入力が合法かを制約から判断します。\n\nEOFError は、もう存在しない行を読もうとしたことを表します。2 個の整数が同じ行なのに input を 2 回呼んだ場合などに起こります。確認のつもりで input を追加すると、それも次の行を消費します。input() は入力位置を進めるので、前に読んだ行をもう一度返しません。確認には保存済みの変数を表示し、提出前にデバッグ出力を削除します。\n\nn と N は別の名前です。入力後に別の大文字・小文字を使うと NameError になります。また input(\"数字を入力\") のような案内付きの入力は、案内文を標準出力へ書きます。自動判定では余計な出力になるため、合意された入力形式をそのまま読み取ります。"
+          },
+          {
+            "title": "個数の関係から式を導く",
+            "body": "最初から切り上げの式を暗記する必要はありません。満杯の箱と余った品物に分けます。N = 7、K = 3 なら 2 箱で 6 個を入れ、残り 1 個にもう 1 箱必要です。N = 12、K = 4 なら 3 箱で十分です。つまり商を基本の箱数にし、余りが正のときだけ 1 を加えます。次の課では条件分岐で直接この規則を書けます。\n\nここでは同じ意味の (N + K - 1) // K を使います。N = qK + r、0 ≤ r < K と分解すると、r = 0 の場合は K - 1 を加えても商は q のままです。r > 0 の場合だけ次の商 q + 1 に進みます。式を覚えるだけでなく、なぜ整数商を正しく切り上げられるかを説明できます。\n\nコードは「N と K を読む、計算する、整数を出す」の 3 部分に分けます。テストは 0 個、割り切れる個数、箱から 1 個あふれる場合、大きな数を選びます。それぞれが別の誤りを検出します。7 3 だけでは N // K + 1 という誤った式も通るため、境界を区別できる入力が必要です。"
+          }
+        ],
+        "exerciseTitle": "箱詰め",
+        "task": "N 個の品物があり、1 箱には最大 K 個入ります。すべてを入れるのに必要な箱の最小個数を求めてください。0 ≤ N ≤ 10⁹、1 ≤ K ≤ 10⁹ です。",
+        "input": "1 行に整数 N K が与えられます。",
+        "output": "必要な箱の個数を整数で出力してください。",
+        "hint": "N が K の倍数なら追加の箱は不要です。それ以外は 1 箱追加します。(N + K - 1) // K とも書けます。",
+        "explanation": "N は品物数、K は容量です。K ≥ 1 なのでゼロ除算は起こりません。N // K は満杯になる箱の数、N % K は残りの品物数です。余りが 0 なら追加不要、正なら 1 箱追加します。同じ規則を整数式 (N + K - 1) // K で表せます。参考解は浮動小数点数に変換せず、この式を使います。N = 0 なら分子 K - 1 を K で割って 0、割り切れるなら商そのもの、それ以外なら商より 1 大きい結果です。4 個のテストで余りあり、割り切れる場合、品物なし、大きな整数を確認します。演算数は一定で、時間と追加領域は O(1) です。",
+        "objectives": [
+          "入力を行単位で読み、文字列と整数を区別する。",
+          "split・int・代入を理解してから map の省略形を使う。",
+          "整数除算と余りでモデル化し、0 と割り切れる境界を扱う。"
+        ],
+        "checkpoints": [
+          {
+            "question": "input() で 12 を読むと整数になりますか。",
+            "answer": "文字列 \"12\" です。int(input()) で整数 12 に変換します。"
+          },
+          {
+            "question": "N=12、K=4 で N//K+1 が誤るのはなぜですか。",
+            "answer": "3 箱でちょうど収まり、4 箱目は不要だからです。余りがあるときだけ 1 を加えます。"
+          }
+        ]
+      }
+    },
+    "starter": "n, k = map(int, input().split())\n# TODO\n",
+    "solution": "n, k = map(int, input().split())\nprint((n + k - 1) // k)\n",
+    "tests": [
+      {
+        "input": "7 3\n",
+        "expected": "3\n"
+      },
+      {
+        "input": "12 4\n",
+        "expected": "3\n"
+      },
+      {
+        "input": "0 9\n",
+        "expected": "0\n"
+      },
+      {
+        "input": "1000000000 3\n",
+        "expected": "333333334\n"
+      }
+    ]
+  },
+  {
+    "id": "conditions",
+    "order": 3,
+    "stage": "start",
+    "minutes": 45,
+    "prerequisiteIds": [
+      "input-and-numbers"
+    ],
+    "relatedProblems": [
+      "ABC086A",
+      "APG4bPython EX6"
+    ],
+    "content": {
+      "zh": {
+        "title": "条件分支",
+        "summary": "把规则写成明确且互不遗漏的情况。",
+        "sections": [
+          {
+            "title": "比较产生真或假",
+            "body": "同一程序有时要根据输入选择不同处理。例如分数达到 60 就输出 Pass，否则输出 Fail。这里先进行比较，再决定执行哪段代码。比较的结果是布尔值 True 或 False，不是文字 \"True\"，也不是一个新的输入。表达式 score >= 60 就能表示“分数至少为60”。判断需要的边界应来自题目，不应凭经验把“至少”写成“大于”。\n\n常用比较符有 ==、!=、<、<=、>、>=。= 负责赋值，== 才比较是否相等。中文里的“超过”对应 >，“不少于”对应 >=，“不等于”对应 !=。把自然语言中的数量关系翻成比较符时，特别留意是否包含相等情况。整数恰好落在阈值上，是最值得测试的数据之一。\n\n下面先直接打印比较结果，观察 60 >= 60 为 True，而 60 > 60 为 False。这里输出 True/False 只是用于学习条件；实际题目若要求 Pass/Fail，就应在分支中输出指定文字，不能把布尔值当成答案格式。",
+            "code": "score = 60\nprint(score >= 60)\nprint(score > 60)\nprint(score == 60)\nprint(score != 60)\n",
+            "output": "True\nFalse\nTrue\nFalse\n"
+          },
+          {
+            "title": "缩进规定分支的范围",
+            "body": "if 后面写条件与冒号，下一行用缩进表示属于这个条件的处理。课程统一采用四个空格。else 后没有条件，它处理 if 不成立的情况，也需要冒号。if 与 else 应处于相同缩进层级，而各自的内部语句再向右缩进。缩进不是装饰，它决定哪些语句会一起执行。\n\n观察下面例子。输入 59 时，只会输出 Fail，接着输出 Done；输入 60 时则输出 Pass，再输出 Done。最后的 print(\"Done\") 没有缩进，表示它位于整个分支之后，因此两种情况都会执行。若把它缩进到 else 内，就只有不及格时才会输出，这改变了程序含义。\n\n编写分支时可以先画出“条件真”和“条件假”两条路径，写出每条路径应有的动作，再对应到代码块。一个代码块可以有多行，而不只是一个 print。不要通过随意增减空格来消除报错；应先想清楚这行应属于哪个分支，再调整缩进。",
+            "code": "score = int(input())\nif score >= 60:\n    print(\"Pass\")\nelse:\n    print(\"Fail\")\nprint(\"Done\")\n",
+            "output": "Fail\nDone\n",
+            "exampleInput": "59\n"
+          },
+          {
+            "title": "多类情况与判断顺序",
+            "body": "三类以上的情况可以用 elif，意思是“否则，如果”。Python 从上到下检查条件；找到第一个为真的条件后，只执行它的代码块，并跳过后面的 elif 和 else。因此判断顺序是算法的一部分，不能随意交换。若条件有包含关系，通常应把更具体的情况放前面，或者把范围分成真正不重叠的区间。\n\n例如 90 分以上为 A，60 到 89 分为 B，其余为 C。先写 score >= 90，接着写 score >= 60 就足够了。第二个条件看起来也包含 90，但执行到这里时已经知道第一个条件失败，即 score < 90，因此范围自动缩小为 60 到 89。程序路径携带着前面判断得到的信息。\n\n输入 75 时，第一项 False，第二项 True，输出 B，后面不再检查。若先判断 >= 60，输入 95 会直接被分成 B，A 就永远无法到达。用阈值前一个、阈值本身、阈值后一个的数据检查，比只选随机中间值更容易发现这种顺序错误。",
+            "code": "score = int(input())\nif score >= 90:\n    print(\"A\")\nelif score >= 60:\n    print(\"B\")\nelse:\n    print(\"C\")\n",
+            "output": "B\n",
+            "exampleInput": "75\n"
+          },
+          {
+            "title": "组合条件，避免省略比较",
+            "body": "and 表示两个条件都成立，or 表示至少一个成立，not 反转一个真伪结果。例如 x % 2 == 0 and x % 3 == 0，先分别判断是否能被 2、3 整除，再要求两者同时为真。为了阅读清楚，可以给每个完整比较加括号。初学时不要过度依赖运算符优先级，把逻辑边界写出来更容易核对。\n\n一个常见错误是想表示“x 等于 1 或 2”却写成 x == 1 or 2。右边的 2 不是“x 等于2”，而是一个独立的非零整数，在条件位置会被视为真，导致整个条件总成立。应写 x == 1 or x == 2。自然语言能够省略主语，程序中的两个比较却要分别写完整。\n\n条件也可以先保存到变量，例如 divisible_by_two = n % 2 == 0。这样能把复杂规则拆成可命名的小判断。下面程序针对输入 6，分别得到 True、True，合并后仍为 True。真实分类时，可以使用这些布尔变量，也可以直接写表达式；选择你能够清楚解释的形式。",
+            "code": "n = int(input())\ndivisible_by_two = n % 2 == 0\ndivisible_by_three = n % 3 == 0\nprint(divisible_by_two)\nprint(divisible_by_three)\nprint(divisible_by_two and divisible_by_three)\n",
+            "output": "True\nTrue\nTrue\n",
+            "exampleInput": "6\n"
+          },
+          {
+            "title": "一个分支链，还是多个独立判断",
+            "body": "一组 if / elif 与多个 if 解决的问题不同。若题目要求从多种类别中输出唯一标签，应使用分支链。若题目要求列出所有满足的特征，就可能需要多个独立 if。例如一个数既是偶数又能被 3 整除，这两个事实可以同时成立；但练习要求在此时输出 Both，而不是分别输出 Two、Three。\n\n下面例子故意使用独立 if，输入 6 会输出两行。它不是语法错误，也不是 Python 重复执行了同一行，而是两个条件分别成立，各自触发自己的 print。把第二个 if 改为 elif 后，输出就只剩第一行。修改前应先判断题目到底需要一个类别还是多个特征，不要认为某一种写法永远正确。\n\n另一个常见误区是以为 else 会对应整个上方所有 if。实际上 else 只属于与它构成同一语法结构、同一层级的那个 if 链。多段独立判断混写时，很容易让 else 接到意料之外的位置。保持结构简单，必要时使用完整分支链并检查每条路径的输出次数。",
+            "code": "n = int(input())\nif n % 2 == 0:\n    print(\"Two\")\nif n % 3 == 0:\n    print(\"Three\")\n",
+            "output": "Two\nThree\n",
+            "exampleInput": "6\n"
+          },
+          {
+            "title": "用决策表检查分类是否完整",
+            "body": "把练习拆成两个是非问题：能否被 2 整除，能否被 3 整除。两个条件各有真、假，因此共有四种组合。两者真对应 Both，只有第一个真对应 Two，只有第二个真对应 Three，两者假对应 Neither。先列出这四格，再写代码，可以清楚地看到是否漏掉情况。\n\n实现时，Both 必须优先于更宽泛的单项条件。后续 elif 利用前面已经失败的信息，因此无需在 Two 分支里再次写“不能被3整除”。最后的 else 代表所有未被前面覆盖的输入，不是“发生错误”才执行。对题目约束内的任何正整数，四类中应恰好有一类成立。\n\n为每一格选择最小或简单代表：6、2、3、1。再考虑较大的倍数和接近上界的数，检查代码是否依赖某几个写死数字。若结果标签正确但多输出了一行，应回头检查是否用了独立 if。若 6 被判成 Two，应检查顺序。将具体失败现象与逻辑结构对应，比不停替换比较符更有效。"
+          }
+        ],
+        "exerciseTitle": "整数分类",
+        "task": "给定整数 N。若 N 同时能被 2 和 3 整除，输出 Both；否则若能被 2 整除，输出 Two；否则若能被 3 整除，输出 Three；其余情况输出 Neither。1 ≤ N ≤ 10⁹。",
+        "input": "一个整数 N。",
+        "output": "输出 Both、Two、Three、Neither 中的一个，大小写必须一致。",
+        "hint": "先检查同时满足的情况，再检查单独满足的情况。",
+        "explanation": "练习规则按优先级划分四类。先判断 n % 2 == 0 and n % 3 == 0，覆盖 6 的倍数；未进入该分支时，才依次判断单独能被 2 整除、单独能被 3 整除，最后用 else 接收两者都不满足的整数。必须使用同一组 if / elif / else，保证只输出一次。测试 6、8、9、1 分别到达四个分支，因此既检查顺序，也检查是否遗漏分类。所有比较与取余的次数固定，时间和额外空间 O(1)。题目要求特定英文大小写，输出中不添加解释。",
+        "objectives": [
+          "将文字规则转成布尔条件和互斥分支。",
+          "追踪 if / elif / else 的执行路径，正确处理相等边界。",
+          "用 and、or 与余数表达分类，并为每个分支设计测试。"
+        ],
+        "checkpoints": [
+          {
+            "question": "多个独立 if 和一组 if / elif 有何区别？",
+            "answer": "独立 if 会逐个判断，可能执行多段；if / elif 只执行第一段成立的分支。"
+          },
+          {
+            "question": "若先判断“能被2整除”，输入6会怎样？",
+            "answer": "会进入 Two 分支而跳过后面 Both，所以应先判断最具体的“同时整除”。"
+          }
+        ]
+      },
+      "en": {
+        "title": "Conditional branches",
+        "summary": "Turn a rule into complete, unambiguous cases.",
+        "sections": [
+          {
+            "title": "Comparisons produce truth values",
+            "body": "A program sometimes needs to choose an action based on its input. For example, a score of at least 60 may require Pass, while a lower score requires Fail. First evaluate a comparison; then choose which code runs. A comparison produces the Boolean value True or False, not the text \"True\" and not another input value. score >= 60 expresses “at least sixty.”\n\nThe operators are ==, !=, <, <=, >, and >=. Remember that = assigns a value while == compares values. Translate phrases carefully: “exceeds” means >, whereas “no less than” includes equality and means >=. The example prints comparison results for learning purposes. A real task asking for Pass or Fail still needs those exact words, not a printed Boolean.",
+            "code": "score = 60\nprint(score >= 60)\nprint(score > 60)\nprint(score == 60)\nprint(score != 60)\n",
+            "output": "True\nFalse\nTrue\nFalse\n"
+          },
+          {
+            "title": "Indentation defines a branch",
+            "body": "An if statement contains a condition followed by a colon. Its body is indented; this course uses four spaces per level. else has no condition because it covers the case in which the if condition is false. It also needs a colon. Align if and else, then indent each body one level deeper. Indentation defines execution, not just appearance.\n\nIn the example, input 59 prints Fail and then Done; input 60 prints Pass and then Done. The final print is outside both bodies, so it always runs. Indenting it inside else would change the behavior. Before coding, sketch the true and false paths and list their actions. A branch can contain several statements. When repairing indentation, decide which block a statement belongs to instead of adding spaces until the error disappears.",
+            "code": "score = int(input())\nif score >= 60:\n    print(\"Pass\")\nelse:\n    print(\"Fail\")\nprint(\"Done\")\n",
+            "output": "Fail\nDone\n",
+            "exampleInput": "59\n"
+          },
+          {
+            "title": "Multiple cases and their order",
+            "body": "Use elif, meaning “otherwise, if,” for three or more cases. Python checks conditions from top to bottom. Once one is true, it executes that body and skips all later alternatives in the chain. Consequently, ordering is part of the algorithm. Put a more specific case before a broader overlapping case, or divide the possibilities into disjoint ranges.\n\nFor grades A at 90 or above, B from 60 to 89, and C below 60, test >= 90 before >= 60. Reaching the second test already implies that the first failed, so the upper boundary is implicit. With input 75, the first condition is false and the second true. If >= 60 came first, 95 would incorrectly become B. Test immediately below, at, and above every boundary.",
+            "code": "score = int(input())\nif score >= 90:\n    print(\"A\")\nelif score >= 60:\n    print(\"B\")\nelse:\n    print(\"C\")\n",
+            "output": "B\n",
+            "exampleInput": "75\n"
+          },
+          {
+            "title": "Combine complete conditions",
+            "body": "and requires both conditions, or requires at least one, and not reverses a truth value. In x % 2 == 0 and x % 3 == 0, each comparison checks divisibility and and combines the results. Parentheses around complete comparisons can make the intended grouping easier to read.\n\nA frequent mistake is writing x == 1 or 2 for “x equals one or two.” The 2 is a separate nonzero integer, treated as true in a condition; it does not mean x == 2. Write both comparisons explicitly: x == 1 or x == 2. Natural language can omit repeated words, but the program cannot infer them. You may also store comparison results in descriptive Boolean variables. This separates a complicated decision into named questions that can be traced independently.",
+            "code": "n = int(input())\ndivisible_by_two = n % 2 == 0\ndivisible_by_three = n % 3 == 0\nprint(divisible_by_two)\nprint(divisible_by_three)\nprint(divisible_by_two and divisible_by_three)\n",
+            "output": "True\nTrue\nTrue\n",
+            "exampleInput": "6\n"
+          },
+          {
+            "title": "One chain or independent decisions",
+            "body": "An if / elif chain and several independent if statements solve different tasks. Use a chain when the specification requires exactly one category. Independent tests may be appropriate when you must report every property that holds. A number can be even and divisible by three at the same time, but this exercise requests Both rather than two separate output lines.\n\nThe example intentionally uses independent tests, so input 6 prints two lines. Python is not repeating a statement; two different true conditions activate two different bodies. Changing the second if to elif would leave only the first output. Neither structure is universally correct: choose according to the required behavior. Also remember that an else belongs to its own syntactic if chain, not automatically to every if written above it. Trace output counts on each path.",
+            "code": "n = int(input())\nif n % 2 == 0:\n    print(\"Two\")\nif n % 3 == 0:\n    print(\"Three\")\n",
+            "output": "Two\nThree\n",
+            "exampleInput": "6\n"
+          },
+          {
+            "title": "Verify the decision table",
+            "body": "Split the exercise into two yes-or-no questions: divisible by two, and divisible by three. Two Booleans give four combinations. Both true means Both; only the first true means Two; only the second true means Three; neither true means Neither. Writing this table before coding exposes missing categories.\n\nThe combined case must precede the broader individual conditions. Later elif branches inherit information from earlier failures, so the Two branch does not need to repeat “not divisible by three.” The final else represents valid inputs not covered earlier, not merely an error situation. Test a simple representative of each combination, such as 6, 2, 3, and 1. If output has extra lines, inspect independent if statements; if 6 becomes Two, inspect order. Tie each observed failure to a specific structural explanation."
+          }
+        ],
+        "exerciseTitle": "Classify an integer",
+        "task": "Given N, print Both if it is divisible by both 2 and 3. Otherwise print Two if divisible by 2, Three if divisible by 3, and Neither otherwise. 1 ≤ N ≤ 10⁹.",
+        "input": "One integer N.",
+        "output": "Print one of Both, Two, Three, or Neither, with the exact capitalization.",
+        "hint": "Check the combined case before either individual case.",
+        "explanation": "The specification defines four categories with a priority order. First test n % 2 == 0 and n % 3 == 0, covering multiples of six. Only if that fails should the program test divisibility by two, then divisibility by three, and finally use else for neither. One if / elif / else chain guarantees a single output. Inputs 6, 8, 9, and 1 reach the four different branches, checking both order and coverage. The number of arithmetic operations and comparisons is fixed, so time and extra space are O(1). Preserve the required capitalization and print no explanatory text.",
+        "objectives": [
+          "Translate verbal rules into Boolean conditions and exclusive branches.",
+          "Trace if / elif / else and handle equality boundaries correctly.",
+          "Combine conditions with and, or, and remainders, then test every branch."
+        ],
+        "checkpoints": [
+          {
+            "question": "How do separate if statements differ from an if / elif chain?",
+            "answer": "Separate statements all perform their checks and may execute several bodies. A chain executes only its first matching branch."
+          },
+          {
+            "question": "What goes wrong if divisibility by 2 is checked first for 6?",
+            "answer": "It selects Two before reaching Both. Check the more specific combined condition first."
+          }
+        ]
+      },
+      "ja": {
+        "title": "条件分岐",
+        "summary": "規則を、漏れのない場合分けで表す。",
+        "sections": [
+          {
+            "title": "比較の結果は真偽値になる",
+            "body": "入力によって処理を選ぶ場合があります。例えば得点が 60 以上なら Pass、それ未満なら Fail と表示するなら、先に比較をしてから処理を決めます。比較結果は True または False という真偽値で、文字列 \"True\" や追加の入力ではありません。score >= 60 は「60 以上」を表します。「以上」を「より大きい」と取り違えないよう、境界は問題文に従って決めます。\n\n比較演算子には ==、!=、<、<=、>、>= があります。= は代入、== は等しいかの比較です。「超える」は >、「少なくとも」は >=、「異なる」は != です。自然言語を記号へ直すときは、等しい場合を含むか確認します。閾値とちょうど同じ整数は重要なテスト入力です。\n\n例では比較結果を直接表示します。60 >= 60 は True、60 > 60 は False になります。ここで真偽値を出すのは条件を学ぶためです。実際の問題が Pass/Fail を要求するなら、分岐でその文字を出す必要があり、True/False をそのまま答えにはできません。",
+            "code": "score = 60\nprint(score >= 60)\nprint(score > 60)\nprint(score == 60)\nprint(score != 60)\n",
+            "output": "True\nFalse\nTrue\nFalse\n"
+          },
+          {
+            "title": "インデントで分岐の範囲を決める",
+            "body": "if の後に条件とコロンを書き、次の行を下げて条件成立時の処理を示します。このコースでは 1 段を空白 4 個に統一します。else は if が偽のときを扱うので条件を書きませんが、コロンは必要です。if と else の位置をそろえ、それぞれの処理を 1 段下げます。インデントは見た目の飾りではなく、実行範囲を決めます。\n\n例で 59 を入力すると Fail、続いて Done が出ます。60 なら Pass、続いて Done です。最後の print(\"Done\") は下がっていないので分岐全体の後にあり、どちらでも実行されます。これを else の中へ下げると、不合格時だけ出す意味に変わります。\n\nまず条件が真の経路と偽の経路を描き、それぞれに必要な処理を並べます。その後でコードのブロックに対応させます。ブロックには複数の文を書けます。エラーを消すために無作為に空白を増減するのではなく、その文がどの経路に属するべきかを決めてから位置を直してください。",
+            "code": "score = int(input())\nif score >= 60:\n    print(\"Pass\")\nelse:\n    print(\"Fail\")\nprint(\"Done\")\n",
+            "output": "Fail\nDone\n",
+            "exampleInput": "59\n"
+          },
+          {
+            "title": "複数の場合と判定順序",
+            "body": "3 種類以上の場合には elif、つまり「そうでなく、もし」を使います。Python は上から条件を調べ、最初に真になったブロックだけを実行し、残りの elif と else を飛ばします。したがって条件の順番もアルゴリズムの一部です。条件が包含関係なら具体的な場合を先にするか、重ならない範囲に分けます。\n\n90 点以上を A、60～89 点を B、それ未満を C とするなら、先に score >= 90、次に score >= 60 と書けます。2 個目も単独では 90 を含みますが、そこへ来る時点で最初が偽、つまり score < 90 と分かっています。経路には前の判定で得た情報が含まれています。\n\n75 なら最初が False、次が True となり B を出し、その後は判定しません。>= 60 を先にすると 95 も B になり、A に届きません。閾値の直前・一致・直後を試すと、この種の順序の誤りを見つけやすくなります。途中の値だけを無作為に選ぶより、条件の境目を意識して検証します。",
+            "code": "score = int(input())\nif score >= 90:\n    print(\"A\")\nelif score >= 60:\n    print(\"B\")\nelse:\n    print(\"C\")\n",
+            "output": "B\n",
+            "exampleInput": "75\n"
+          },
+          {
+            "title": "比較を省略せず組み合わせる",
+            "body": "and は両条件が真、or は少なくとも一方が真、not は真偽の反転を表します。x % 2 == 0 and x % 3 == 0 は、2 で割り切れるか、3 で割り切れるかをそれぞれ調べ、結果を組み合わせます。各比較を括弧で囲むとまとまりを読み取りやすくなります。初めは優先順位に頼り過ぎず、論理の区切りを明示して構いません。\n\n「x が 1 または 2」として x == 1 or 2 と書くのは誤りです。右の 2 は x == 2 の省略ではなく、独立した非ゼロ整数です。条件では真と扱われるので全体が常に真になります。x == 1 or x == 2 と両方の比較を書きます。文章では主語を省略できても、コードは比較を補完してくれません。\n\n判定を divisible_by_two = n % 2 == 0 のように変数へ保存することもできます。複雑な規則を名前の付いた小さな問いに分解できます。例の入力 6 では各変数が True となり、and でも True です。直接式を書く形でも、途中の真偽値を保存する形でも、説明しやすいものを選びます。",
+            "code": "n = int(input())\ndivisible_by_two = n % 2 == 0\ndivisible_by_three = n % 3 == 0\nprint(divisible_by_two)\nprint(divisible_by_three)\nprint(divisible_by_two and divisible_by_three)\n",
+            "output": "True\nTrue\nTrue\n",
+            "exampleInput": "6\n"
+          },
+          {
+            "title": "分岐の連鎖か、独立した判定か",
+            "body": "if / elif の連鎖と、独立した複数の if は用途が違います。複数の分類から唯一のラベルを選ぶなら連鎖を使います。一方、成立する特徴をすべて列挙するなら、独立した判定が必要な場合があります。偶数であり 3 の倍数でもある整数は存在しますが、演習の要求は Two と Three の 2 行ではなく Both です。\n\n例は意図的に独立した if を使うため、6 で 2 行を出します。これは構文エラーでも同じ文の重複実行でもなく、別々の条件がそれぞれ真になった結果です。2 個目を elif にすると最初の出力だけになります。変更する前に、1 分類が必要なのか、複数の特徴を出すのかを確認します。どちらかが常に正しいわけではありません。\n\nelse が上にあるすべての if をまとめて受けると考えるのも誤りです。else は同じ構文と階層の if の連鎖にだけ対応します。独立した判定を混在させると、意図しない if に else が結び付くことがあります。構造を単純に保ち、経路ごとの出力回数も追跡してください。",
+            "code": "n = int(input())\nif n % 2 == 0:\n    print(\"Two\")\nif n % 3 == 0:\n    print(\"Three\")\n",
+            "output": "Two\nThree\n",
+            "exampleInput": "6\n"
+          },
+          {
+            "title": "判定表で漏れを確認する",
+            "body": "演習を 2 つの質問に分けます。2 で割り切れるか、3 で割り切れるかです。それぞれ真と偽があるので、組合せは 4 通りです。両方真なら Both、最初だけ真なら Two、次だけ真なら Three、両方偽なら Neither です。先にこの 4 マスを作れば、場合の漏れが見えます。\n\n実装では Both を単独の条件より前に置きます。後の elif は前の条件が偽だった情報を利用するので、Two の分岐で「3 では割り切れない」と繰り返す必要はありません。最後の else は前までに分類されなかった正しい入力を受けるもので、異常時専用ではありません。制約内の正整数は 4 種類のうち必ず 1 つに属します。\n\n各マスの簡単な代表として 6・2・3・1 を選びます。さらに大きな倍数などで、特定の数を直接書き込んでいないか確認できます。余計な行が出れば独立 if の使用、6 が Two なら順序を調べます。具体的な失敗とコードの構造を結び付けると、比較記号を無作為に変えるより原因へ近づけます。"
+          }
+        ],
+        "exerciseTitle": "整数の分類",
+        "task": "整数 N が与えられます。2 と 3 の両方で割り切れるなら Both、そうでなく 2 で割り切れるなら Two、そうでなく 3 で割り切れるなら Three、それ以外なら Neither を出力してください。1 ≤ N ≤ 10⁹ です。",
+        "input": "整数 N が 1 個与えられます。",
+        "output": "Both、Two、Three、Neither のいずれかを、大文字と小文字を区別して出力してください。",
+        "hint": "両方の条件を満たす場合を、片方だけの場合より先に判定します。",
+        "explanation": "条件には優先順位があります。最初に n % 2 == 0 and n % 3 == 0 を調べ、6 の倍数を分類します。それが偽の場合だけ 2 の倍数、次に 3 の倍数を調べ、残りを else にします。1 組の if / elif / else にすることで出力は必ず 1 回です。6・8・9・1 はそれぞれ異なる分岐を通り、順序と漏れを確認します。演算と比較の回数は一定で、時間と追加領域は O(1) です。指定された英語の大文字・小文字を保ち、説明文を出力しません。",
+        "objectives": [
+          "文章の規則を真偽条件と重複しない分岐に変える。",
+          "if / elif / else の経路を追い、等号を含む境界を扱う。",
+          "and・or・余りで分類し、各分岐を確認する入力を作る。"
+        ],
+        "checkpoints": [
+          {
+            "question": "独立した if と if / elif の違いは何ですか。",
+            "answer": "独立した if はすべて判定され、複数の処理が動く場合があります。連鎖は最初に成立した分岐だけを実行します。"
+          },
+          {
+            "question": "6 に対して最初に 2 の倍数を判定するとどうなりますか。",
+            "answer": "Both より先に Two が選ばれます。より具体的な両方の条件を先に確認します。"
+          }
+        ]
+      }
+    },
+    "starter": "n = int(input())\n# TODO\n",
+    "solution": "n = int(input())\nif n % 2 == 0 and n % 3 == 0:\n    print(\"Both\")\nelif n % 2 == 0:\n    print(\"Two\")\nelif n % 3 == 0:\n    print(\"Three\")\nelse:\n    print(\"Neither\")\n",
+    "tests": [
+      {
+        "input": "6\n",
+        "expected": "Both\n"
+      },
+      {
+        "input": "8\n",
+        "expected": "Two\n"
+      },
+      {
+        "input": "9\n",
+        "expected": "Three\n"
+      },
+      {
+        "input": "1\n",
+        "expected": "Neither\n"
+      }
+    ]
+  },
+  {
+    "id": "loops",
+    "order": 4,
+    "stage": "start",
+    "minutes": 50,
+    "prerequisiteIds": [
+      "conditions"
+    ],
+    "relatedProblems": [
+      "ABC281A",
+      "ABC083B"
+    ],
+    "content": {
+      "zh": {
+        "title": "循环与累积",
+        "summary": "逐项处理数据，并维护一个答案。",
+        "sections": [
+          {
+            "title": "用范围描述重复，而不是复制代码",
+            "body": "如果需要输出1到5，复制五条 print 尚可；若上界来自输入，复制就无法解决一般问题。for 循环把“对每个候选执行同一动作”写成一个结构。for i in range(1, 6) 每轮给 i 一个新整数，再执行缩进的代码块。这里 i 是当前候选，不是循环次数的总和。\n\nrange(stop) 从0到 stop-1；range(start, stop) 从 start 到 stop-1；第三个参数可以指定步长。右端总是不包含在内。range(2, 9, 2) 依次产生2、4、6、8。范围为空时，循环体一次也不执行，这通常是合法情况，不是运行错误。\n\n先在纸上列出范围实际产生的值，再预测输出。下面输入4产生1、2、3、4。n+1 的用途只是让 n 被包含，并不意味着循环额外处理一个 n+1。把上界的“包含或不包含”翻译正确，是循环入门中最重要的边界习惯。",
+            "code": "n = int(input())\nfor i in range(1, n + 1):\n    print(i)\n",
+            "output": "1\n2\n3\n4\n",
+            "exampleInput": "4\n"
+          },
+          {
+            "title": "累积变量有明确含义",
+            "body": "求和不是让每轮输出一个新答案，而是把每轮贡献加到已有答案中。total=0 放在循环前，表示还没有处理任何数。total = total + i 先读取旧 total，再加入当前 i。简写 total += i 表达相同的更新。初始值、更新位置和最后输出的位置三者都要明确。\n\n求1到4的和时，开始 total=0，处理1后为1，处理2后为3，处理3后为6，处理4后为10。每轮结束时，total 都是“到当前数为止的和”。这个始终保持的解释叫循环不变量。初学时不用背术语，但应能用一句话解释变量在每轮后的含义。\n\n下面额外输出 i 和 total，展示追踪表，最后才打印总和。这些中间行仅供学习；正式提交若只要求总和，应删掉循环内的调试 print。若 total=0 错放到循环内部，前面的和会被反复抹掉，最后只留下末项。",
+            "code": "total = 0\nfor i in range(1, 5):\n    total += i\n    print(i, total)\nprint(total)\n",
+            "output": "1 1\n2 3\n3 6\n4 10\n10\n"
+          },
+          {
+            "title": "while 必须让状态接近结束",
+            "body": "while 在每轮开始前检查条件，条件为真才执行本体，再回到条件处重新检查。它适合不知道准确次数、但知道何时应结束的问题。例如把一个正整数反复整除2，直到不大于1。x>1 是继续条件，x//=2 让状态逐步减小，steps+=1 记录执行次数。\n\n输入20时，x 的变化为20→10→5→2→1，一共四次。循环退出时仍可访问 x 和 steps，分别为1与4。输入1时，第一次条件就不成立，循环体不执行，steps 保持0。因此初始化不能放在循环内部，否则零轮的情况可能没有定义答案。\n\n如果忘记更新 x，条件会一直为真，形成无限循环。遇到运行超时，应先问“这一轮之后哪个量发生变化，是否保证接近终点”。不要只把时间限制调大。while 也不是比 for 更高级，两者应按状态变化方式选择；已知枚举范围时，for 通常更容易检查。",
+            "code": "x = int(input())\nsteps = 0\nwhile x > 1:\n    x //= 2\n    steps += 1\nprint(x, steps)\n",
+            "output": "1 4\n",
+            "exampleInput": "20\n"
+          },
+          {
+            "title": "把筛选条件放进循环",
+            "body": "枚举与筛选可以分开理解：for 决定哪些数会被检查，if 决定当前数是否贡献答案。求偶数和时，先遍历完整的1到N，再用 i%2==0 过滤。这样每个候选都明确经过一次判断，正确性容易说明。不要把“是否是偶数”错误写成只判断输入 N，循环中应检查当前候选 i。\n\n计数与求和使用不同更新。统计偶数有几个，应 count+=1；计算偶数之和，应 total+=i。两者初始都为0，但变量含义不同。下面同时维护这两个结果，输入7得到3个偶数、总和12。跟踪2、4、6各轮，可以看到计数每次只加一，而总和加入当前值。\n\n外层是 for，内层是 if，因此累加语句需要两级缩进。若把 total+=i 退回到与 if 同级，所有数都会被累加。缩进层级可以当作逻辑层级来读：对于每个 i，如果它是偶数，那么更新两个累计值。",
+            "code": "n = int(input())\ncount = 0\ntotal = 0\nfor i in range(1, n + 1):\n    if i % 2 == 0:\n        count += 1\n        total += i\nprint(count, total)\n",
+            "output": "3 12\n",
+            "exampleInput": "7\n"
+          },
+          {
+            "title": "提前结束和跳过当前轮",
+            "body": "break 立即结束它所在的循环，程序继续执行循环之后的语句。它适合已经找到所需结果、无需再搜索的情况。continue 则只跳过当前轮剩余语句，继续下一轮。二者影响范围不同，不能当作同义词。刚学习循环时，简单的 if 往往更清楚；仅在它们能让流程更直接时使用。\n\n例如寻找1到N中第一个能被7整除的数，找到7后即可 break；若题目要统计所有符合条件的数，break 就会漏掉14、21等后续候选。是否能够提前停止，必须从题意推导，而不是因为已经看到了一个成功样例。\n\ncontinue 与 while 组合时尤其要注意：若状态更新写在 continue 后面，这一轮会跳过更新，可能导致永不前进。修正方法是把所有路径都必须执行的更新放在可靠的位置，或改成更直接的条件结构。阅读循环时逐条跟踪“下一步去哪里”，比单独理解某个关键字更重要。",
+            "code": "for i in range(1, 11):\n    if i % 2 == 0:\n        continue\n    if i > 5:\n        break\n    print(i)\n",
+            "output": "1\n3\n5\n"
+          },
+          {
+            "title": "从题意写出循环，并验证小输入",
+            "body": "本练习可以用四句话描述：候选是1到N；符合条件的是偶数；每个符合条件的候选贡献它自己的值；所有贡献相加后输出。四句话分别对应 range、if、total+=i 和最后的 print。先写这种不依赖语法的算法说明，再逐项转换成代码，能减少不知道从哪一行开始的困惑。\n\n测试从最小输入开始。N=1 时没有偶数，答案应为0，检查初始化是否正确。N=2 时答案为2，检查右端是否遗漏。N=7 时只加2、4、6，检查筛选和累计。最后用较大N观察程序能否及时结束；本题上限10000，逐个检查完全够用。\n\n还可以手算循环次数：从1到N共N轮，每轮只是一次取余、判断和可能的加法，因此时间随N线性增长。此时无需强行套公式。先保证你能够解释范围、状态、更新和结束四件事，再学习把线性方法优化为常数时间。"
+          }
+        ],
+        "exerciseTitle": "偶数之和",
+        "task": "给定 N，求 1 到 N（含两端）中所有偶数的和。1 ≤ N ≤ 10000。请先用循环实现。",
+        "input": "一个整数 N。",
+        "output": "输出偶数之和。",
+        "hint": "把答案初始化为 0，遍历 range(1, n + 1)，仅在 i % 2 == 0 时加入答案。",
+        "explanation": "先定义 total 为“已经检查过的整数中，偶数的和”，初始没有检查任何数，所以为 0。for 遍历 1 到 n，必须使用 range(1, n + 1) 包含右端。每轮仅在 i % 2 == 0 时累加 i，奇数不改变状态。循环结束，所有候选都已检查，total 就符合题意。N=1 时不会发生累加而输出0；N=2 检查右端是否包含；奇数上界检查是否误加；最大输入检查总和。循环 N 次，时间 O(N)，额外空间 O(1)。虽然可以推导公式，本课先练习循环与不变量。",
+        "objectives": [
+          "区分固定范围的 for 与按条件继续的 while。",
+          "初始化并更新累积状态，逐轮解释变量变化。",
+          "从枚举范围和筛选条件写出循环，检查结束条件与端点。"
+        ],
+        "checkpoints": [
+          {
+            "question": "range(1, n) 为什么不适合求1到n的和？",
+            "answer": "右端 n 不包含在内，应使用 range(1, n + 1)。"
+          },
+          {
+            "question": "为什么 total=0 要写在循环外？",
+            "answer": "它表示开始时尚未累计；写在循环内会每轮清空前面得到的结果。"
+          }
+        ]
+      },
+      "en": {
+        "title": "Loops and accumulation",
+        "summary": "Process values one by one while maintaining an answer.",
+        "sections": [
+          {
+            "title": "Describe repetition with a range",
+            "body": "Copying five print statements can display one through five, but copying cannot handle an upper bound supplied as input. A for loop expresses one action repeated for each candidate. In for i in range(1, 6), i receives a new integer each iteration, then the indented body runs. i is the current candidate, not an accumulated count.\n\nrange(stop) starts at zero; range(start, stop) starts at start. Both exclude stop. A third argument sets the step, so range(2, 9, 2) yields 2, 4, 6, 8. An empty range executes nothing. List the generated values before tracing the body. For input four, range(1, n + 1) includes four but never processes five. Correct endpoint translation prevents off-by-one errors.",
+            "code": "n = int(input())\nfor i in range(1, n + 1):\n    print(i)\n",
+            "output": "1\n2\n3\n4\n",
+            "exampleInput": "4\n"
+          },
+          {
+            "title": "Give an accumulator a precise meaning",
+            "body": "Accumulation adds each new contribution to an existing answer. Place total = 0 before the loop to represent processing no values yet. total = total + i reads the old total before adding i; total += i is shorthand. Decide separately where initialization, updating, and final output belong.\n\nFor one through four, the totals are initially zero, then one, three, six, and ten. After each iteration, total means the sum of all values processed so far. This persistent meaning is called a loop invariant. The example prints a trace table for learning, then the final sum. Remove trace output when a problem requests only the answer. Reinitializing total inside the body erases previous contributions and leaves only the latest value.",
+            "code": "total = 0\nfor i in range(1, 5):\n    total += i\n    print(i, total)\nprint(total)\n",
+            "output": "1 1\n2 3\n3 6\n4 10\n10\n"
+          },
+          {
+            "title": "A while loop must make progress",
+            "body": "while checks its condition before every iteration. If true, it runs the body and checks again. Use it when you know the stopping condition more naturally than the number of repetitions. Repeatedly halving an integer until it is at most one is an example: x > 1 controls continuation, x //= 2 reduces the state, and steps += 1 counts work.\n\nStarting from twenty gives 20, 10, 5, 2, 1, requiring four iterations. Starting from one executes none, so initialize steps before the loop. Forgetting to update x creates an infinite loop. When a run times out, ask which quantity changes and why it approaches termination. while is not more advanced than for; choose the structure that makes the intended progress easiest to verify.",
+            "code": "x = int(input())\nsteps = 0\nwhile x > 1:\n    x //= 2\n    steps += 1\nprint(x, steps)\n",
+            "output": "1 4\n",
+            "exampleInput": "20\n"
+          },
+          {
+            "title": "Filter inside a traversal",
+            "body": "Enumeration and filtering are separate ideas. for decides which values are inspected; if decides whether the current value contributes. For an even-number sum, inspect every integer from one through N and filter with i % 2 == 0. Test the current candidate i, not merely the original input N.\n\nCounting and summing use different updates: count += 1 records one qualifying item, while total += i adds its value. Both start at zero but represent different quantities. The example maintains both and returns three even numbers with sum twelve for input seven. The update statements need two indentation levels because they belong inside both for and if. Moving total += i out of the if would add every integer instead of just even ones.",
+            "code": "n = int(input())\ncount = 0\ntotal = 0\nfor i in range(1, n + 1):\n    if i % 2 == 0:\n        count += 1\n        total += i\nprint(count, total)\n",
+            "output": "3 12\n",
+            "exampleInput": "7\n"
+          },
+          {
+            "title": "Stop or skip deliberately",
+            "body": "break ends its enclosing loop immediately, then execution continues after that loop. continue skips only the remaining statements of the current iteration and proceeds to the next one. They are not interchangeable. Use either only when it makes the intended flow clearer than an ordinary conditional.\n\nIf searching for the first multiple of seven, finding seven may justify break. If counting all multiples, it would incorrectly omit fourteen and later candidates. Early stopping needs a reason from the problem, not just a passing example. Be careful with continue inside while: if the state update lies after continue, that path skips the update and may never make progress. Trace where control goes next on every branch, including paths that skip work.",
+            "code": "for i in range(1, 11):\n    if i % 2 == 0:\n        continue\n    if i > 5:\n        break\n    print(i)\n",
+            "output": "1\n3\n5\n"
+          },
+          {
+            "title": "Build and test a loop from the task",
+            "body": "Describe the exercise in four sentences: candidates are one through N; qualifying candidates are even; each qualifying candidate contributes its own value; print the sum of contributions. These map to range, if, total += i, and the final print. Writing this language-independent plan first removes uncertainty about where to begin coding.\n\nTest N = 1 for an empty answer set, N = 2 for the included right endpoint, and N = 7 for filtering and accumulation. A larger value checks that execution ends promptly. With at most ten thousand candidates, inspecting each one is adequate. There are N iterations with a small fixed amount of work, so time grows linearly. Before replacing the loop with a formula, ensure that you can explain its range, state, update, and termination."
+          }
+        ],
+        "exerciseTitle": "Sum the even numbers",
+        "task": "Given N, find the sum of all even integers from 1 through N inclusive. 1 ≤ N ≤ 10000. Start with a loop-based solution.",
+        "input": "One integer N.",
+        "output": "Print the sum of the even integers.",
+        "hint": "Initialize the answer to 0. Visit range(1, n + 1) and add i only when i % 2 == 0.",
+        "explanation": "Define total as the sum of even integers already inspected. Initially no integer has been inspected, so it is zero. Iterate from one through n using range(1, n + 1), adding i only when i % 2 == 0. Each update preserves the meaning of total. When the loop ends, every candidate has been inspected and total is the required answer. N = 1 tests an empty set of even values; N = 2 tests inclusion of the right endpoint; an odd upper bound checks filtering; the largest case checks accumulation. There are N iterations, giving O(N) time and O(1) extra space. A formula exists, but this lesson intentionally practices a loop and its invariant.",
+        "objectives": [
+          "Choose for for a known range and while for condition-controlled repetition.",
+          "Initialize and update accumulated state, explaining each iteration.",
+          "Translate a candidate range and filter into a terminating loop with correct endpoints."
+        ],
+        "checkpoints": [
+          {
+            "question": "Why does range(1, n) omit part of the sum from one through n?",
+            "answer": "The right endpoint n is excluded. Use range(1, n + 1)."
+          },
+          {
+            "question": "Why initialize total outside the loop?",
+            "answer": "It represents the empty accumulated prefix. Reinitializing inside would erase all previous work each iteration."
+          }
+        ]
+      },
+      "ja": {
+        "title": "繰り返しと集計",
+        "summary": "値を順番に調べ、答えを更新する。",
+        "sections": [
+          {
+            "title": "処理をコピーせず範囲で表す",
+            "body": "1 から 5 を出すだけなら print を 5 個書けますが、上限が入力で変わる問題には対応できません。for は候補ごとに同じ処理をする構造です。for i in range(1, 6) は各回で新しい整数を i に代入し、インデントした本体を実行します。i は現在の候補であり、累積した回数ではありません。\n\nrange(stop) は 0 から、range(start, stop) は start から始め、どちらも stop は含みません。3 番目の引数は増分で、range(2, 9, 2) は 2・4・6・8 です。範囲が空なら本体を 1 回も実行しませんが、これは通常の動作です。\n\nまず生成される値を紙に並べてから本体を追います。入力 4 なら 1・2・3・4 になります。n + 1 は n を含めるための右端で、n + 1 自身を処理する意味ではありません。問題の「端を含むか」を正確に翻訳する習慣を付けます。",
+            "code": "n = int(input())\nfor i in range(1, n + 1):\n    print(i)\n",
+            "output": "1\n2\n3\n4\n",
+            "exampleInput": "4\n"
+          },
+          {
+            "title": "累積変数の意味を決める",
+            "body": "集計は毎回新しい答えを独立して出すのではなく、今までの答えに現在の寄与を加えます。total = 0 はまだ何も処理していないことを表し、ループ前に置きます。total = total + i は古い値を読んでから更新し、total += i はその短い形です。初期化・更新・最終出力の位置を別々に考えます。\n\n1 から 4 の合計なら、最初は 0、1 の後は 1、2 の後は 3、3 の後は 6、4 の後は 10 です。各回の後で total は「ここまでに処理した数の合計」を表します。この保たれる意味をループ不変条件と呼びます。用語よりも、変数の意味を毎回説明できることが重要です。\n\n例は学習用に i と total を表示し、最後に合計を出します。答えだけが必要な提出では途中の print を削除します。total = 0 を本体の中へ置くと、それまでの合計が毎回消えて最後の項だけになります。",
+            "code": "total = 0\nfor i in range(1, 5):\n    total += i\n    print(i, total)\nprint(total)\n",
+            "output": "1 1\n2 3\n3 6\n4 10\n10\n"
+          },
+          {
+            "title": "while では終了へ近づける",
+            "body": "while は毎回の開始前に条件を確認し、真なら本体を実行して、再び条件へ戻ります。回数より終了条件が自然に分かる問題に適しています。正整数を 2 で割り続けて 1 以下にする場合、x > 1 が継続条件、x //= 2 が状態の縮小、steps += 1 が回数の記録です。\n\n20 からは 20→10→5→2→1 と変化して 4 回です。終了後も x と steps を参照でき、1 と 4 になります。最初から 1 なら本体を実行せず steps は 0 です。0 回の場合にも答えを定義するため、初期化は外に置きます。\n\nx の更新を忘れると条件が真のままで、無限ループになります。時間切れなら「各回で何が変わり、なぜ終了へ近づくか」を確認します。時間制限を延ばすだけでは直りません。while が for より上級というわけではなく、既知の範囲を列挙するなら for のほうが検証しやすい場合が多くあります。",
+            "code": "x = int(input())\nsteps = 0\nwhile x > 1:\n    x //= 2\n    steps += 1\nprint(x, steps)\n",
+            "output": "1 4\n",
+            "exampleInput": "20\n"
+          },
+          {
+            "title": "走査の中で条件を絞る",
+            "body": "列挙と選別を分けて考えます。for は調べる値を決め、if は現在の値を答えに含めるか決めます。偶数の和なら 1～N をすべて走査し、i % 2 == 0 で選びます。入力 N 自体ではなく、現在の候補 i を判定しなければなりません。各候補を 1 回ずつ判断する構造は、正しさを説明しやすくなります。\n\n個数と合計では更新が違います。偶数の個数なら count += 1、偶数の和なら total += i です。初期値はどちらも 0 ですが意味が異なります。例では入力 7 に対し、偶数 3 個、合計 12 を得ます。2・4・6 の各回で、個数は 1 ずつ増え、合計には現在の値が加わります。\n\nfor の中に if があるため、更新文には 2 段のインデントが必要です。total += i を if と同じ深さへ戻すと、すべての整数を加えてしまいます。階層を「各 i について、偶数なら、2 つの集計を更新する」と読んで確認してください。",
+            "code": "n = int(input())\ncount = 0\ntotal = 0\nfor i in range(1, n + 1):\n    if i % 2 == 0:\n        count += 1\n        total += i\nprint(count, total)\n",
+            "output": "3 12\n",
+            "exampleInput": "7\n"
+          },
+          {
+            "title": "終了と現在の回の省略",
+            "body": "break はそれを含むループを直ちに終了し、ループ後へ進みます。continue は現在の回の残りだけを飛ばして次の回へ進みます。影響する範囲が異なるので同じ意味ではありません。初学時は通常の if のほうが分かりやすいことも多く、流れが明確になる場合に使います。\n\n1～N の最初の 7 の倍数を探すなら、7 を見つけた時点で break できます。しかし全部の個数を求めるなら、14・21 などを調べずに終わるため誤りです。途中で止めてよいかは問題の要求から判断し、1 つの成功例が見つかっただけで終了してはいけません。\n\nwhile と continue の組合せには注意が必要です。状態の更新を continue より後に置くと、その経路では更新が飛ばされ、前へ進まなくなる場合があります。必ず必要な更新がすべての経路で行われる位置へ置くか、単純な条件構造に直します。キーワードだけでなく「次にどの文へ移るか」を追う習慣を付けます。",
+            "code": "for i in range(1, 11):\n    if i % 2 == 0:\n        continue\n    if i > 5:\n        break\n    print(i)\n",
+            "output": "1\n3\n5\n"
+          },
+          {
+            "title": "問題からループを組み立てる",
+            "body": "演習を 4 文で説明します。「候補は 1～N」「条件は偶数」「条件を満たす数は自身の値を寄与する」「寄与の合計を出す」です。それぞれ range、if、total += i、最後の print に対応します。構文から離れた手順を先に書けば、どの行から実装するか迷いにくくなります。\n\n最小入力から調べます。N=1 なら偶数なしで答え 0 となり、初期化を確認できます。N=2 は答え 2 で右端の包含、N=7 は 2・4・6 だけを加える選別と累積を確認します。大きい値では適切な時間で終了するか見ます。上限 10000 なら、すべてを順に調べて問題ありません。\n\n回数も数えられます。1～N の N 回で、それぞれ余り・比較・必要な加算をするだけなので、時間は N に比例します。今は公式を無理に使う必要はありません。範囲、状態、更新、終了の 4 点を説明できてから、線形の方法を一定時間へ改善する考え方に進みます。"
+          }
+        ],
+        "exerciseTitle": "偶数の合計",
+        "task": "整数 N が与えられます。1 以上 N 以下の偶数の合計を求めてください。1 ≤ N ≤ 10000 です。まずはループで実装してください。",
+        "input": "整数 N が 1 個与えられます。",
+        "output": "偶数の合計を出力してください。",
+        "hint": "答えを 0 で初期化し、range(1, n + 1) を走査して i % 2 == 0 のときだけ加算します。",
+        "explanation": "total を「確認済みの整数に含まれる偶数の合計」と定義します。最初は何も調べていないので 0 です。range(1, n + 1) で右端 n まで調べ、i % 2 == 0 の場合だけ i を加えます。各更新後も total の意味は変わりません。終了時には全候補を確認したため答えになります。N=1 は偶数なし、N=2 は右端の包含、奇数の上限は選別、最大値は累積を確認します。N 回の反復なので時間 O(N)、追加領域 O(1) です。公式も導けますが、本課ではループと不変条件を練習します。",
+        "objectives": [
+          "範囲が決まる for と条件で続く while を使い分ける。",
+          "集計する状態を初期化し、各反復の変化を説明する。",
+          "列挙範囲と選別条件を実装し、端点と終了を確認する。"
+        ],
+        "checkpoints": [
+          {
+            "question": "1 から n の合計に range(1, n) が不適切なのはなぜですか。",
+            "answer": "右端の n を含まないためです。range(1, n + 1) を使います。"
+          },
+          {
+            "question": "total=0 をループの外に置く理由は何ですか。",
+            "answer": "集計開始前の値だからです。中に置くと毎回以前の結果を消してしまいます。"
+          }
+        ]
+      }
+    },
+    "starter": "n = int(input())\n# TODO\n",
+    "solution": "n = int(input())\ntotal = 0\nfor i in range(1, n + 1):\n    if i % 2 == 0:\n        total += i\nprint(total)\n",
+    "tests": [
+      {
+        "input": "1\n",
+        "expected": "0\n"
+      },
+      {
+        "input": "2\n",
+        "expected": "2\n"
+      },
+      {
+        "input": "7\n",
+        "expected": "12\n"
+      },
+      {
+        "input": "10000\n",
+        "expected": "25005000\n"
+      }
+    ]
+  },
+  {
+    "id": "strings",
+    "order": 5,
+    "stage": "python",
+    "minutes": 50,
+    "prerequisiteIds": [
+      "loops"
+    ],
+    "relatedProblems": [
+      "ABC081A",
+      "ABC303A",
+      "ABC233B"
+    ],
+    "content": {
+      "zh": {
+        "title": "字符串",
+        "summary": "下标、切片与逐字符处理。",
+        "sections": [
+          {
+            "title": "字符串是有位置的字符序列",
+            "body": "输入除了数字，也可能是名称、命令或一串符号。字符串保存字符的顺序，\"ab\" 与 \"ba\" 是不同值。len(s) 返回字符串的长度。Python 下标从0开始，所以长度为n时，非负下标是0到n-1。s[0] 取第一个字符，s[n-1] 取最后一个，s[-1] 是访问末尾的另一种写法。\n\n对 s=\"python\"，位置0是p，位置1是y，位置5是n，而位置6不存在。取 s[6] 会产生 IndexError。负下标从末尾向前数：-1是最后一个，-2是倒数第二个。它不是“非法下标自动修正”，如果向前超出整个字符串，同样会出错。\n\n读取 input() 得到的本来就是字符串，因此本课不要再调用 int。输入说明允许哪些字符，应按题目处理；字母与数字字符同样可以逐个访问，但字符 \"7\" 不是整数7。本课练习非空字符串，才保证 s[0] 和 s[-1] 都可以安全使用。",
+            "code": "s = \"python\"\nprint(len(s))\nprint(s[0], s[1], s[-1])\n",
+            "output": "6\np y n\n"
+          },
+          {
+            "title": "切片用半开区间取出一段",
+            "body": "单个下标取一个字符，切片 s[l:r] 取一段连续字符，从 l 开始，到 r 之前结束。这与 range 的右端不包含规则相同。s[1:4] 取位置1、2、3，长度为3。先写下实际位置，再数字符，可以避免把右端也算进去。\n\n省略左端表示从开头开始，省略右端表示到末尾。因此 s[:3] 取前三个字符，s[3:] 去掉前三个字符。s[:] 得到相同内容的字符串。第三项是步长：s[::2] 每隔一个取一个，s[::-1] 用负步长从后向前，形成倒序。没有必要一次背熟所有组合，先掌握连续切片与倒序即可。\n\n切片与单下标的边界行为不同。切片超过实际末尾时会截到可用范围，空范围返回空字符串；单下标越界会报错。不过不应因此随意写边界，算法仍需知道要取哪一段。观察下面输出，逐项指出每行来自哪些位置，而不是只记最终单词。",
+            "code": "s = \"abcdef\"\nprint(s[1:4])\nprint(s[:3])\nprint(s[3:])\nprint(s[::2])\nprint(s[::-1])\n",
+            "output": "bcd\nabc\ndef\nace\nfedcba\n"
+          },
+          {
+            "title": "按字符遍历与统计",
+            "body": "如果只关心每个字符的值，不需要自己维护下标，可以直接写 for ch in s。每轮 ch 得到一个长度为1的字符串，按原来的顺序遍历。统计某个字符的出现次数时，先 count=0，再在 ch == \"a\" 时 count+=1。这与上一课统计符合条件的整数完全同构，只是候选从数字变成字符。\n\n需要知道位置时，则用 for i in range(len(s))，通过 s[i] 访问当前字符。选哪种循环取决于题目是否需要位置，不是代码越短越好。比较相邻字符时可以从 i=1 开始，比较 s[i] 与 s[i-1]，避免不小心用 s[-1] 把末尾当作第一个字符的前驱。\n\n下面输入 banana，每轮 ch 依次为 b、a、n、a、n、a，计数只在三个a上更新，所以输出3。将循环不变量说成“已经看过的部分里a的个数”，就能解释为什么循环结束后得到整个字符串的计数。",
+            "code": "s = input()\ncount = 0\nfor ch in s:\n    if ch == \"a\":\n        count += 1\nprint(count)\n",
+            "output": "3\n",
+            "exampleInput": "banana\n"
+          },
+          {
+            "title": "不能原地改字符，要构造新值",
+            "body": "字符串不可变，意思是不能通过 s[0]=\"x\" 修改其中一格。这样的赋值会产生 TypeError。可以计算一个新字符串，再把名字 s 绑定到它，例如 s=\"x\"+s[1:]。旧字符串本身没有被修改，变量只是开始引用新的值。列表将在下一课提供可修改的序列，两者要分开理解。\n\nreplace(old,new) 返回替换后的新字符串。例如 s.replace(\"1\",\"l\") 把所有字符1换成字母l。仅调用 s.replace(...) 而不保存或使用返回结果，不会改变 s。字符串拼接使用 +，重复使用 *，例如 \"ab\"*3 得到 ababab，但这些操作也会产生新字符串。\n\n下面同时打印原值与替换结果，验证原值保持不变。处理大量字符时，反复拼接可能反复复制已有内容；后续学习列表后，可以先收集片段再 join。当前小练习先理解值与变量的区别，不要把“可以给 s 重新赋值”误解成“可以修改字符串内部”。",
+            "code": "s = \"a1b1\"\nchanged = s.replace(\"1\", \"l\")\nprint(s)\nprint(changed)\nprint(\"ab\" * 3)\n",
+            "output": "a1b1\nalbl\nababab\n"
+          },
+          {
+            "title": "字符比较要忠于输入约束",
+            "body": "字符串比较区分大小写，\"A\" != \"a\"。空格也是字符，\"ab\" 与 \"a b\" 不相等，长度也不同。input() 只去掉行末换行，不会自动删除开头的空格。strip() 能去除两端空白，但只有题意允许时才应该用；随意“清洗”可能改变真正需要比较的数据。\n\n算法练习通常明确限制为英小写字母、数字或特定符号，这让逐字符比较有确定含义。本课回文题只包含小写字母，因此无需转小写，也无需删除标点。不要因为日常语言里可能忽略空格，就擅自把这套习惯带入程序。程序处理的是题目定义的字符串。\n\n下面使用固定字符串展示空格的作用：长度是5而不是3；与 \"aba\" 比较为False；去掉两端空白后才为True。学习例子可以显示这些中间结果，最终练习则只输出指定的 Yes 或 No。若视觉上看起来相同却检查失败，可查看长度或用 repr(s) 暂时显示空白边界。",
+            "code": "s = \" aba \"\nprint(len(s))\nprint(s == \"aba\")\nprint(s.strip() == \"aba\")\n",
+            "output": "5\nFalse\nTrue\n"
+          },
+          {
+            "title": "从回文定义得到判定程序",
+            "body": "“正着读和反着读一样”可以翻译成两个相等的字符串：原字符串与反转字符串。s[::-1] 构造反转结果，== 逐位置检查是否完全相同。若相等输出 Yes，否则 No。先使用普通 if / else 写清楚流程，熟悉后再阅读参考解中的条件表达式；短写法不会改变判断的数学含义。\n\n也可以不用反转，而是比较第i位与第n-1-i位。两端向中间靠近，任意一对不同就不是回文。奇数长度的中间字符与自己对应，始终相等；一个字符当然是回文。这种另一种思路帮助说明切片方案为何正确，而不是因为某个方法“碰巧有效”。\n\n验证时选择a、abba、abcba、abca：分别覆盖单字符、偶数长度、奇数长度和内部不一致。不要只检查首尾相等，abca的首尾都是a，但中间不匹配。算法应覆盖全部对应位置。反转需要额外保存一个字符串，输入长度越大，复制与比较的工作也线性增加。",
+            "code": "s = input()\nreversed_s = s[::-1]\nif s == reversed_s:\n    print(\"Yes\")\nelse:\n    print(\"No\")\n",
+            "output": "No\n",
+            "exampleInput": "abca\n"
+          }
+        ],
+        "exerciseTitle": "回文判断",
+        "task": "给定由小写英文字母组成的非空字符串 S。如果从左到右与从右到左读完全相同，输出 Yes，否则输出 No。1 ≤ |S| ≤ 100000。",
+        "input": "一行字符串 S。",
+        "output": "输出 Yes 或 No。",
+        "hint": "比较 s 与 s[::-1]。一个字符也构成回文。",
+        "explanation": "回文要求第一个字符等于最后一个、第二个等于倒数第二个，直到所有位置都对应相等。反转字符串会把这些对应关系排到同一位置，因此 s == s[::-1] 等价于回文定义。参考解根据比较结果输出 Yes 或 No；一个字符反转后不变，应输出 Yes，偶数与奇数长度都不需要特殊处理。非空且仅含小写字母的约束意味着无需清理大小写或空格。四个测试覆盖单字符、偶数回文、奇数回文和内部不匹配。反转构造长度为 |S| 的新字符串，比较也最多检查 |S| 个位置，所以时间与额外空间均为 O(|S|)。",
+        "objectives": [
+          "使用长度、下标和切片访问字符串，解释0起始的边界。",
+          "遍历字符并构造新字符串，理解不可变性。",
+          "按字符精确比较，用反转或两端比较判断回文。"
+        ],
+        "checkpoints": [
+          {
+            "question": "长度为5的字符串，最后一个非负下标是多少？",
+            "answer": "4。下标范围是0到长度减1，也可用-1访问最后一个字符。"
+          },
+          {
+            "question": "s[::-1] 会把原来的 s 改成倒序吗？",
+            "answer": "不会，它返回新的倒序字符串。只有执行 s = s[::-1] 才会让变量 s 绑定到新值。"
+          }
+        ]
+      },
+      "en": {
+        "title": "Strings",
+        "summary": "Indexing, slicing, and character-by-character processing.",
+        "sections": [
+          {
+            "title": "A string is an indexed sequence",
+            "body": "Input may contain names, commands, or symbols rather than numbers. A string preserves character order, so \"ab\" and \"ba\" are different values. len(s) gives its length. Python indices start at zero: for length n, nonnegative indices run from zero to n - 1. s[0] accesses the first character and s[-1] the last.\n\nFor \"python\", index zero is p, one is y, and five is n. Index six does not exist and raises IndexError. Negative indices count backward from the end, but can also go out of range. input() already returns a string, so do not apply int for this exercise. The character \"7\" and the integer 7 are distinct values. Accessing the endpoints is safe here because the constraints explicitly exclude an empty string.",
+            "code": "s = \"python\"\nprint(len(s))\nprint(s[0], s[1], s[-1])\n",
+            "output": "6\np y n\n"
+          },
+          {
+            "title": "Slices select half-open ranges",
+            "body": "A single index selects one character; s[l:r] selects a consecutive section starting at l and ending before r. This uses the same excluded-right-end convention as range. s[1:4] selects indices one, two, and three, giving three characters. List the positions before counting them.\n\nAn omitted left endpoint means the beginning; an omitted right endpoint means the end. Thus s[:3] selects the first three and s[3:] removes them. A third component is the step: s[::2] selects every other character and s[::-1] reverses the string. Unlike single indexing, slices are clipped to the available range and can return an empty string. That does not remove the need to choose logically correct endpoints. Explain which positions produce every line of the example.",
+            "code": "s = \"abcdef\"\nprint(s[1:4])\nprint(s[:3])\nprint(s[3:])\nprint(s[::2])\nprint(s[::-1])\n",
+            "output": "bcd\nabc\ndef\nace\nfedcba\n"
+          },
+          {
+            "title": "Traverse and count characters",
+            "body": "When only character values matter, use for ch in s instead of managing indices. Each iteration receives a one-character string in the original order. To count a, initialize count to zero and increment it when ch == \"a\". This is the same enumeration-and-filter pattern used for integers in the previous lesson.\n\nWhen positions matter, use for i in range(len(s)) and access s[i]. Choose based on the information needed, not merely code length. To compare adjacent characters, starting at index one avoids accidentally using s[-1] as the predecessor of the first character. For banana, the sequence is b, a, n, a, n, a, with three increments. The invariant is “the number of a characters in the prefix already examined,” which explains the final count.",
+            "code": "s = input()\ncount = 0\nfor ch in s:\n    if ch == \"a\":\n        count += 1\nprint(count)\n",
+            "output": "3\n",
+            "exampleInput": "banana\n"
+          },
+          {
+            "title": "Strings are immutable values",
+            "body": "Strings are immutable: assigning s[0] = \"x\" raises TypeError instead of changing one position. You can create a new value, such as \"x\" + s[1:], and assign it to s. The old string itself has not changed; the name now refers to another value. Lists in the next lesson behave differently.\n\nreplace(old, new) returns a new string with replacements. Calling s.replace(...) without using its result leaves s unchanged. + concatenates and * repeats strings, again creating new values. The example prints both the original and replacement to demonstrate this distinction. Repeated concatenation can copy existing content many times; after learning lists, collecting pieces and joining them is useful for larger tasks. For now, distinguish rebinding a variable from mutating an object.",
+            "code": "s = \"a1b1\"\nchanged = s.replace(\"1\", \"l\")\nprint(s)\nprint(changed)\nprint(\"ab\" * 3)\n",
+            "output": "a1b1\nalbl\nababab\n"
+          },
+          {
+            "title": "Respect the character specification",
+            "body": "String comparison is case-sensitive: \"A\" differs from \"a\". Spaces are characters too, so \"ab\" and \"a b\" have different content and lengths. input() removes the ending newline but does not automatically remove leading spaces. strip() removes surrounding whitespace; use it only when the specification permits that transformation.\n\nCompetitive exercises often restrict input to lowercase English letters, digits, or designated symbols. This palindrome task uses lowercase letters only, so neither case conversion nor punctuation removal is required. Do not import everyday conventions about ignoring spaces into an exact string problem. The example shows a five-character value that becomes three characters after stripping. For debugging invisible differences, temporarily inspect len(s) or repr(s), then remove diagnostic output from the submitted program.",
+            "code": "s = \" aba \"\nprint(len(s))\nprint(s == \"aba\")\nprint(s.strip() == \"aba\")\n",
+            "output": "5\nFalse\nTrue\n"
+          },
+          {
+            "title": "Derive a palindrome test",
+            "body": "“The same forward and backward” translates into equality between the original string and its reversal. s[::-1] creates the reversed value, and == checks complete equality. Write an ordinary if / else first; the reference’s conditional expression is only a shorter form of the same decision.\n\nAnother derivation compares index i with n - 1 - i, moving inward. Any unequal pair disproves the palindrome property. The middle character of an odd-length string corresponds to itself, and a single character is therefore a palindrome. Test a, abba, abcba, and abca. The last example has equal endpoints but an unequal interior, showing why checking only first and last is insufficient. Reversing and comparing require work proportional to the string length, and the reversed copy requires additional storage.",
+            "code": "s = input()\nreversed_s = s[::-1]\nif s == reversed_s:\n    print(\"Yes\")\nelse:\n    print(\"No\")\n",
+            "output": "No\n",
+            "exampleInput": "abca\n"
+          }
+        ],
+        "exerciseTitle": "Palindrome check",
+        "task": "Given a nonempty lowercase English string S, print Yes if it reads identically forward and backward, and No otherwise. 1 ≤ |S| ≤ 100000.",
+        "input": "One line containing S.",
+        "output": "Print Yes or No.",
+        "hint": "Compare s with s[::-1]. A one-character string is also a palindrome.",
+        "explanation": "A palindrome pairs the first character with the last, the second with the next-to-last, and so on. Reversing the string places those counterparts at matching indices, so s == s[::-1] is equivalent to the definition. The reference prints Yes or No from that comparison. A single character is unchanged by reversal and counts as a palindrome; even and odd lengths require no special case. The nonempty lowercase-only constraints mean there is no case folding or whitespace cleanup to perform. Tests cover one character, even and odd palindromes, and an internal mismatch. Reversal creates a new string of length |S| and comparison inspects at most that many positions, giving O(|S|) time and extra space.",
+        "objectives": [
+          "Access strings using lengths, indices, and slices with zero-based boundaries.",
+          "Traverse characters and build a new string without mutating the original.",
+          "Compare characters exactly and recognize palindromes by reversal or paired positions."
+        ],
+        "checkpoints": [
+          {
+            "question": "What is the last nonnegative index of a five-character string?",
+            "answer": "Four. Valid nonnegative indices run from zero through length minus one; -1 also accesses the final character."
+          },
+          {
+            "question": "Does s[::-1] reverse the original value in place?",
+            "answer": "No. It returns a new reversed string. Assigning s = s[::-1] makes the name refer to that new value."
+          }
+        ]
+      },
+      "ja": {
+        "title": "文字列",
+        "summary": "添字、スライス、1 文字ずつの処理。",
+        "sections": [
+          {
+            "title": "文字列は位置のある文字の列",
+            "body": "入力には数値だけでなく名前、命令、記号列などもあります。文字列は順序を保存するので \"ab\" と \"ba\" は別の値です。len(s) は長さを返します。Python の添字は 0 始まりで、長さ n なら非負の添字は 0～n-1 です。s[0] が先頭、s[n-1] が末尾で、s[-1] でも末尾を取れます。\n\ns=\"python\" なら位置 0 は p、1 は y、5 は n で、6 は存在しません。s[6] は IndexError になります。負の添字は末尾から数え、-1 が最後、-2 が最後から 2 番目です。範囲外を自動修正する機能ではなく、前へ行き過ぎてもエラーです。\n\ninput() の結果は元々文字列なので、この課で int に変換する必要はありません。どの文字が許されるかは問題の指定に従います。数字の文字 \"7\" もアクセスできますが、整数 7 とは異なります。本演習は空でないため、s[0] と s[-1] を安全に読めます。",
+            "code": "s = \"python\"\nprint(len(s))\nprint(s[0], s[1], s[-1])\n",
+            "output": "6\np y n\n"
+          },
+          {
+            "title": "スライスは半開区間を取り出す",
+            "body": "単一の添字は 1 文字、s[l:r] というスライスは連続する範囲を取ります。l から始め、r の直前までです。range と同じく右端を含まないため、s[1:4] は位置 1・2・3 の 3 文字になります。実際の位置を並べてから数えると、右端を余分に入れる誤りを防げます。\n\n左端を省略すると先頭、右端を省略すると末尾までです。s[:3] は先頭 3 文字、s[3:] は先頭 3 文字を除いた部分です。3 番目の成分は増分で、s[::2] は 1 つおき、s[::-1] は逆方向へ進んだ文字列です。全組合せを暗記せず、まず連続範囲と反転を理解します。\n\n単一添字と違い、スライスの端が範囲を超えると存在する部分までに調整され、空の範囲は空文字列になります。ただしアルゴリズムが必要とする範囲を考えなくてよいわけではありません。例の各行が元のどの位置から来たか説明してください。",
+            "code": "s = \"abcdef\"\nprint(s[1:4])\nprint(s[:3])\nprint(s[3:])\nprint(s[::2])\nprint(s[::-1])\n",
+            "output": "bcd\nabc\ndef\nace\nfedcba\n"
+          },
+          {
+            "title": "文字ごとに走査して数える",
+            "body": "位置が不要で文字の値だけを調べるなら、for ch in s と直接書けます。ch は毎回長さ 1 の文字列になり、元の順番で取り出されます。a の個数なら count=0 から始め、ch == \"a\" のとき count+=1 とします。前課の整数の選別と同じ構造で、候補が文字へ変わっただけです。\n\n位置も必要なら for i in range(len(s)) で s[i] を使います。短さだけでなく必要な情報で書き方を選びます。隣接文字を比較するなら i=1 から始めて s[i] と s[i-1] を比較すると、誤って s[-1] を先頭文字の直前として扱うことを防げます。\n\nbanana では ch が b・a・n・a・n・a の順となり、3 個の a だけで更新されて答えは 3 です。「ここまでに見た部分の a の個数」という意味が毎回保たれます。全体を見終われば、その意味から文字列全体の個数であることが分かります。",
+            "code": "s = input()\ncount = 0\nfor ch in s:\n    if ch == \"a\":\n        count += 1\nprint(count)\n",
+            "output": "3\n",
+            "exampleInput": "banana\n"
+          },
+          {
+            "title": "文字列は直接書き換えられない",
+            "body": "文字列は変更不能で、s[0]=\"x\" のような位置への代入は TypeError になります。代わりに \"x\"+s[1:] で新しい値を作り、s に代入できます。元の文字列が変更されたのではなく、名前 s が別の値を参照します。次課のリストでは内部を更新できるため、区別して理解します。\n\nreplace(old,new) は置換後の新しい文字列を返します。s.replace(\"1\",\"l\") は数字の 1 を文字 l へ置換しますが、戻り値を保存も使用もしなければ s は変わりません。+ は連結、* は繰り返しで、\"ab\"*3 は ababab です。これらも新しい値を作ります。\n\n例で元の値と置換結果を両方表示し、元が変わらないことを確かめます。大量の文字を何度も連結すると、既存部分を繰り返しコピーする場合があります。後でリストを学んだら、部分を集めて join する方法も使えます。今は変数への再代入と、文字列内部の変更を混同しないことが大切です。",
+            "code": "s = \"a1b1\"\nchanged = s.replace(\"1\", \"l\")\nprint(s)\nprint(changed)\nprint(\"ab\" * 3)\n",
+            "output": "a1b1\nalbl\nababab\n"
+          },
+          {
+            "title": "入力の文字条件をそのまま扱う",
+            "body": "文字列の比較は大文字と小文字を区別し、\"A\" と \"a\" は異なります。空白も文字なので \"ab\" と \"a b\" は内容も長さも違います。input() は末尾の改行だけを除き、先頭の空白を自動削除しません。strip() は両端の空白を除きますが、題意で許される場合だけ使います。任意の整形は比較対象を変えてしまいます。\n\n問題では英小文字、数字、指定記号などへ入力を制限することが多く、文字ごとの比較の意味が明確です。本課は小文字だけなので、小文字化や記号の削除は不要です。日常の文章で空白を無視する場合があっても、その慣習を勝手にプログラムへ持ち込まないでください。\n\n例の元の長さは 3 ではなく 5 です。\"aba\" との比較は False、両端の空白を除いた後は True になります。見た目が同じなのに一致しない場合、len(s) や repr(s) で空白の境界を確認できます。ただし提出前には診断用の出力を除き、指定された Yes/No だけを表示します。",
+            "code": "s = \" aba \"\nprint(len(s))\nprint(s == \"aba\")\nprint(s.strip() == \"aba\")\n",
+            "output": "5\nFalse\nTrue\n"
+          },
+          {
+            "title": "回文の定義から判定を書く",
+            "body": "「順方向と逆方向が同じ」は、元の文字列と反転した文字列の等価比較に直せます。s[::-1] で反転を作り、== で内容全体を比較し、一致なら Yes、そうでなければ No です。まず通常の if / else で流れを書き、理解した後に参考解の条件式による短縮形を読んでください。短い表記でも判断の意味は同じです。\n\n反転せず、位置 i と n-1-i を比較する考え方もあります。両端から中央へ進み、1 組でも違えば回文ではありません。奇数長の中央は自分自身と対応するので必ず一致し、1 文字も回文です。この説明から、反転比較が偶然ではなく定義どおりの判定だと分かります。\n\na・abba・abcba・abca で、1 文字、偶数長、奇数長、内部不一致を確認します。abca は両端が a でも中央が合わないため、先頭と末尾だけの判定では不足します。反転コピーを作り、全位置を比較するので、長さに比例して処理と追加領域が増えます。",
+            "code": "s = input()\nreversed_s = s[::-1]\nif s == reversed_s:\n    print(\"Yes\")\nelse:\n    print(\"No\")\n",
+            "output": "No\n",
+            "exampleInput": "abca\n"
+          }
+        ],
+        "exerciseTitle": "回文の判定",
+        "task": "空でない英小文字の文字列 S が与えられます。順方向と逆方向から読んだ文字列が一致するなら Yes、そうでなければ No を出力してください。1 ≤ |S| ≤ 100000 です。",
+        "input": "1 行に文字列 S が与えられます。",
+        "output": "Yes または No を出力してください。",
+        "hint": "s と s[::-1] を比較します。1 文字の文字列も回文です。",
+        "explanation": "回文は最初と最後、2 番目と最後から 2 番目という対応がすべて一致する文字列です。反転すると対応する文字が同じ添字に来るため、s == s[::-1] が定義と同じ判定になります。参考解は結果に応じて Yes または No を出します。1 文字は反転しても同じなので Yes で、偶数長と奇数長を特別扱いする必要はありません。空でない英小文字という制約なので、大文字の変換や空白削除も不要です。テストは 1 文字、偶数回文、奇数回文、内部の不一致を確認します。反転コピーと比較により、時間・追加領域とも O(|S|) です。",
+        "objectives": [
+          "長さ・添字・スライスを使い、0 始まりの境界を説明する。",
+          "文字を走査し、元の文字列を変更せず新しい文字列を作る。",
+          "文字を正確に比較し、反転や両端の対応から回文を判定する。"
+        ],
+        "checkpoints": [
+          {
+            "question": "長さ 5 の文字列の最後の非負添字は何ですか。",
+            "answer": "4 です。0 から長さ−1 までで、-1 でも末尾へアクセスできます。"
+          },
+          {
+            "question": "s[::-1] は元の文字列を直接反転しますか。",
+            "answer": "しません。反転した新しい文字列を返します。s = s[::-1] と代入した場合に s の参照先が変わります。"
+          }
+        ]
+      }
+    },
+    "starter": "s = input()\n# TODO\n",
+    "solution": "s = input()\nprint(\"Yes\" if s == s[::-1] else \"No\")\n",
+    "tests": [
+      {
+        "input": "a\n",
+        "expected": "Yes\n"
+      },
+      {
+        "input": "abba\n",
+        "expected": "Yes\n"
+      },
+      {
+        "input": "abcba\n",
+        "expected": "Yes\n"
+      },
+      {
+        "input": "abca\n",
+        "expected": "No\n"
+      }
+    ]
+  },
+  {
+    "id": "lists",
+    "order": 6,
+    "stage": "python",
+    "minutes": 50,
+    "prerequisiteIds": [
+      "strings"
+    ],
+    "relatedProblems": [
+      "APG4bPython EX10",
+      "ABC213B"
+    ],
+    "content": {
+      "zh": {
+        "title": "列表与下标",
+        "summary": "保存一组数，同时处理位置和值。",
+        "sections": [
+          {
+            "title": "用一个列表保存一组输入",
+            "body": "当题目给出N个数，分别命名为a、b、c无法适应N变化。列表把按顺序排列的一组值保存到一个对象中，例如 [7,2,5]。方括号表示列表，逗号分隔元素，列表长度用len(a)取得。它与字符串都是有序序列，但列表可以保存整数，而且能够修改元素。\n\n一行整数的常见读法是 list(map(int,input().split()))。按由内到外解释：input读整行字符串，split得到各段文字，map把每一段转为整数，list把转换结果收集成可重复访问的列表。少了int转换，得到的仍是字符串，数值比较可能变成字典序比较，例如文字\"10\"排在\"2\"前面。\n\n第一行的N描述元素数量，第二行才是数据。读入后先明确n与len(a)各自代表什么；合法输入保证两者相等。不要额外读取N行，除非输入格式确实逐行给出元素。理解这条数据管道后，再使用简写，而不是把整句当成无法拆解的口诀。",
+            "code": "n = int(input())\na = list(map(int, input().split()))\nprint(n, len(a))\nprint(a[0], a[-1])\n",
+            "output": "3 3\n7 5\n",
+            "exampleInput": "3\n7 2 5\n"
+          },
+          {
+            "title": "元素、下标与位置是三件事",
+            "body": "列表a=[10,30,20]中，下标1对应值30；按题目常见的1起始编号，它位于第2个位置。下标是访问数据的地址式编号，值是那个位置保存的内容，两者恰好相同只是偶然。把for x in a里的x当成下标再访问a[x]，可能越界，也可能访问到完全无关的元素。\n\n只要值时用for value in a；需要位置时可以用for i in range(len(a))。enumerate(a)则同时提供下标和值：for i,value in enumerate(a)。每轮先得到一对数据，再按顺序拆到两个名字中，与之前接收两个输入数的拆包思想相同。\n\n下面输出从1开始的位置和值。内部始终使用0起始下标，只有显示时加1，可以让边界规则保持一致。不要在读入后给列表随意加一个占位值，除非你能解释整段算法为何采用1起始存储；混用两种编号往往比统一转换更容易出错。",
+            "code": "a = [10, 30, 20]\nfor i, value in enumerate(a):\n    print(i + 1, value)\n",
+            "output": "1 10\n2 30\n3 20\n"
+          },
+          {
+            "title": "更新、追加与稳定的遍历范围",
+            "body": "列表允许a[i]=新值，这与字符串不同。a.append(x)把一个元素加在末尾，长度增加1。它不是把列表整体替换成x，也不是返回一个更新后的列表；直接执行a.append(x)即可，不要写a=a.append(x)，因为append的返回值是None，会覆盖原变量。\n\n使用下标更新值时，应确保下标已经存在。一个长度为3的列表不能用a[3]=9来新增第4项，应使用append。删除和追加都会改变长度，可能影响正在进行的遍历；初学时尽量先遍历原列表，把结果放到新列表中，而不是边访问边改变结构。\n\n下面先把第二项改为4，再追加9，结果长度从3变4。接着建立doubled，逐项保存两倍值，原列表不受影响。每轮append一次，输出顺序保持与输入相同。这个“读旧列表、写新列表”的模式很适合筛选、转换和重建，也为后续二维数据处理提供基础。",
+            "code": "a = [7, 2, 5]\na[1] = 4\na.append(9)\ndoubled = []\nfor value in a:\n    doubled.append(value * 2)\nprint(a)\nprint(doubled)\n",
+            "output": "[7, 4, 5, 9]\n[14, 8, 10, 18]\n"
+          },
+          {
+            "title": "求最大值时不要假设初始为零",
+            "body": "求和从0开始是因为0是加法的单位元；求最大值不能机械套用同样初始化。若数据全为负数，0比所有元素都大，程序可能返回一个根本不存在的值。题目保证N≥1时，可以用第一个元素a[0]作为候选，从后续元素中找更大的值。\n\n以[-8,-3,-6]为例，初始best=-8；看到-3，它更大，更新为-3；看到-6，不更新；最终-3。每轮之后，best都是“已经看过的元素的最大值”。如果只需要值，可以使用Python的max(a)，但练习还要位置，所以需要更完整的状态。\n\nmin、max、sum是方便的内置工具，应知道输入为空时的差异：sum([])为0，max([])和min([])没有默认候选会报错。不能因为某个测试没遇到空列表就忽略约束。本题非空正好允许以首元素初始化；其他题若允许空集合，必须先定义空时应输出什么。",
+            "code": "a = [-8, -3, -6]\nbest = a[0]\nfor value in a[1:]:\n    if value > best:\n        best = value\nprint(best)\nprint(sum(a))\n",
+            "output": "-3\n-17\n"
+          },
+          {
+            "title": "复制名字与复制数据不同",
+            "body": "b=a不会自动创建一份独立列表，而是让两个名字指向同一个列表。因此修改b[0]也会通过a看到。这种关系叫别名。字符串也可被多个名字引用，但因为不能原地修改，通常不会像列表这样出现“改一处、另一处也变了”的现象。\n\n对于一维整数列表，b=a.copy()或b=a[:]可以复制出独立的外层列表。之后修改b中的某个整数位置，不影响a。注意这是浅复制；若列表里还放着其他列表，内部对象仍可能共享。下一课会专门处理二维列表，这里先不要把浅复制当作任意深度的完整复制。\n\n下面用三个名字验证：alias与a共享，copied是独立副本。通过alias把第一项改成9后，a改变，而copied仍是原始内容。检查代码时，除了跟踪数值，还要留意哪些变量引用同一个可变对象；这能解释很多看起来像“数据自己变了”的问题。",
+            "code": "a = [1, 2, 3]\nalias = a\ncopied = a.copy()\nalias[0] = 9\nprint(a)\nprint(copied)\n",
+            "output": "[9, 2, 3]\n[1, 2, 3]\n"
+          },
+          {
+            "title": "同时保存最优值与最早位置",
+            "body": "练习既要最大值又要位置，保存最大值的下标best就能同时获得两者：值是a[best]，位置是best+1。初始best=0，然后从下标1开始扫描。遇到严格更大的数才更新，遇到相等值保持旧下标。这里比较符的选择直接决定“第一次出现”是否正确。\n\n对[3,9,9,2]逐步跟踪：初始候选为下标0的3；下标1是9，更新best为1；下标2也是9，不大于当前9，所以不更新；最后2也不更新。输出值9与位置2。若写>=，第二个9会替代第一个，变成位置3。\n\n检查最小N=1、全负数、多个最大值、最大值在末尾这四类情况。循环中不要排序，因为排序会改变原来的位置；也不要只保留最大值却丢失对应下标。先根据输出要求决定状态要保存什么，再选择遍历方式，这是从列表操作走向算法设计的一步。",
+            "code": "a = [3, 9, 9, 2]\nbest = 0\nfor i in range(1, len(a)):\n    if a[i] > a[best]:\n        best = i\nprint(a[best], best + 1)\n",
+            "output": "9 2\n"
+          }
+        ],
+        "exerciseTitle": "第一次出现的最大值",
+        "task": "给定 N 个整数 A₁…Aₙ，输出最大值及其第一次出现的位置（从 1 开始）。1 ≤ N ≤ 100000，−10⁹ ≤ Aᵢ ≤ 10⁹。",
+        "input": "第一行 N；第二行 N 个整数。",
+        "output": "一行输出最大值和位置，用一个空格分隔。",
+        "hint": "保存最大值的下标 best；只在发现严格更大值时替换它。",
+        "explanation": "把 best 定义为已扫描部分中“最大值第一次出现的下标”。N≥1，因此下标0一定存在，初始 best=0 正确，即使第一个值为负也成立。从下标1向后扫描：若 a[i]>a[best]，更大的值使旧候选失效，应令 best=i；否则保留旧候选，相等时自然保留第一次出现的位置。循环结束后输出最大值 a[best]，并把0起始下标换成题目的1起始位置 best+1。单元素测试检查初始化，重复最大值检查严格比较，全负数检查初始候选，末尾最大检查是否漏掉最后元素。时间 O(N)，输入列表占 O(N) 空间，额外只保存一个下标。",
+        "objectives": [
+          "读入并保存数列，区分元素值、下标与题目中的位置。",
+          "用遍历、更新和追加处理列表，避免错误的最大值初始化。",
+          "理解别名与复制，以明确的不变量寻找最早出现的最大值。"
+        ],
+        "checkpoints": [
+          {
+            "question": "所有数都是负数时，把最大值初始化为0会怎样？",
+            "answer": "0可能不在输入中却比所有输入更大，导致错误。应使用第一个输入元素作为初始候选。"
+          },
+          {
+            "question": "寻找最大值的第一次出现，为何用 > 而不是 >=？",
+            "answer": "相等时不替换旧候选，就保留较早位置；>=会不断改成后面相同值的位置。"
+          }
+        ]
+      },
+      "en": {
+        "title": "Lists and indices",
+        "summary": "Store a sequence and work with both positions and values.",
+        "sections": [
+          {
+            "title": "Store related values in one list",
+            "body": "When a task provides N numbers, separate names such as a, b, and c cannot adapt to arbitrary N. A list stores an ordered collection in one object, for example [7, 2, 5]. Brackets define the list, commas separate elements, and len(a) gives its length. Like strings, lists are sequences, but their elements can be integers and can be changed.\n\nRead list(map(int, input().split())) from inside outward: read a line, split it into text pieces, convert each piece to an integer, then collect the results into a reusable list. Without conversion, comparisons would be textual rather than numeric. An initial N describes the element count; follow the stated line format instead of assuming that each element occupies its own line.",
+            "code": "n = int(input())\na = list(map(int, input().split()))\nprint(n, len(a))\nprint(a[0], a[-1])\n",
+            "output": "3 3\n7 5\n",
+            "exampleInput": "3\n7 2 5\n"
+          },
+          {
+            "title": "Separate values, indices, and positions",
+            "body": "In a = [10, 30, 20], index one contains value thirty and corresponds to the second one-based position. An index identifies where an element is; a value is what is stored there. Treating x from for x in a as an index and accessing a[x] may go out of range or select unrelated data.\n\nUse for value in a when only values matter, or range(len(a)) when indices matter. enumerate(a) supplies both: for i, value in enumerate(a) unpacks each index-value pair. The example prints one-based positions by adding one only at output time. Keeping internal indices zero-based avoids mixing conventions. Do not insert a dummy element merely to imitate a problem’s numbering unless the entire storage scheme is designed consistently around that choice.",
+            "code": "a = [10, 30, 20]\nfor i, value in enumerate(a):\n    print(i + 1, value)\n",
+            "output": "1 10\n2 30\n3 20\n"
+          },
+          {
+            "title": "Update and append deliberately",
+            "body": "Lists allow a[i] = new_value, unlike strings. a.append(x) adds one element at the end and increases the length. It modifies the list rather than returning a replacement, so do not write a = a.append(x): append returns None and would overwrite your variable.\n\nAn indexed assignment requires an existing position. For a three-element list, a[3] = 9 is invalid; use append to add a fourth element. Appending or deleting while traversing can alter the traversal itself. A simple reliable pattern is to read the original list and write transformed values into a new list. The example first changes an element and appends another, then builds doubled without changing a. One append per visited value preserves order and makes filtering or transformation easier to reason about.",
+            "code": "a = [7, 2, 5]\na[1] = 4\na.append(9)\ndoubled = []\nfor value in a:\n    doubled.append(value * 2)\nprint(a)\nprint(doubled)\n",
+            "output": "[7, 4, 5, 9]\n[14, 8, 10, 18]\n"
+          },
+          {
+            "title": "Initialize extrema from real data",
+            "body": "A sum starts at zero because zero is the additive identity. A maximum does not automatically have the same starting value. With all-negative data, zero exceeds every actual element and may produce an answer absent from the input. If N is at least one, initialize from a[0] and inspect the remaining values.\n\nFor [-8, -3, -6], the candidate starts at -8, changes to -3, and remains there. After each step it is the maximum of the inspected prefix. Python’s max(a) can find the value directly, but the exercise also needs a position. Remember that sum([]) is zero, while max([]) and min([]) have no candidate and raise an error unless a default is supplied. Use the problem’s nonempty guarantee rather than assuming every collection is nonempty.",
+            "code": "a = [-8, -3, -6]\nbest = a[0]\nfor value in a[1:]:\n    if value > best:\n        best = value\nprint(best)\nprint(sum(a))\n",
+            "output": "-3\n-17\n"
+          },
+          {
+            "title": "Copying a name is not copying data",
+            "body": "b = a does not create an independent list. It gives a second name to the same object, so changing b[0] is also visible through a. This relationship is called aliasing. Strings can share references too, but their immutability prevents the same in-place editing effect.\n\nFor a one-dimensional integer list, a.copy() or a[:] creates an independent outer list. Replacing an integer element in that copy does not alter the original. This is a shallow copy: if elements are themselves lists, nested objects may remain shared. The next lesson examines that issue. In the example, alias shares with a while copied is independent. Track object relationships as well as numeric values when explaining why a modification appears through another variable.",
+            "code": "a = [1, 2, 3]\nalias = a\ncopied = a.copy()\nalias[0] = 9\nprint(a)\nprint(copied)\n",
+            "output": "[9, 2, 3]\n[1, 2, 3]\n"
+          },
+          {
+            "title": "Track the first best position",
+            "body": "The exercise requests both a maximum value and its position. Storing the candidate index best provides both: the value is a[best], and the one-based position is best + 1. Start at index zero, scan from one onward, and update only for a strictly larger value. Equality must preserve the earlier index.\n\nFor [3, 9, 9, 2], best moves from zero to one at the first nine, stays there at the second nine, and remains there at two. The answer is value nine at position two. Using >= would instead select the later nine. Test a singleton, negative values, ties, and an extremum at the end. Sorting is inappropriate because it changes positions. Decide which information the output requires before choosing what state to maintain.",
+            "code": "a = [3, 9, 9, 2]\nbest = 0\nfor i in range(1, len(a)):\n    if a[i] > a[best]:\n        best = i\nprint(a[best], best + 1)\n",
+            "output": "9 2\n"
+          }
+        ],
+        "exerciseTitle": "First maximum",
+        "task": "Given N integers A₁…Aₙ, print the maximum and its first position, counting from 1. 1 ≤ N ≤ 100000 and −10⁹ ≤ Aᵢ ≤ 10⁹.",
+        "input": "N on the first line; N integers on the second.",
+        "output": "Print the maximum and its position on one line, separated by a space.",
+        "hint": "Keep the index best, and change it only when you find a strictly greater value.",
+        "explanation": "Define best as the index of the first maximum in the inspected prefix. Since N is at least one, index zero exists and is a valid initial candidate even for negative values. Scan from index one. If a[i] > a[best], the new larger value invalidates the old candidate, so assign best = i. Otherwise keep the earlier index; equality therefore preserves the first occurrence. At the end, print a[best] and convert its zero-based index to the requested position with best + 1. Tests cover a singleton, tied maxima, all-negative values, and a maximum at the final element. Time is O(N), input storage is O(N), and only one extra candidate index is needed.",
+        "objectives": [
+          "Store a sequence and distinguish values, indices, and one-based positions.",
+          "Traverse, update, and append items while initializing extrema correctly.",
+          "Understand aliases and copies, then track the first maximum with a clear invariant."
+        ],
+        "checkpoints": [
+          {
+            "question": "What happens if the initial maximum is zero but all inputs are negative?",
+            "answer": "Zero may not be an input and is greater than every actual value. Initialize from the first input element instead."
+          },
+          {
+            "question": "Why use > rather than >= to find the first maximum?",
+            "answer": "Keeping the earlier candidate on equality preserves the first occurrence; >= replaces it with later equal values."
+          }
+        ]
+      },
+      "ja": {
+        "title": "リストと添字",
+        "summary": "数列を保存し、位置と値を扱う。",
+        "sections": [
+          {
+            "title": "複数の値をリストで保存する",
+            "body": "N 個の値を受け取るとき、a・b・c のような個別の名前では N の変化に対応できません。リストは [7,2,5] のように順序付きの値を 1 つの対象にまとめます。角括弧がリスト、カンマが要素の区切りで、長さは len(a) です。文字列と同じく順序がありますが、整数などを保存でき、要素を変更できます。\n\nlist(map(int,input().split())) は内側から読みます。input で行を取得し、split で文字列を分け、map でそれぞれを整数にし、list で繰り返し参照できる形に集めます。int を省くと文字列のままで、比較も数値ではなく文字の順となり、\"10\" が \"2\" より先になる場合があります。\n\n最初の N は個数、次の行がデータです。n と len(a) の意味を区別し、合法な入力では一致すると理解します。入力形式が 1 行の数列なら、勝手に N 行を読まないでください。式を呪文として覚えるより、データの変換順序を説明できることが大切です。",
+            "code": "n = int(input())\na = list(map(int, input().split()))\nprint(n, len(a))\nprint(a[0], a[-1])\n",
+            "output": "3 3\n7 5\n",
+            "exampleInput": "3\n7 2 5\n"
+          },
+          {
+            "title": "値・添字・位置を分ける",
+            "body": "a=[10,30,20] では添字 1 の値は 30 で、問題でよく使う 1 始まりの位置なら 2 番目です。添字は場所の番号、値は保存内容です。たまたま同じ数になることがあっても役割は違います。for x in a の x を添字だと思って a[x] とすると、範囲外や無関係の要素を参照します。\n\n値だけなら for value in a、添字が必要なら for i in range(len(a)) が使えます。enumerate(a) は両方を返し、for i,value in enumerate(a) と書けます。各回の添字と値の組を、以前の入力と同様に 2 つの名前へ順番に代入します。\n\n例は 1 始まりの位置と値を出します。内部は 0 始まりに統一し、表示の時だけ 1 を加えると境界規則が明確です。理由なく先頭へダミー要素を追加して 1 始まりに変えると、長さや範囲を混同しがちです。保存方法全体を説明できる場合だけ別の規約を採用します。",
+            "code": "a = [10, 30, 20]\nfor i, value in enumerate(a):\n    print(i + 1, value)\n",
+            "output": "1 10\n2 30\n3 20\n"
+          },
+          {
+            "title": "変更・追加と走査範囲",
+            "body": "リストは文字列と違い、a[i]=新しい値で内部を変更できます。a.append(x) は末尾へ 1 要素を加え、長さを 1 増やします。更新後のリストを返す操作ではないので、a=a.append(x) と書いてはいけません。append の返り値は None であり、元の変数を失います。\n\n添字で代入できるのは存在する位置だけです。長さ 3 に対して a[3]=9 で 4 個目を作ることはできず、append を使います。追加や削除は長さを変え、進行中の走査に影響する場合があります。初めは元を読み、新しいリストへ結果を書く方法が理解しやすくなります。\n\n例は 2 番目を 4 に変え、9 を追加して長さを 3 から 4 にします。その後 doubled へ各値の 2 倍を集め、a は変更しません。各回で 1 個追加するため順序も保たれます。「元を読む、別の結果を書く」は選別や変換に使え、後の二次元データの基礎にもなります。",
+            "code": "a = [7, 2, 5]\na[1] = 4\na.append(9)\ndoubled = []\nfor value in a:\n    doubled.append(value * 2)\nprint(a)\nprint(doubled)\n",
+            "output": "[7, 4, 5, 9]\n[14, 8, 10, 18]\n"
+          },
+          {
+            "title": "最大値は実際の要素から始める",
+            "body": "合計を 0 から始めるのは、0 が加算に影響しない値だからです。最大値へ同じ初期化を機械的に使えません。すべて負数なら 0 が全要素より大きく、入力に存在しない答えになります。N≥1 なら a[0] を候補にして、残りからより大きい値を探せます。\n\n[-8,-3,-6] なら最初は -8、-3 を見て更新し、-6 では維持して -3 です。各回で「確認した要素の最大値」という意味が保たれます。値だけなら Python の max(a) も使えますが、演習では位置も必要なので状態に添字を持たせます。\n\nmin・max・sum は便利ですが、空の入力での違いも知っておきます。sum([]) は 0、max([]) と min([]) は既定値なしでは候補がなくエラーになります。問題の制約を読まずに非空を仮定してはいけません。本題は非空なので先頭から始められますが、別の問題で空集合を許すなら、その時の出力を先に決めます。",
+            "code": "a = [-8, -3, -6]\nbest = a[0]\nfor value in a[1:]:\n    if value > best:\n        best = value\nprint(best)\nprint(sum(a))\n",
+            "output": "-3\n-17\n"
+          },
+          {
+            "title": "名前の代入とデータのコピー",
+            "body": "b=a は独立したリストを作らず、2 つの名前を同じ対象へ向けます。したがって b[0] を変えると a からも変更が見えます。これを別名参照と呼びます。文字列も参照を共有できますが、内部を書き換えられないため、リストのような見え方にはなりにくくなっています。\n\n一次元の整数リストなら a.copy() または a[:] で独立した外側のリストを作れます。コピーの整数要素を置き換えても元に影響しません。ただし浅いコピーなので、要素の中にリストがある場合は内部を共有する可能性があります。次課で二次元を扱うとき、この点を詳しく確認します。\n\n例では alias と a が共有し、copied は独立です。alias を通じて最初を 9 にすると a も変わり、copied は元の内容を保ちます。値だけでなく、どの名前が同じ変更可能な対象を指すかを追うと、「別のデータが勝手に変わった」ように見える現象を説明できます。",
+            "code": "a = [1, 2, 3]\nalias = a\ncopied = a.copy()\nalias[0] = 9\nprint(a)\nprint(copied)\n",
+            "output": "[9, 2, 3]\n[1, 2, 3]\n"
+          },
+          {
+            "title": "最大値の最初の位置を追う",
+            "body": "演習は最大値と位置を求めます。候補の添字 best を保存すれば、値は a[best]、1 始まりの位置は best+1 で得られます。best=0 で開始し、添字 1 から調べ、真に大きい場合だけ更新します。同じ値では以前の添字を残すことが「最初」の条件です。\n\n[3,9,9,2] なら、最初は添字 0 の 3、添字 1 の 9 で best=1 に変わります。添字 2 も 9 ですが、現在より大きくないので維持します。最後の 2 でも変わらず、値 9・位置 2 が答えです。>= にすると後の 9 に置き換わり、位置 3 になってしまいます。\n\nN=1、全負数、最大値の重複、末尾が最大を試します。ソートは元の位置を変えるため、この目的には不要です。最大値だけを保存して位置を忘れても不足します。出力に必要な情報から状態を決め、その状態を維持する走査方法を選ぶことが、リスト操作を使ったアルゴリズム設計になります。",
+            "code": "a = [3, 9, 9, 2]\nbest = 0\nfor i in range(1, len(a)):\n    if a[i] > a[best]:\n        best = i\nprint(a[best], best + 1)\n",
+            "output": "9 2\n"
+          }
+        ],
+        "exerciseTitle": "最初の最大値",
+        "task": "N 個の整数 A₁…Aₙ が与えられます。最大値と、それが最初に現れる位置を 1 始まりで出力してください。1 ≤ N ≤ 100000、−10⁹ ≤ Aᵢ ≤ 10⁹ です。",
+        "input": "1 行目に N、2 行目に N 個の整数が与えられます。",
+        "output": "最大値と位置を空白区切りで 1 行に出力してください。",
+        "hint": "最大値の添字 best を保存し、現在より真に大きい値を見つけたときだけ更新します。",
+        "explanation": "best を「走査済み部分の最大値が最初に現れる添字」とします。N≥1 なので添字 0 が存在し、負数でも best=0 は正しい初期候補です。添字 1 から調べ、a[i]>a[best] なら新しい最大値へ best=i と更新します。それ以外は維持するため、同値でも最初の位置が残ります。終了時に a[best] を出し、0 始まりを題目の 1 始まりへ変換して best+1 を出します。単一要素、最大値の重複、全負数、末尾最大のテストで各境界を確認します。時間 O(N)、入力保存 O(N)、追加する候補添字は 1 個です。",
+        "objectives": [
+          "数列を保存し、値・添字・1 始まりの位置を区別する。",
+          "走査・更新・追加を行い、最大値の初期化を正しく選ぶ。",
+          "別名とコピーを理解し、不変条件で最初の最大値を追跡する。"
+        ],
+        "checkpoints": [
+          {
+            "question": "入力がすべて負数なのに最大値を 0 で始めるとどうなりますか。",
+            "answer": "入力に存在しない 0 が全要素より大きくなり誤ります。最初の要素を候補にします。"
+          },
+          {
+            "question": "最初の最大値に > を使い >= を使わない理由は何ですか。",
+            "answer": "同値では更新しなければ先の位置が残ります。>= では後の同値へ置き換わります。"
+          }
+        ]
+      }
+    },
+    "starter": "n = int(input())\na = list(map(int, input().split()))\n# TODO\n",
+    "solution": "n = int(input())\na = list(map(int, input().split()))\nbest = 0\nfor i in range(1, n):\n    if a[i] > a[best]:\n        best = i\nprint(a[best], best + 1)\n",
+    "tests": [
+      {
+        "input": "1\n-5\n",
+        "expected": "-5 1\n"
+      },
+      {
+        "input": "4\n3 9 9 2\n",
+        "expected": "9 2\n"
+      },
+      {
+        "input": "3\n-8 -2 -5\n",
+        "expected": "-2 2\n"
+      },
+      {
+        "input": "3\n0 1 2\n",
+        "expected": "2 3\n"
+      }
+    ]
+  },
+  {
+    "id": "nested-loops",
+    "order": 7,
+    "stage": "python",
+    "minutes": 55,
+    "prerequisiteIds": [
+      "lists"
+    ],
+    "relatedProblems": [
+      "ABC343B",
+      "ABC075B"
+    ],
+    "content": {
+      "zh": {
+        "title": "嵌套循环与二维列表",
+        "summary": "从逐个元素走向逐行、逐列处理。",
+        "sections": [
+          {
+            "title": "为什么需要循环中的循环",
+            "body": "一维列表只有一个位置编号，表格则需要行、列两个编号。遍历所有格子可以描述为“依次选择每一行，再在这一行中依次选择每一列”。这就是嵌套循环：外层变量r决定当前行，内层变量c决定这一行中的列。内层全部执行完，外层才前进到下一行。\n\nH=2、W=3时，访问次序是(0,0)、(0,1)、(0,2)，然后(1,0)、(1,1)、(1,2)。不是先同时增加r和c；那样只会走对角线，遗漏大多数格子。两层都从0开始，只是在它们各自的时机更新。\n\n下例直接打印坐标，不涉及数据。请先预测会有几行输出，再逐行核对。总次数是H乘W，因为外层每次都完整运行W次内层。即使你把内外层顺序交换，总访问数也不变，但访问顺序会改变，后续涉及行状态时这种差异就很重要。",
+            "code": "h, w = 2, 3\nfor r in range(h):\n    for c in range(w):\n        print(r, c)\n",
+            "output": "0 0\n0 1\n0 2\n1 0\n1 1\n1 2\n"
+          },
+          {
+            "title": "缩进、重置与循环变量的职责",
+            "body": "双重循环中，初始化放在哪一层决定它多久重置一次。total在最外面初始化，表示整个表格的累计结果；row_total放在外层循环内、内层循环前初始化，表示当前这一行的累计结果。每换一行，它都会重新变成0，而全局total继续保留。\n\n下面用乘法表的形式计算两行、每行三项：第1行为1、2、3，第2行为2、4、6。内层更新row_total，内层结束后把本行和加入total并输出。本行和依次为6、12，全表和18。通过这个例子可以区分“每个格子执行”“每一行执行”“整个程序只执行一次”三种位置。\n\n不要在内层再次使用外层相同的变量名，例如两层都写for i，会覆盖外层当前值，后续很难理解。使用r、c或row、value体现职责。对每条语句问一句它应执行H×W次、H次还是1次，再选择缩进位置，能够系统地修正许多累计错误。",
+            "code": "h, w = 2, 3\ntotal = 0\nfor r in range(h):\n    row_total = 0\n    for c in range(w):\n        value = (r + 1) * (c + 1)\n        row_total += value\n    total += row_total\n    print(row_total)\nprint(total)\n",
+            "output": "6\n12\n18\n"
+          },
+          {
+            "title": "逐行建立二维列表",
+            "body": "Python中的二维列表可以理解为“元素还是列表的列表”。grid[0]取得第一整行，grid[0][1]先取第一行，再取该行的第二个元素。一般写grid[r][c]，先行后列。H与W不同的长方形是检查是否把行列弄反的好输入，正方形有时会掩盖错误。\n\n读入时先grid=[]，每轮用已有的一维读法创建row，然后grid.append(row)。外层循环执行H次，所以最后有H个独立行列表。每行应有W个整数，这是合法输入保证的结构。变量_是普通合法名字，常用于表示这个循环次数变量不会被使用，不是特殊指令。\n\n学会展开写法后，也能读懂grid=[list(map(int,input().split())) for _ in range(h)]。这叫列表推导式，含义是对每轮计算左边的表达式，再把所有结果收集为列表。它只是展开循环的紧凑表示。初学时保留多行版本，更方便检查每一次输入与添加。",
+            "code": "h, w = map(int, input().split())\ngrid = []\nfor _ in range(h):\n    row = list(map(int, input().split()))\n    grid.append(row)\nprint(len(grid), len(grid[0]))\nprint(grid[1][2])\n",
+            "output": "2 3\n6\n",
+            "exampleInput": "2 3\n1 2 3\n4 5 6\n"
+          },
+          {
+            "title": "每一行都要真正独立",
+            "body": "需要先创建全0表格时，不能把一行简单重复H次。[[0]*W]*H会重复同一个行列表的引用。修改grid[0][0]时，其他行对应位置也可能改变，因为这些行实际是同一个对象。上一课的别名问题在二维结构里更隐蔽，看起来有多行不代表真的有多个行对象。\n\n可靠的展开写法是每轮重新执行row=[0]*W，再append到grid。这里[0]*W用来构造整数元素的一行没有共享可变行的问题；关键是外层每次都重新创建这个列表。列表推导式[[0]*W for _ in range(H)]也遵循同样原则，每轮生成一个新的内层列表。\n\n下面修改第一行第二列为9，第二行应保持全0。这个小实验比只看打印出来的初始表格更有区分力：错误的共享行在还没修改时看起来完全正常。检查可变数据结构时，试着改变一个局部，再观察不应该变化的部分，是很有效的验证方法。",
+            "code": "h, w = 2, 3\ngrid = []\nfor _ in range(h):\n    row = [0] * w\n    grid.append(row)\ngrid[0][1] = 9\nprint(grid[0])\nprint(grid[1])\n",
+            "output": "[0, 9, 0]\n[0, 0, 0]\n"
+          },
+          {
+            "title": "按值遍历与按坐标遍历",
+            "body": "若只关心格子的值，可以写for row in grid，再写for value in row。这样不需要下标，适合总和、计数、寻找最大值。若题目需要坐标、相邻格子或修改指定位置，就用for r in range(H)、for c in range(W)，再访问grid[r][c]。两种结构会访问相同格子，但提供的信息不同。\n\n下面计算每一列的和。先创建长度W的col_sums，外层遍历行，内层遍历列，当前值加到col_sums[c]。第0列不断接收各行的第0项，第1列接收各行第1项。这里不能在每行开始时重置col_sums，否则最后只留下最后一行。\n\nprint(*col_sums)中的星号把列表元素展开为print的多个参数，所以输出空格分隔的值，而不是带方括号的列表。它不改变列表，也不进行乘法。若不熟悉这种语法，也可以逐个print让每个列和占一行，但实际格式必须服从题目。",
+            "code": "grid = [[1, 2, 3], [4, 5, 6]]\nh, w = 2, 3\ncol_sums = [0] * w\nfor r in range(h):\n    for c in range(w):\n        col_sums[c] += grid[r][c]\nprint(*col_sums)\n",
+            "output": "5 7 9\n"
+          },
+          {
+            "title": "把格子计数写成完整算法",
+            "body": "练习的候选是全部H×W格，每格有一个值，符合条件是value>X，贡献是1而不是value。先把这四点写清楚，就不会把“数量”误做成“合计”。即使两个格子的数相同，它们位于不同位置，也应分别判断和计数，不要先用集合去重。\n\n可以先读完grid，再双重循环统计；也可以读一行就处理一行，因为判断不依赖别的行。后一种方式减少存储，但不减少总访问次数。起始代码采用前一种，参考解采用后一种，目的是展示同一算法可以有不同的数据保存方式，而不是要求一定写得最短。\n\n检查H或W等于1的单行、单列，再用H不等于W的表格确认行列范围。值恰好等于X时不能计数；所有格子都不满足时，答案保持0；全部满足时应为H×W。每个格子恰好访问一次说明不会遗漏或重复。不要把循环理解成“多写一层就能处理更多”，而要说明每一层对应哪一个独立的选择。"
+          }
+        ],
+        "exerciseTitle": "超过阈值的格子",
+        "task": "给定H行W列的整数表格与整数X，统计严格大于X的格子数量。位置不同的格子分别计数，即使它们的值相同。1≤H,W≤50，−10⁹≤X,A[r][c]≤10⁹。",
+        "input": "第一行H W X；接下来H行，每行W个整数。",
+        "output": "输出严格大于X的格子总数。",
+        "hint": "外层遍历各行，内层遍历这一行中的值；仅在value > x时让计数加一。",
+        "explanation": "每个格子是否被统计，只取决于本格的值与X，无需保存邻居信息。外层读取H行，内层检查这一行的W个值，每个value > x就让全局count加一。count初始化在全部循环之前，不能每行清零。参考解按行处理，不必保留整个表格；起始代码保存grid也可以，之后再双重遍历，二者答案一致。严格大于意味着等于X不能计数。测试覆盖单格等号、长方形含负数、只有一列且全部符合、完全不符合和重复值。时间O(HW)；参考解只保存当前行，额外空间O(W)。",
+        "objectives": [
+          "按外层和内层次序追踪双重循环，计算总执行次数。",
+          "逐行读入二维列表，通过grid[r][c]访问格子。",
+          "创建独立行，区分每行状态与整个表格状态。"
+        ],
+        "checkpoints": [
+          {
+            "question": "外层执行H次、每次内层执行W次，一共访问多少格？",
+            "answer": "H×W格。不是H+W，因为每一行都会完整执行一次内层循环。"
+          },
+          {
+            "question": "为什么不能用[[0]*w]*h来创建独立的行？",
+            "answer": "外层重复的是同一个行列表的引用，多行会共享；修改一行可能影响其他行。应每次重新创建行。"
+          }
+        ]
+      },
+      "en": {
+        "title": "Nested loops and grids",
+        "summary": "Move from individual elements to rows and columns.",
+        "sections": [
+          {
+            "title": "Why a loop can contain another loop",
+            "body": "A one-dimensional list needs one position number; a table needs a row and a column. Visiting every cell means choosing each row in turn and then choosing every column within that row. In nested loops, r identifies the outer row and c the inner column. The outer loop advances only after the inner loop finishes.\n\nFor two rows and three columns, the order is (0,0), (0,1), (0,2), then (1,0), (1,1), (1,2). Increasing both indices together would visit only a diagonal and omit cells. Predict the output count before running the coordinate example: it is H×W because every row performs W inner iterations. Swapping the loops preserves the number of visits but changes their order, which matters when maintaining per-row state.",
+            "code": "h, w = 2, 3\nfor r in range(h):\n    for c in range(w):\n        print(r, c)\n",
+            "output": "0 0\n0 1\n0 2\n1 0\n1 1\n1 2\n"
+          },
+          {
+            "title": "Scope each piece of state",
+            "body": "Where a variable is initialized determines how often it resets. Initialize total outside both loops for a whole-table accumulation. Initialize row_total inside the outer loop but before the inner one for a fresh total on each row. Starting a new row resets only row_total; total retains earlier rows.\n\nThe example generates rows 1,2,3 and 2,4,6. Inner iterations accumulate one row; after the inner loop, its sum is added to the overall total. Row sums are six and twelve, giving eighteen overall. Distinguish statements that run once per cell, once per row, and once per program. Avoid reusing the same loop variable name at both levels. Ask whether each statement should run H×W times, H times, or once, then place it at the matching indentation.",
+            "code": "h, w = 2, 3\ntotal = 0\nfor r in range(h):\n    row_total = 0\n    for c in range(w):\n        value = (r + 1) * (c + 1)\n        row_total += value\n    total += row_total\n    print(row_total)\nprint(total)\n",
+            "output": "6\n12\n18\n"
+          },
+          {
+            "title": "Build a grid one row at a time",
+            "body": "A grid is a list whose elements are themselves lists. grid[0] obtains the first whole row; grid[0][1] first selects that row, then its second element. In grid[r][c], the row comes first. A rectangular example is useful for catching swapped dimensions that a square grid might hide.\n\nStart with grid = [], read each row using the familiar one-dimensional input expression, and append that fresh row. Repeat H times. The name _ is an ordinary variable conventionally used when its value is not needed. Later, the compact form [list(map(int, input().split())) for _ in range(h)] expresses the same process as a list comprehension: evaluate one expression per iteration and collect the results. Understand the expanded loop before using that shorthand.",
+            "code": "h, w = map(int, input().split())\ngrid = []\nfor _ in range(h):\n    row = list(map(int, input().split()))\n    grid.append(row)\nprint(len(grid), len(grid[0]))\nprint(grid[1][2])\n",
+            "output": "2 3\n6\n",
+            "exampleInput": "2 3\n1 2 3\n4 5 6\n"
+          },
+          {
+            "title": "Give every row a fresh list",
+            "body": "Do not create a zero grid with [[0] * W] * H. The outer repetition duplicates references to one row list, not independent row objects. Updating grid[0][0] can therefore change corresponding positions in other rows. This is the aliasing issue from the previous lesson, hidden inside a nested structure.\n\nA reliable expanded form creates row = [0] * W anew on every outer iteration and appends it. Repeating integer zero within one row is not the problematic part; reusing the mutable row is. The comprehension [[0] * W for _ in range(H)] also creates a fresh row each time. The example changes only one row. Such a mutation test reveals sharing that is invisible when merely printing the initial all-zero grid.",
+            "code": "h, w = 2, 3\ngrid = []\nfor _ in range(h):\n    row = [0] * w\n    grid.append(row)\ngrid[0][1] = 9\nprint(grid[0])\nprint(grid[1])\n",
+            "output": "[0, 9, 0]\n[0, 0, 0]\n"
+          },
+          {
+            "title": "Values or coordinates",
+            "body": "When only values matter, write for row in grid and then for value in row. No indices are needed for totals, counts, or extrema. Use row and column indices when you need coordinates, neighbors, or updates at specific positions. The two forms visit the same cells but expose different information.\n\nThe example maintains one sum per column. Initialize col_sums with W zeros, then add grid[r][c] to col_sums[c]. Each position accumulates values from the corresponding column across all rows. Do not reset this list at the start of a row. In print(*col_sums), the star unpacks list elements into separate function arguments, yielding space-separated output instead of brackets. It neither multiplies nor changes the list. Always match the output layout required by the actual task.",
+            "code": "grid = [[1, 2, 3], [4, 5, 6]]\nh, w = 2, 3\ncol_sums = [0] * w\nfor r in range(h):\n    for c in range(w):\n        col_sums[c] += grid[r][c]\nprint(*col_sums)\n",
+            "output": "5 7 9\n"
+          },
+          {
+            "title": "Turn cell counting into a complete algorithm",
+            "body": "The exercise has H×W candidate cells. Each cell qualifies when value > X and contributes one, not its numeric value. State these facts before coding so that a count does not accidentally become a sum. Equal numbers at different positions remain separate cells; do not remove duplicates.\n\nYou may store the whole grid and traverse it afterward, or process each row immediately because no decision depends on other rows. Streaming reduces storage but not the number of cell inspections. The starter and reference illustrate these two valid organizations. Test single rows, single columns, a nonsquare rectangle, equality with X, no qualifying cells, and all qualifying cells. Visiting each row-column combination exactly once explains both coverage and lack of duplication. Every nesting level should correspond to a specific independent choice."
+          }
+        ],
+        "exerciseTitle": "Cells above a threshold",
+        "task": "Given an H-by-W integer grid and integer X, count cells whose value is strictly greater than X. Different positions are counted separately, even when their values are equal. 1 ≤ H,W ≤ 50 and −10⁹ ≤ X,A[r][c] ≤ 10⁹.",
+        "input": "The first line contains H W X. Each of the next H lines contains W integers.",
+        "output": "Print the total number of cells strictly greater than X.",
+        "hint": "Loop over rows, then over the values in that row. Increment the count only when value > x.",
+        "explanation": "Each cell’s contribution depends only on its value and X, so no neighbor information is required. The outer loop reads H rows; the inner loop examines each of the W values and increments a single count when value > x. Initialize count before both loops, not once per row. The reference processes rows as they arrive and need not store the whole grid. The starter stores grid instead, which also works if followed by a nested traversal. Strictly greater excludes equality. Tests cover a single equal cell, a rectangular grid with negatives, a single column with all cells qualifying, no qualifying cells, and repeated values. Time is O(HW); the reference stores only the current row, using O(W) extra space.",
+        "objectives": [
+          "Trace outer and inner loops and calculate their total work.",
+          "Read a two-dimensional list by rows and access cells with grid[r][c].",
+          "Create independent rows and distinguish per-row state from whole-grid state."
+        ],
+        "checkpoints": [
+          {
+            "question": "If the outer loop runs H times and the inner loop W times per row, how many cells are visited?",
+            "answer": "H×W, not H+W, because every row performs a full inner traversal."
+          },
+          {
+            "question": "Why does [[0]*w]*h not create independent rows?",
+            "answer": "The outer repetition copies references to one row list. Editing one row can affect others; create a fresh row each time."
+          }
+        ]
+      },
+      "ja": {
+        "title": "二重ループと二次元リスト",
+        "summary": "要素ごとの処理から、行と列の処理へ進む。",
+        "sections": [
+          {
+            "title": "ループの中にループが必要な理由",
+            "body": "一次元リストは位置の番号が 1 つですが、表には行と列の 2 つが必要です。全マスの走査は「各行を選び、その行の各列を選ぶ」と説明できます。外側の r が現在の行、内側の c がその行の列です。内側を最後まで実行してから、外側が次の行へ進みます。\n\nH=2、W=3 なら (0,0)、(0,1)、(0,2) の後に (1,0)、(1,1)、(1,2) です。r と c を同時に増やすのではありません。それでは対角線しか通らず、多くのマスを見落とします。それぞれの番号が自分のタイミングで進みます。\n\n例はデータを使わず座標だけを出します。実行前に出力行数を予測し、順に確認してください。外側の各回で W 回を実行するため、総数は H×W です。内外を入れ替えても数は同じですが順序は変わり、行ごとの状態を保持するときには重要な違いになります。",
+            "code": "h, w = 2, 3\nfor r in range(h):\n    for c in range(w):\n        print(r, c)\n",
+            "output": "0 0\n0 1\n0 2\n1 0\n1 1\n1 2\n"
+          },
+          {
+            "title": "状態の初期化位置を決める",
+            "body": "二重ループでは初期化の位置がリセット頻度を決めます。total を両ループの外で初期化すれば表全体の合計、row_total を外側の中・内側の前で初期化すれば現在行の合計です。次の行では row_total だけが 0 に戻り、total は前の行までの結果を保持します。\n\n例は 1 行目に 1・2・3、2 行目に 2・4・6 を作ります。内側で row_total を更新し、終了後にその行の合計を total へ加えて表示します。行合計は 6 と 12、全体は 18 です。「各マス」「各行」「プログラム全体で 1 回」の 3 種類の実行位置を区別できます。\n\n内外の変数を両方 i にすると、内側が外側の現在値を上書きして理解しにくくなります。r と c、row と value など役割を分けた名前を使います。各文が H×W 回、H 回、1 回のどれを実行すべきか考え、その答えに従ってインデントを決めると集計の誤りを修正しやすくなります。",
+            "code": "h, w = 2, 3\ntotal = 0\nfor r in range(h):\n    row_total = 0\n    for c in range(w):\n        value = (r + 1) * (c + 1)\n        row_total += value\n    total += row_total\n    print(row_total)\nprint(total)\n",
+            "output": "6\n12\n18\n"
+          },
+          {
+            "title": "行ごとに二次元リストを作る",
+            "body": "二次元リストは、要素もリストになっているリストです。grid[0] で最初の行全体を取り、grid[0][1] でその行の 2 番目を取ります。grid[r][c] は行が先、列が後です。H と W が違う長方形は行列の取り違えを見つけやすく、正方形だけでは誤りを隠す場合があります。\n\n入力では grid=[] から始め、既知の一次元の読み方で row を作り、grid.append(row) で追加します。H 回繰り返すので独立した H 行ができます。各行に W 個あることは合法入力の保証です。_ は普通の変数名で、値を使わない反復変数を示す慣習であり、特別な命令ではありません。\n\n展開形を理解すると、[list(map(int,input().split())) for _ in range(h)] も読めます。これはリスト内包表記で、各回で左の式を計算し結果を集めます。複数行のループを短くしただけです。初学時は展開形を残すと、行の読み込みと追加を追跡しやすくなります。",
+            "code": "h, w = map(int, input().split())\ngrid = []\nfor _ in range(h):\n    row = list(map(int, input().split()))\n    grid.append(row)\nprint(len(grid), len(grid[0]))\nprint(grid[1][2])\n",
+            "output": "2 3\n6\n",
+            "exampleInput": "2 3\n1 2 3\n4 5 6\n"
+          },
+          {
+            "title": "各行を独立したリストにする",
+            "body": "全 0 の表を [[0]*W]*H で作ってはいけません。外側の繰り返しは 1 つの行リストへの参照を複製し、独立した行を作りません。grid[0][0] を変えると他の行の同じ位置も変わる場合があります。前課の別名参照が入れ子の内部で起きており、表示上複数行でも別の対象とは限りません。\n\n確実な展開形は、毎回 row=[0]*W を新しく作って grid へ追加するものです。整数 0 を 1 行に並べる部分ではなく、変更可能な行そのものを共有することが問題です。[[0]*W for _ in range(H)] という内包表記も毎回新しい行を作るので同じ原則です。\n\n例で最初の行の 2 列目だけを 9 に変え、次の行は全 0 のままと確認します。共有行でも変更前の見た目は正常なので、初期表示だけでは区別できません。局所的に変更し、変わるべきでない部分を観察することは、可変構造を調べる有効な方法です。",
+            "code": "h, w = 2, 3\ngrid = []\nfor _ in range(h):\n    row = [0] * w\n    grid.append(row)\ngrid[0][1] = 9\nprint(grid[0])\nprint(grid[1])\n",
+            "output": "[0, 9, 0]\n[0, 0, 0]\n"
+          },
+          {
+            "title": "値を走査するか座標を走査するか",
+            "body": "値だけが必要なら for row in grid、さらに for value in row と書けます。合計・個数・最大値などには添字が不要です。座標、隣のマス、指定位置の更新が必要なら r と c を range で走査し、grid[r][c] を使います。どちらも同じマスを訪れますが、利用できる情報が異なります。\n\n例は各列の和を計算します。長さ W の col_sums を 0 で作り、各格子を col_sums[c] へ加えます。位置 0 は各行の 0 列目、位置 1 は 1 列目を集めます。これを行の開始ごとに初期化すると、最後の行だけになるので、表全体を通して保持します。\n\nprint(*col_sums) の * は要素を複数の引数に展開する記号で、空白区切りに出力します。リストを変更せず、乗算でもありません。1 個ずつ print すれば各和を別行にもできますが、実際の出力形式は問題の指定に合わせます。",
+            "code": "grid = [[1, 2, 3], [4, 5, 6]]\nh, w = 2, 3\ncol_sums = [0] * w\nfor r in range(h):\n    for c in range(w):\n        col_sums[c] += grid[r][c]\nprint(*col_sums)\n",
+            "output": "5 7 9\n"
+          },
+          {
+            "title": "マスの個数を数える手順を完成する",
+            "body": "候補は H×W マス、条件は value>X、寄与は値そのものではなく 1 です。この 3 点を先に書けば、個数を合計と取り違えません。同じ数でも別の位置なら別の候補なので、集合で重複を除いてはいけません。位置ごとに判断します。\n\ngrid 全体を読んでから走査しても、1 行読むたび処理しても構いません。他の行に依存しないためです。後者は保存量を減らしますが訪問回数は同じです。初期コードと参考解はそれぞれの形を示しており、短さを強制する意図ではありません。保存方法と判定アルゴリズムを分けて理解します。\n\nH または W が 1 の単一行・列、H≠W の長方形を確認します。X と等しい値は除外、全て非該当なら 0、全て該当なら H×W です。各行列の組を 1 回だけ訪れるので漏れも重複もありません。単にループを増やすのではなく、各階層がどの独立した選択に対応するか説明してください。"
+          }
+        ],
+        "exerciseTitle": "閾値より大きいマス",
+        "task": "H 行 W 列の整数の表と整数 X が与えられます。値が X より真に大きいマスの個数を求めてください。同じ値でも位置が違えば別々に数えます。1 ≤ H,W ≤ 50、−10⁹ ≤ X,A[r][c] ≤ 10⁹ です。",
+        "input": "1 行目に H W X、その後 H 行にそれぞれ W 個の整数が与えられます。",
+        "output": "X より真に大きいマスの総数を出力してください。",
+        "hint": "外側で行、内側でその行の値を走査し、value > x の場合だけ個数を 1 増やします。",
+        "explanation": "各マスを数えるかは、その値と X だけで決まるため隣接情報は不要です。外側で H 行を読み、内側で W 個を調べ、value > x の場合だけ全体の count を増やします。count は両ループの前で初期化し、行ごとに消してはいけません。参考解は読みながら処理するため全表を保存しません。初期コードのように grid を保存してから二重に走査しても正しく解けます。「真に大きい」ので等しい値は除外します。単一マスの等号、負数を含む長方形、1 列で全部該当、全部非該当、重複値をテストします。時間 O(HW)、参考解の追加領域は現在の行の O(W) です。",
+        "objectives": [
+          "外側と内側の実行順を追い、総反復回数を数える。",
+          "行ごとに二次元リストを読み、grid[r][c] で参照する。",
+          "各行を独立して作り、行単位と表全体の状態を区別する。"
+        ],
+        "checkpoints": [
+          {
+            "question": "外側 H 回、各回の内側 W 回なら、何マス訪問しますか。",
+            "answer": "H×W マスです。各行で内側を全部実行するので H+W ではありません。"
+          },
+          {
+            "question": "[[0]*w]*h で独立した行を作れない理由は何ですか。",
+            "answer": "同じ行リストへの参照を繰り返すため共有されます。各回で新しい行を作る必要があります。"
+          }
+        ]
+      }
+    },
+    "starter": "h, w, x = map(int, input().split())\ngrid = []\nfor _ in range(h):\n    row = list(map(int, input().split()))\n    grid.append(row)\n# TODO\n",
+    "solution": "h, w, x = map(int, input().split())\ncount = 0\nfor _ in range(h):\n    row = list(map(int, input().split()))\n    for value in row:\n        if value > x:\n            count += 1\nprint(count)\n",
+    "tests": [
+      {
+        "input": "1 1 5\n5\n",
+        "expected": "0\n"
+      },
+      {
+        "input": "2 3 0\n-2 0 4\n3 -1 2\n",
+        "expected": "3\n"
+      },
+      {
+        "input": "3 1 -5\n-4\n0\n8\n",
+        "expected": "3\n"
+      },
+      {
+        "input": "2 2 10\n1 2\n3 4\n",
+        "expected": "0\n"
+      },
+      {
+        "input": "2 3 2\n2 3 2\n3 2 3\n",
+        "expected": "3\n"
+      }
+    ]
+  },
+  {
+    "id": "functions",
+    "order": 8,
+    "stage": "python",
+    "minutes": 55,
+    "prerequisiteIds": [
+      "nested-loops"
+    ],
+    "relatedProblems": [
+      "APG4bPython EX13",
+      "ABC083B"
+    ],
+    "content": {
+      "zh": {
+        "title": "函数与拆解",
+        "summary": "把一段可重复的计算命名。",
+        "sections": [
+          {
+            "title": "为一段计算定义清楚的接口",
+            "body": "程序逐渐变长时，重复复制一段计算容易在修改时漏掉某个副本。函数给这段计算起一个名字，并明确它需要哪些值、返回什么结果。调用者不必每次重新展开内部步骤，只要遵守这个约定。函数不仅为了减少代码长度，也帮助你把一个问题拆成可以分别检查的小部分。\n\ndef square(x):定义名为square的函数，x是参数，是每次调用传入的值在函数内使用的名字。下一行缩进的return x*x计算平方并把结果交还调用者。定义阶段不会计算某个具体数；square(4)才是一次调用。括号里的4叫实参，它本次赋给参数x。\n\n函数名应该描述工作，而不是叫function1之类难以区分的名称。先写一句契约：“接收一个整数，返回它的平方”。明确契约后，可以独立测试0、正数、负数，再把函数放进更大的程序。调用前函数定义必须已经执行，否则Python找不到这个名字。",
+            "code": "def square(x):\n    return x * x\n\nprint(square(0))\nprint(square(4))\nprint(square(-3))\n",
+            "output": "0\n16\n9\n"
+          },
+          {
+            "title": "逐步追踪一次调用",
+            "body": "执行answer=square(4)+square(3)时，不是把函数里的代码原样当成文字替换。Python先调用square(4)，建立本次局部参数x=4，计算并返回16；再调用square(3)，这次x=3，返回9；最后外层把16与9相加，赋给answer得到25。每次调用有自己的局部状态。\n\n函数可以接收多个参数，例如total_cost(price,quantity)。参数顺序有意义：total_cost(12,5)把12交给price、5交给quantity。名字能帮助说明含义，但Python不会根据数值大小猜哪个是价格。调用时应与定义的接口一致，不要少传或多传必需参数。\n\n下面函数先计算subtotal，再加固定费用2。外层的budget不会因为函数内部计算而改变。把调用过程画成“传入12和5→内部得到60→返回62→外层减去62”有助于区分函数内部与调用者的状态。返回后，程序从调用位置继续执行，不会重新从文件开头开始。",
+            "code": "def total_cost(price, quantity):\n    subtotal = price * quantity\n    return subtotal + 2\n\nbudget = 100\ncost = total_cost(12, 5)\nprint(cost)\nprint(budget - cost)\n",
+            "output": "62\n38\n"
+          },
+          {
+            "title": "return 返回值，print 产生输出",
+            "body": "print把内容写到输出区域；return把值交给调用者。一个函数可以返回数值而完全不显示任何东西，也可以显示文字却不返回有用的结果。若你还要把结果参与后续运算，应使用return，而不是仅仅在函数内print。屏幕上看到答案，并不等于调用表达式得到了这个数。\n\n函数执行到结尾但没有return，返回的是None，表示没有特定结果。起始代码中的pass也是一个“暂时什么也不做”的合法占位语句，并不会自动完成计算。调用这样的函数后再print，会显示None。修复方法是实现计算并返回答案，而不是试图把None转换成整数。\n\nreturn还会立刻结束本次函数，后面的语句不再执行。因此把return误放在循环内部，可能只处理第一个元素就返回。下面把求和循环全部完成后才return，外层既可以打印结果，也可以再次使用它。通过缩进确认return的位置，是检查函数最重要的步骤之一。",
+            "code": "def list_total(values):\n    total = 0\n    for value in values:\n        total += value\n    return total\n\nanswer = list_total([2, 3, 4])\nprint(answer)\nprint(answer * 2)\n",
+            "output": "9\n18\n"
+          },
+          {
+            "title": "局部名字、重新赋值与可变对象",
+            "body": "函数内创建的名字通常是局部变量，只属于这次调用。外面有n=20，调用half(n)把这个整数传给参数x；内部x//=2只把局部x重新绑定到10，外面的n仍为20。参数名可以与外面的变量名相同，但并不因此成为同一个名字。初学时用不同名字追踪，更容易看出边界。\n\n不要把上面的结论误推广为“函数永远不能影响外部数据”。如果传入列表，参数会引用同一个可变列表，内部执行values[0]=9就会改到调用者看到的对象。这与上一课的别名完全一致。只读计算函数应尽量不修改输入；确实要修改时，应在契约中明确说明。\n\n本课digit_sum接收整数，每轮用n//=10丢掉末位，属于局部重新赋值，调用者的整数不受影响。也不需要global关键字。让函数通过参数接收数据、通过return交回结果，能减少隐蔽依赖，独立测试时只需给定参数即可。",
+            "code": "def half(x):\n    x //= 2\n    return x\n\nn = 20\nanswer = half(n)\nprint(answer)\nprint(n)\n",
+            "output": "10\n20\n"
+          },
+          {
+            "title": "把输入、计算和输出分离",
+            "body": "完整程序通常可以分成三层：主程序按题目格式读取数据；函数完成一项明确计算；主程序把返回值按题目要求输出。这样函数既能用于真实输入，也能直接用手写参数测试。若函数内部每次都input，它就依赖输入行顺序，测试和复用都会变得困难。\n\n下面函数rectangle_area接收长与宽，返回面积。主程序读取一行两个整数、调用函数、输出结果。为了检查函数，可以另外在学习时调用rectangle_area(1,1)或rectangle_area(0,5)，但正式程序必须只处理题目要求的输入和输出，不能把测试调用一起留在提交结果中。\n\n分解时不要为每一行代码都创建一个函数。优先提取有清晰含义、会重复使用或值得单独验证的计算。例如“计算数位和”是完整任务，“把答案加一”是否值得抽取要看上下文。函数数量不是质量指标，接口清楚、依赖少、每个部分能解释和测试才是目的。",
+            "code": "def rectangle_area(height, width):\n    return height * width\n\nh, w = map(int, input().split())\narea = rectangle_area(h, w)\nprint(area)\n",
+            "output": "24\n",
+            "exampleInput": "6 4\n"
+          },
+          {
+            "title": "为数位和建立状态与契约",
+            "body": "练习要求非负整数的十进制数位和。例如307的结果是3+0+7=10，不是求这个数除以10的商，也不是统计有几位。函数名digit_sum表达这个任务。先把输入约定写成n≥0，输出约定写成“一个非负整数，等于所有数位的和”。本题不需要处理负号，因此不应额外设计题目没有要求的负数规则。\n\n利用前面学过的余数与整除：n%10取最后一位，n//10去掉最后一位。307依次取出7、0、3，未处理部分依次变成30、3、0。total相应变成7、7、10。数字被倒序取出不影响总和，因为加法顺序不改变结果。\n\ntotal初始为0，循环条件n>0，每轮删除一位保证结束。return必须写在循环后。n=0时循环零次，也应返回0；单数位则一次就结束。用这些小例子先验证函数，再接上input和print。能够解释每轮total与n的含义，比只记住这段while代码更有助于迁移到数位计数、进制转换等后续问题。"
+          }
+        ],
+        "exerciseTitle": "数位和",
+        "task": "给定非负整数 N，输出其十进制数位之和。请实现 digit_sum(n)，然后调用它输出结果。0 ≤ N ≤ 10¹⁸。",
+        "input": "一个整数 N。",
+        "output": "输出 N 的数位和。",
+        "hint": "n % 10 取末位，n //= 10 去掉末位。累积变量从 0 开始，n = 0 时也应返回 0。",
+        "explanation": "函数的契约是接收非负整数n，返回其十进制数位和。total从0开始，while n>0时用n%10取末位，累加后用n//=10删除末位。每轮后，total是已经删除的数位之和，n保存尚未处理的高位，因此最终n=0时total正好是全部数位之和。输入0不会进入循环，仍返回0。主程序只读取N、调用digit_sum并打印返回结果，不在函数内部额外输出。测试0、单数位、夹杂0的多位数以及大整数，检查空循环、取余和整数精度。若十进制位数为D，循环D次，时间O(D)，额外空间O(1)。",
+        "objectives": [
+          "定义参数和返回值，把计算与输入输出分开。",
+          "追踪调用时的局部变量，分清 return、print 与提前结束。",
+          "为函数说明输入约定和结果含义，用小测试验证数位处理。"
+        ],
+        "checkpoints": [
+          {
+            "question": "函数内print(answer)与return answer有什么不同？",
+            "answer": "print把内容写到输出；return把值交还调用者。后续需要计算时应返回值，必要时由外层打印。"
+          },
+          {
+            "question": "digit_sum里反复修改局部n，为什么不会把外层整数变量改掉？",
+            "answer": "参数n是函数内部的名字；整数不可变，局部重新赋值只改变这个名字的绑定，不会改动外层名字。"
+          },
+          {
+            "question": "为什么n=0也应得到正确结果？",
+            "answer": "total先初始化为0；while n>0一次不执行，最后return total，因此返回0。"
+          }
+        ]
+      },
+      "en": {
+        "title": "Functions and decomposition",
+        "summary": "Give a reusable calculation a name.",
+        "sections": [
+          {
+            "title": "Give a calculation an interface",
+            "body": "As a program grows, copying a calculation creates multiple versions that can drift apart. A function names the calculation and specifies what values it needs and what result it returns. Callers can use that contract without repeating the internal steps. The benefit is not merely shorter code: separately defined work can be tested independently.\n\ndef square(x): defines square with parameter x, a local name for a value supplied by a call. The indented return x * x computes and returns the result. Defining the function does not square a particular number; square(4) calls it with argument four. State a contract before coding: “accept an integer and return its square.” Test zero, positive, and negative values. The definition must have executed before a call can use the function’s name.",
+            "code": "def square(x):\n    return x * x\n\nprint(square(0))\nprint(square(4))\nprint(square(-3))\n",
+            "output": "0\n16\n9\n"
+          },
+          {
+            "title": "Trace a function call",
+            "body": "For answer = square(4) + square(3), Python does not substitute source text mechanically. It calls square with local x equal to four and receives sixteen, then calls it with x equal to three and receives nine. The caller adds those results to obtain twenty-five. Each call has its own local state.\n\nA function may take several parameters, such as total_cost(price, quantity). Argument order matters: total_cost(12, 5) supplies twelve as price and five as quantity. Python does not infer roles from numeric values. In the example, the function calculates a subtotal and adds a fixed fee. Trace “inputs 12 and 5, subtotal 60, returned result 62, remaining budget 38.” After returning, execution resumes at the call site rather than restarting the file.",
+            "code": "def total_cost(price, quantity):\n    subtotal = price * quantity\n    return subtotal + 2\n\nbudget = 100\ncost = total_cost(12, 5)\nprint(cost)\nprint(budget - cost)\n",
+            "output": "62\n38\n"
+          },
+          {
+            "title": "Returning is different from printing",
+            "body": "print writes output; return supplies a value to the caller. A function can return a number without displaying anything, or display text without returning a useful result. If later computation needs the result, return it. Seeing a number on screen does not mean the call expression evaluated to that number.\n\nA function reaching its end without return yields None. The starter’s pass is a valid placeholder that does nothing, not an automatic solution. Implement the computation and return its answer rather than trying to convert None into an integer. return also ends the call immediately, so placing it inside a loop may stop after one element. The example returns only after all additions, allowing the caller to print and reuse the sum. Check the return statement’s indentation carefully.",
+            "code": "def list_total(values):\n    total = 0\n    for value in values:\n        total += value\n    return total\n\nanswer = list_total([2, 3, 4])\nprint(answer)\nprint(answer * 2)\n",
+            "output": "9\n18\n"
+          },
+          {
+            "title": "Local names and mutable objects",
+            "body": "Names created inside a function are usually local to that call. If n is twenty and half(n) receives it as x, x //= 2 rebinds local x to ten while the caller’s n remains twenty. Equal-looking variable names inside and outside a function do not automatically identify the same binding.\n\nDo not conclude that functions can never affect outside data. A list argument can refer to the same mutable object as the caller’s list, so values[0] = 9 would modify that shared object. This is the aliasing behavior already studied. A read-only calculation should avoid modifying its inputs; intentional mutation belongs in the contract. digit_sum receives an immutable integer and only rebinds its local parameter. Parameters and return values avoid hidden global dependencies and make independent tests straightforward.",
+            "code": "def half(x):\n    x //= 2\n    return x\n\nn = 20\nanswer = half(n)\nprint(answer)\nprint(n)\n",
+            "output": "10\n20\n"
+          },
+          {
+            "title": "Separate input, computation, and output",
+            "body": "A complete program often has three parts: the main program reads the required format, a function performs a well-defined calculation, and the main program prints the returned result. The same function can then be tested with literal arguments without constructing input text. If it calls input internally, it becomes coupled to the input stream’s order and is harder to test or reuse.\n\nThe example separates rectangle_area from reading and printing. During learning, additional calls such as rectangle_area(1, 1) can test the function, but do not leave diagnostic calls in a judged program’s output. Nor should every line become a separate function. Extract work with a clear meaning, reuse, or independent testing value. The aim is understandable interfaces and limited dependencies, not the largest possible function count.",
+            "code": "def rectangle_area(height, width):\n    return height * width\n\nh, w = map(int, input().split())\narea = rectangle_area(h, w)\nprint(area)\n",
+            "output": "24\n",
+            "exampleInput": "6 4\n"
+          },
+          {
+            "title": "Derive the digit-sum contract",
+            "body": "The exercise requests a nonnegative integer’s decimal digit sum. For 307 the result is 3 + 0 + 7 = 10, not its quotient by ten or its number of digits. Specify the contract: input n is nonnegative; the returned integer is the sum of its digits. No rule for negative signs is required.\n\nUse familiar arithmetic: n % 10 extracts the last digit and n // 10 removes it. For 307, extracted digits are seven, zero, and three; unprocessed values become thirty, three, and zero. Totals become seven, seven, and ten. Reversed extraction does not affect a sum. Initialize total before the loop, use n > 0, and return after the loop. Zero must work without any iteration. Explain the meaning of both variables before adapting this pattern to later digit problems."
+          }
+        ],
+        "exerciseTitle": "Digit sum",
+        "task": "Given a nonnegative integer N, print the sum of its decimal digits. Implement digit_sum(n), then call it to produce the output. 0 ≤ N ≤ 10¹⁸.",
+        "input": "One integer N.",
+        "output": "Print the digit sum of N.",
+        "hint": "n % 10 extracts the last digit; n //= 10 removes it. Start the sum at 0 so that n = 0 also returns 0.",
+        "explanation": "The function’s contract is to accept a nonnegative integer n and return the sum of its decimal digits. Start total at zero. While n is positive, extract the last digit using n % 10, add it, and remove it using n //= 10. After every iteration, total contains the sum of removed digits while n retains the unprocessed prefix. When n becomes zero, all digits have contributed. Input zero skips the loop and correctly returns zero. The main program reads N, calls digit_sum, and prints the returned value; the function needs no output of its own. Tests cover zero, one digit, internal zeros, and a large integer. With D digits, time is O(D) and extra space is O(1).",
+        "objectives": [
+          "Define parameters and return values, separating calculation from input and output.",
+          "Trace local variables and distinguish returning, printing, and early exit.",
+          "Specify a function’s input contract and result, then test digit processing on small cases."
+        ],
+        "checkpoints": [
+          {
+            "question": "How do print(answer) and return answer differ inside a function?",
+            "answer": "print writes output; return supplies a value to the caller. Return values needed in later calculations, then print them outside if required."
+          },
+          {
+            "question": "Why does repeatedly rebinding local n inside digit_sum not change the caller’s integer variable?",
+            "answer": "The parameter is a local name. Integers are immutable, and rebinding that name does not rebind the caller’s name."
+          },
+          {
+            "question": "Why does the algorithm handle n=0?",
+            "answer": "total starts at zero; while n>0 executes no iterations; returning total therefore produces zero."
+          }
+        ]
+      },
+      "ja": {
+        "title": "関数と分解",
+        "summary": "繰り返し使う計算に名前を付ける。",
+        "sections": [
+          {
+            "title": "計算に明確な受け渡し口を作る",
+            "body": "プログラムが長くなると、同じ計算をコピーした箇所の一部だけ修正し忘れることがあります。関数は計算に名前を付け、必要な値と返す結果を明確にします。呼び出し側は内部の手順を毎回展開せず、約束に従って使えます。短縮だけでなく、問題を個別に確認できる部分へ分けるための仕組みです。\n\ndef square(x): は square という関数を定義し、x は呼び出しで渡す値を内部で使う名前です。下げた行の return x*x は平方を計算して呼び出し元へ返します。定義しただけでは特定の数を計算せず、square(4) が実際の呼び出しです。括弧内の 4 が実引数で、今回の x に渡されます。\n\n名前は仕事を説明するものにします。「整数を受け取り平方を返す」と契約を書き、0・正数・負数を独立に試せます。呼び出しの前には定義が実行済みでなければなりません。まだ作られていない関数名を Python は見つけられません。",
+            "code": "def square(x):\n    return x * x\n\nprint(square(0))\nprint(square(4))\nprint(square(-3))\n",
+            "output": "0\n16\n9\n"
+          },
+          {
+            "title": "1 回の呼び出しを順に追う",
+            "body": "answer=square(4)+square(3) では、コードを文字として置換するわけではありません。まず square(4) を呼び、局所的な x=4 で 16 を返します。次に square(3) が x=3 で 9 を返し、外側で足して answer=25 になります。各呼び出しは別々の局所状態を持ちます。\n\ntotal_cost(price,quantity) のように複数の引数も受け取れます。順番に意味があり、total_cost(12,5) は price に 12、quantity に 5 を渡します。名前が役割を説明しても、Python が数値から価格を推測するわけではありません。定義の契約どおりに必要な個数を渡します。\n\n例の関数は小計を求め、固定料金 2 を加えます。budget は内部の計算で変化しません。「12 と 5 を渡す→小計 60→62 を返す→外側で引く」と追うと内外の状態を区別できます。return 後は呼び出した場所の続きへ戻り、ファイル先頭から再実行するのではありません。",
+            "code": "def total_cost(price, quantity):\n    subtotal = price * quantity\n    return subtotal + 2\n\nbudget = 100\ncost = total_cost(12, 5)\nprint(cost)\nprint(budget - cost)\n",
+            "output": "62\n38\n"
+          },
+          {
+            "title": "返すことと表示することは違う",
+            "body": "print は出力欄へ書き、return は呼び出し元へ値を渡します。関数は何も表示せず数値を返すことも、文字を表示して有用な値を返さないこともできます。後続の計算に使う結果は return で返します。画面に数が出たことと、呼び出し式がその数を得たことは別です。\n\nreturn なしで末尾へ達した関数は None を返します。初期コードの pass も「今は何もしない」という合法な仮置き文で、自動的に計算してくれません。その結果を print すると None が出ます。None を整数へ変えるのではなく、処理を実装して答えを返すよう修正します。\n\nreturn はその呼び出しを直ちに終了するため、後の文は実行されません。ループ内へ置き間違えると最初の要素だけで終了することがあります。例は全て加算してから return し、外側で表示も再利用もできます。return のインデントが適切かは、関数を確認する重要なポイントです。",
+            "code": "def list_total(values):\n    total = 0\n    for value in values:\n        total += value\n    return total\n\nanswer = list_total([2, 3, 4])\nprint(answer)\nprint(answer * 2)\n",
+            "output": "9\n18\n"
+          },
+          {
+            "title": "局所名・再代入・変更可能な対象",
+            "body": "関数内で作る名前は通常、その呼び出しに属する局所変数です。外に n=20 があり half(n) の引数 x へ渡しても、x//=2 は局所的な x を 10 へ再代入するだけで、外の n は 20 のままです。内外で同じ綴りの名前を使っても、自動的に同じ束縛にはなりません。初めは別名で追うと境界が分かりやすくなります。\n\nただし「関数は外部のデータに影響しない」と一般化してはいけません。リストを渡すと同じ変更可能な対象を参照するので、values[0]=9 は呼び出し元から見えるリストも変えます。前課の別名参照と同じです。読み取り専用の計算なら入力を変更せず、意図して変更するなら契約で説明します。\n\ndigit_sum の n//=10 は整数の局所的な再代入なので、呼び出し元の整数には影響しません。global も必要ありません。引数で受け取り、return で返す構造にすると隠れた依存が減り、引数を与えるだけで個別に試せます。",
+            "code": "def half(x):\n    x //= 2\n    return x\n\nn = 20\nanswer = half(n)\nprint(answer)\nprint(n)\n",
+            "output": "10\n20\n"
+          },
+          {
+            "title": "入力・計算・出力を分離する",
+            "body": "全体を 3 部分に分けられます。メイン処理が指定形式の入力を読み、関数が明確な計算を行い、メイン処理が返り値を指定形式で出します。同じ関数を、入力文字列を作らず直接数値の引数で試せます。関数内部で毎回 input すると、入力の行順に依存して再利用や確認が難しくなります。\n\n例の rectangle_area は縦横から面積を返すだけです。主処理が 2 整数を読み、関数を呼び、結果を表示します。学習中は rectangle_area(1,1) や rectangle_area(0,5) も試せますが、提出では確認用の追加出力を残さず、問題が指定したデータだけを処理します。\n\nすべての 1 行を関数にする必要もありません。明確な仕事、再利用する処理、個別に検証したい計算を優先します。「各桁の和」はまとまった役割ですが、「答えへ 1 を加える」を独立させる価値は状況次第です。数を増やすのでなく、契約を明確にして説明と検証を容易にすることが目的です。",
+            "code": "def rectangle_area(height, width):\n    return height * width\n\nh, w = map(int, input().split())\narea = rectangle_area(h, w)\nprint(area)\n",
+            "output": "24\n",
+            "exampleInput": "6 4\n"
+          },
+          {
+            "title": "桁の和の状態と契約を作る",
+            "body": "演習は非負整数の十進各桁の和です。307 なら 3+0+7=10 で、10 で割った商でも桁数でもありません。digit_sum という名前が役割を表します。入力条件は n≥0、返り値は全桁の和に等しい非負整数です。負号の処理は要求されていないので、不要な規則を追加しません。\n\n既に学んだ余りと整数除算を使います。n%10 が末尾の桁、n//10 が末尾を除いた部分です。307 では 7・0・3 を取り出し、未処理部分は 30・3・0、total は 7・7・10 になります。加算の結果は順序によらないため、逆から取り出しても問題ありません。\n\ntotal を 0 で始め、n>0 の間だけ繰り返します。毎回 1 桁減るので終了し、return はループ後へ置きます。n=0 は 0 回、1 桁なら 1 回で終わります。小さい例で関数を確認してから入出力を接続します。2 変数の意味を説明できれば、桁の個数や進数変換などへも考え方を応用できます。"
+          }
+        ],
+        "exerciseTitle": "各桁の和",
+        "task": "非負整数 N が与えられます。十進表記の各桁の和を出力してください。digit_sum(n) を実装し、呼び出して結果を表示してください。0 ≤ N ≤ 10¹⁸ です。",
+        "input": "整数 N が 1 個与えられます。",
+        "output": "N の各桁の和を出力してください。",
+        "hint": "n % 10 で末尾の桁を取り出し、n //= 10 でその桁を除きます。合計を 0 から始めれば n = 0 にも対応できます。",
+        "explanation": "関数の契約は、非負整数 n を受け取り、十進各桁の和を返すことです。total を 0 で開始し、n>0 の間、n%10 で末尾を取り出して加え、n//=10 でその桁を除きます。各回の後、total は除いた桁の和、n は未処理の上位部分なので、n=0 なら全桁の和が得られています。入力 0 はループを飛ばして 0 を返します。メイン処理は入力、呼び出し、返り値の出力だけを担当し、関数内では余計な表示をしません。0・1 桁・内部に 0 を含む数・大整数で境界と整数処理を確認します。桁数 D に対して時間 O(D)、追加領域 O(1) です。",
+        "objectives": [
+          "引数と返り値を定義し、計算と入出力を分ける。",
+          "呼び出し中の局所変数を追い、return・print・早期終了を区別する。",
+          "入力条件と結果の意味を定め、小さい例で桁処理を検証する。"
+        ],
+        "checkpoints": [
+          {
+            "question": "関数内の print(answer) と return answer はどう違いますか。",
+            "answer": "print は出力へ書き、return は呼び出し元へ値を渡します。後で計算に使う値は返し、必要なら外側で表示します。"
+          },
+          {
+            "question": "digit_sum 内で n を更新しても外側の整数変数が変わらない理由は何ですか。",
+            "answer": "仮引数 n は局所的な名前です。整数は変更不能で、局所名の再代入は呼び出し元の名前を変えません。"
+          },
+          {
+            "question": "n=0 を正しく処理できる理由は何ですか。",
+            "answer": "total を 0 で始め、while n>0 は 0 回実行されます。そのまま total を返すので 0 です。"
+          }
+        ]
+      }
+    },
+    "starter": "def digit_sum(n):\n    # TODO\n    pass\n\nn = int(input())\nprint(digit_sum(n))\n",
+    "solution": "def digit_sum(n):\n    total = 0\n    while n > 0:\n        total += n % 10\n        n //= 10\n    return total\n\nn = int(input())\nprint(digit_sum(n))\n",
+    "tests": [
+      {
+        "input": "0\n",
+        "expected": "0\n"
+      },
+      {
+        "input": "7\n",
+        "expected": "7\n"
+      },
+      {
+        "input": "1002003\n",
+        "expected": "6\n"
+      },
+      {
+        "input": "999999999999999999\n",
+        "expected": "162\n"
+      }
+    ]
+  }
+]

@@ -1,10 +1,10 @@
-# CI Practice independent correctness audit
+# Plume independent correctness audit
 
 Scope: application state, official submission synchronization, mock scoring, backups, and the exercise sequence. The original audit was read-only; the confirmed issues below have since been repaired. The independent regression file is `tests/audit.test.cjs`.
 
 ## Confirmed regressions
 
-The baseline application failed all six cases below. The fixes now pass 12 audit regressions, including account-bound mocks, imported-backup invalidation, old duplicate cleanup, and the beginner recommendation order. Together with the existing frontend suite, 28 tests pass; all six statement-library tests also pass.
+The baseline application failed all six cases below. The regression suite covers the repairs, account-bound mocks, imported-backup invalidation, old duplicate cleanup, and the beginner recommendation order. Run `node --test tests/audit.test.cjs` to check them against the current source.
 
 | Priority | Reproduction | Incorrect result | Required behavior |
 |---|---|---|---|

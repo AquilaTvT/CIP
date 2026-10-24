@@ -15,9 +15,10 @@ jobs:
       - run: npm run build:editor
       - run: git diff --exit-code -- vendor/editor.js vendor/editor-LICENSES.txt
       - run: python scripts/assemble_library.py
+      - run: python scripts/assemble_academy.py --check
       - run: python -m unittest discover -s tests -p '*_test.py'
       - run: node --test tests/*.test.cjs
-      - run: node --check app.js && node --check pyworker.js
+      - run: npm run check
   macos-app:
     runs-on: macos-latest
     steps:
@@ -29,5 +30,5 @@ jobs:
       - run: python scripts/package_release.py
       - uses: actions/upload-artifact@v4
         with:
-          name: CI-Practice-macOS
-          path: release/CI-Practice-macOS-*.zip
+          name: Plume-macOS
+          path: release/Plume-macOS-*.zip

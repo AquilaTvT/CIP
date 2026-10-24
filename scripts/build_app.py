@@ -16,6 +16,9 @@ import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
+PRODUCT_NAME = 'Plume'
+PRODUCT_VERSION = '1.1.0'
+PRODUCT_BUILD = '20261024.2'
 
 
 def build(destination, universal=False):
@@ -29,6 +32,7 @@ def build(destination, universal=False):
         path = ROOT / 'vendor' / 'pyodide' / item['name']
         if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != item['sha256']:
             raise SystemExit(f'Offline runtime checksum mismatch: {item["name"]}. Run scripts/vendor_pyodide.py.')
+    subprocess.run([sys.executable, str(ROOT / 'scripts' / 'assemble_academy.py'), '--check'], check=True)
     destination = destination.resolve()
     if destination.suffix != '.app':
         raise SystemExit('--output must name an .app bundle')
@@ -39,7 +43,7 @@ def build(destination, universal=False):
         macos = bundle / 'Contents' / 'MacOS'
         resources.mkdir(parents=True); macos.mkdir()
         site = resources / 'site'; site.mkdir()
-        for name in ['index.html', 'app.js', 'styles.css', 'pyworker.js']:
+        for name in ['index.html', 'app.js', 'settings.js', 'academy.js', 'styles.css', 'pyworker.js']:
             shutil.copy2(ROOT / name, site / name)
         for name in ['data', 'vendor', 'assets']:
             if (ROOT / name).exists():
@@ -49,15 +53,17 @@ def build(destination, universal=False):
         smoke = ROOT / 'tests' / 'runtime-browser.js'
         if smoke.exists(): shutil.copy2(smoke, resources / 'runtime-test.js')
         shutil.copy2(ROOT / 'packaging' / 'storage-bridge.js', resources / 'storage-bridge.js')
-        info = {'CFBundleName': 'CI Practice', 'CFBundleDisplayName': 'CI Practice',
-                'CFBundleIdentifier': 'org.cipractice.desktop', 'CFBundleExecutable': 'CI Practice',
-                'CFBundlePackageType': 'APPL', 'CFBundleShortVersionString': '1.0',
-                'CFBundleVersion': '20261024', 'CFBundleIconFile': 'CIPractice',
+        # Keep the bundle identifier stable: renaming the product must not move
+        # existing WebKit data, native snapshots, or window preferences.
+        info = {'CFBundleName': PRODUCT_NAME, 'CFBundleDisplayName': PRODUCT_NAME,
+                'CFBundleIdentifier': 'org.cipractice.desktop', 'CFBundleExecutable': PRODUCT_NAME,
+                'CFBundlePackageType': 'APPL', 'CFBundleShortVersionString': PRODUCT_VERSION,
+                'CFBundleVersion': PRODUCT_BUILD, 'CFBundleIconFile': 'CIPractice',
                 'LSMinimumSystemVersion': '13.3', 'NSHighResolutionCapable': True,
                 'NSAppTransportSecurity': {'NSAllowsLocalNetworking': True}}
         (bundle / 'Contents' / 'Info.plist').write_bytes(plistlib.dumps(info))
         command = ['xcrun', 'swiftc', '-O', '-swift-version', '5', '-framework', 'AppKit', '-framework', 'WebKit', '-framework', 'Network', str(ROOT / 'packaging' / 'CIPractice.swift')]
-        executable = macos / 'CI Practice'
+        executable = macos / PRODUCT_NAME
         cache = Path(temporary) / 'module-cache'; cache.mkdir()
         command.extend(['-module-cache-path', str(cache)])
         if universal:
@@ -77,7 +83,7 @@ def build(destination, universal=False):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--output', type=Path, default=ROOT / 'dist' / 'CI Practice.app')
+    parser.add_argument('--output', type=Path, default=ROOT / 'dist' / f'{PRODUCT_NAME}.app')
     parser.add_argument('--universal', action='store_true', help='Build for Apple Silicon and Intel Macs.')
     args = parser.parse_args()
     build(args.output, args.universal)

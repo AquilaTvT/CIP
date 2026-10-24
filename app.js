@@ -1,4 +1,6 @@
-const DATA_SCHEMA=3;
+const DATA_SCHEMA=4;
+const PRODUCT_NAME='Plume';
+const PRODUCT_VERSION='1.1.0';
 const STORAGE_KEY='ciPracticeHubState.v2';
 const LEGACY_KEY='ciPracticeHubState.v1';
 const META_TTL=24*60*60*1000;
@@ -91,7 +93,8 @@ const EXTRA_I18N={
 };
 
 const DEFAULT_STATE={
-  theme:'light',uiLang:'zh',statementLang:'zh',atcoderUser:'',autoSync:false,lastSync:0,syncCursor:0,dailyGoal:5,
+  theme:'system',uiLang:'zh',statementLang:'zh',atcoderUser:'',autoSync:false,lastSync:0,syncCursor:0,dailyGoal:5,
+  profile:{displayName:''},preferences:{homePage:'dashboard',editorFontSize:14,tabSize:4,lineWrapping:false,statementFontSize:16,reduceMotion:false},academy:{codes:{},completed:{},attempts:{},hints:{},solutions:{},lastLessonId:''},
   attempts:[],notes:{},stars:{},codes:{},testCases:{},solutionUnlocked:{},mock:null,mockHistory:[],metadataCache:{},metadataUpdated:0,workTab:'code',splitRatio:47,lastProblem:'',recentProblems:[],sidebarCollapsed:false
 };
 for(const [lang,copy] of Object.entries({
@@ -111,6 +114,11 @@ for(const [lang,copy] of Object.entries({
   zh:{mockHistory:'模拟记录',mockHistoryIntro:'查看已结束的模拟与各题结果。',mockHistoryEmpty:'暂无模拟记录',mockHistoryEmptyBody:'结束一次模拟后，结果会保存在这里。',viewMockHistory:'查看模拟记录',returnCurrentMock:'返回当前模拟',returnMockSetup:'返回模拟设置',backToMockHistory:'返回模拟记录',archivedMock:'历史模拟',mockHistoryMissing:'未找到这次模拟记录',mockHistoryMissingBody:'这条记录可能已被重置，或不在当前备份中。',mockCompleted:'完成 {done} / {total} 题',practiceAgain:'返回练习',viewAllRecords:'查看全部',mockNotCompleted:'未完成'},
   ja:{mockHistory:'模擬の履歴',mockHistoryIntro:'終了した模擬試験と各問題の結果を確認できます。',mockHistoryEmpty:'模擬の記録はありません',mockHistoryEmptyBody:'模擬試験を終了すると、結果がここに保存されます。',viewMockHistory:'模擬の履歴を見る',returnCurrentMock:'現在の模擬に戻る',returnMockSetup:'模擬の設定に戻る',backToMockHistory:'履歴一覧に戻る',archivedMock:'過去の模擬',mockHistoryMissing:'この模擬記録が見つかりません',mockHistoryMissingBody:'記録がリセットされたか、現在のバックアップには含まれていません。',mockCompleted:'{total} 問中 {done} 問完了',practiceAgain:'練習に戻る',viewAllRecords:'すべて見る',mockNotCompleted:'未完了'},
   en:{mockHistory:'Mock history',mockHistoryIntro:'Review completed sessions and individual problem results.',mockHistoryEmpty:'No mock sessions yet',mockHistoryEmptyBody:'Completed mock sessions will be saved here.',viewMockHistory:'View mock history',returnCurrentMock:'Return to current mock',returnMockSetup:'Return to mock setup',backToMockHistory:'Back to mock history',archivedMock:'Past session',mockHistoryMissing:'Mock session not found',mockHistoryMissingBody:'This record may have been reset or is not included in the current backup.',mockCompleted:'{done} of {total} completed',practiceAgain:'Open for practice',viewAllRecords:'View all',mockNotCompleted:'Not completed'}
+}))Object.assign(I18N[lang],copy);
+for(const [lang,copy] of Object.entries({
+  zh:{learn:'入门课程',courseInvitation:'从概念、短练习到真实题目，逐步建立 Python 与算法基础。',viewCourse:'查看课程',preferencesRestored:'已恢复默认偏好',saveFailed:'无法保存。请导出备份，并检查存储空间与权限。',signatureTitle:'Aquila',signatureLine:'CI Programming Practice'},
+  en:{learn:'Foundations',courseInvitation:'Build a Python and algorithms foundation through concepts, short exercises and real problems.',viewCourse:'View course',preferencesRestored:'Default preferences restored',saveFailed:'Unable to save. Export a backup and check storage space and permissions.',signatureTitle:'Aquila',signatureLine:'CI Programming Practice'},
+  ja:{learn:'入門コース',courseInvitation:'概念、短い演習、実際の問題を通して Python とアルゴリズムの基礎を学びます。',viewCourse:'コースを見る',preferencesRestored:'既定の設定に戻しました',saveFailed:'保存できません。バックアップを書き出し、空き容量と保存権限を確認してください。',signatureTitle:'Aquila',signatureLine:'CI Programming Practice'}
 }))Object.assign(I18N[lang],copy);
 let state=loadState();
 let problems=[];let problemMap=new Map();let route=parseRoute();
@@ -152,7 +160,9 @@ function normalizeState(input){
   const record=value=>value&&typeof value==='object'&&!Array.isArray(value);
   const number=(value,fallback,min=0,max=Number.MAX_SAFE_INTEGER)=>Number.isFinite(value)?clamp(value,min,max):fallback;
   for(const key of ['uiLang','statementLang'])if(['zh','ja','en'].includes(input[key]))out[key]=input[key];
-  if(['light','dark'].includes(input.theme))out.theme=input.theme;
+  if(['system','light','dark'].includes(input.theme))out.theme=input.theme;
+  if(window.AquilaSettings){const settings=window.AquilaSettings.normalize(input);out.preferences=settings.preferences;out.profile=settings.profile;}
+  if(window.PlumeAcademy)out.academy=window.PlumeAcademy.normalize(input.academy);
   if(['code','tests','notes','history','solution'].includes(input.workTab))out.workTab=input.workTab;
   if(typeof input.atcoderUser==='string'&&/^[A-Za-z0-9_]{0,40}$/.test(input.atcoderUser))out.atcoderUser=input.atcoderUser;
   out.sidebarCollapsed=input.sidebarCollapsed===true;out.lastProblem=labelOK(input.lastProblem)?input.lastProblem:'';out.recentProblems=Array.isArray(input.recentProblems)?[...new Set(input.recentProblems.filter(labelOK))].slice(0,12):[];
@@ -191,8 +201,8 @@ function loadState(){
   return structuredClone(DEFAULT_STATE);
 }
 function saveState(){
-  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
-  catch(e){toast(t('storageFull'));console.warn(e)}
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));return true;}
+  catch(e){toast(t('saveFailed'));console.warn(e);return false}
 }
 function toast(msg){const el=document.getElementById('toast');if(!el)return;el.textContent=msg;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2600)}
 const NAV_KEY='ciPracticeNavigation.v1';
@@ -202,18 +212,24 @@ function parseRoute(){const h=location.hash.slice(1)||'/dashboard';const [path,q
 function saveNavMeta(){try{sessionStorage.setItem(NAV_KEY,JSON.stringify(navMeta))}catch{}}
 function initNavigation(){
   try{const v=JSON.parse(sessionStorage.getItem(NAV_KEY)||'null');if(v&&Number.isInteger(v.idx)&&Number.isInteger(v.max))navMeta=v}catch{}
-  if(!location.hash){const base=location.href.split('#')[0];try{history.replaceState({ci:true,idx:0},'',base+'#/dashboard')}catch{location.hash='/dashboard'}navMeta={idx:0,max:0}}
+  if(!location.hash){const base=location.href.split('#')[0],home=homeRoute();try{history.replaceState({ci:true,idx:0},'',base+'#'+home)}catch{location.hash=home}navMeta={idx:0,max:0}}
   else if(history.state&&history.state.ci&&Number.isInteger(history.state.idx)){navMeta.idx=history.state.idx;navMeta.max=Math.max(navMeta.max,navMeta.idx)}
   else{navMeta={idx:0,max:0};try{history.replaceState({ci:true,idx:0},'',location.href)}catch{}}
   saveNavMeta();
   window.addEventListener('popstate',e=>{if(e.state&&e.state.ci&&Number.isInteger(e.state.idx)){navMeta.idx=e.state.idx;navMeta.max=Math.max(navMeta.max,navMeta.idx);saveNavMeta()}route=parseRoute();render()});
 }
-function go(path){closeCommandPalette();const hash='#'+path;if(location.hash===hash)return;if(path.startsWith('/problem/')&&route.path!==path){state.workTab='code';saveState()}const idx=navMeta.idx+1;navMeta={idx,max:idx};saveNavMeta();try{history.pushState({ci:true,idx},'',hash)}catch{location.hash=path}route=parseRoute();render()}
+function go(path){closeCommandPalette();const hash='#'+path;if(location.hash===hash)return;if(path.startsWith('/problem/')&&route.path!==path){state.workTab='code';saveState()}const idx=navMeta.idx+1;navMeta={idx,max:idx};saveNavMeta();try{history.pushState({ci:true,idx},'',hash)}catch{location.hash=path}route=parseRoute();render();window.scrollTo?.(0,0)}
 function replaceRoute(path){try{history.replaceState({ci:true,idx:navMeta.idx},'','#'+path)}catch{location.hash=path}route=parseRoute()}
 function navBack(){if(navMeta.idx>0)history.back()}
 function navForward(){if(navMeta.idx<navMeta.max)history.forward()}
 
-function applyAppearance(){document.documentElement.dataset.theme=state.theme;document.documentElement.lang=state.uiLang==='zh'?'zh-CN':state.uiLang==='ja'?'ja':'en'}
+function homeRoute(){return state.preferences.homePage==='library'?'/problems':state.preferences.homePage==='learn'?'/learn':'/dashboard'}
+function effectiveTheme(){return state.theme==='system'?(window.matchMedia?.('(prefers-color-scheme: dark)').matches?'dark':'light'):state.theme}
+function editorOptions(){return {...state.preferences,dark:effectiveTheme()==='dark'};}
+function applyAppearance(){
+  const root=document.documentElement;root.dataset.theme=effectiveTheme();root.dataset.motion=state.preferences.reduceMotion?'reduced':'normal';root.lang=state.uiLang==='zh'?'zh-CN':state.uiLang==='ja'?'ja':'en';
+  root.style?.setProperty('--statement-size',state.preferences.statementFontSize+'px');root.style?.setProperty('--editor-size',state.preferences.editorFontSize+'px');
+}
 function formalAttempts(label){return state.attempts.filter(a=>a.problemKey===label&&(a.source==='atcoder'||a.source==='manual')).sort((a,b)=>a.time-b.time)}
 function statusOf(p){
   const a=formalAttempts(p.label),atcoder=a.filter(x=>x.source==='atcoder'),verified=atcoder.find(x=>x.result==='AC'),anyAC=a.find(x=>x.result==='AC');
@@ -243,6 +259,7 @@ async function init(){
   problemMap=new Map(problems.map(p=>[p.label,p]));
   initNavigation();route=parseRoute();
   applyAppearance();render();
+  window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(state.theme==='system'){applyAppearance();render()}});
   // Metadata refresh is explicit; opening a problem never requires a network request.
   if(state.autoSync&&state.atcoderUser)setTimeout(()=>syncAtCoder(false,false),900);
   
@@ -270,6 +287,7 @@ async function refreshMetadata(userInitiated=true){
 
 function icon(name,extra=''){
   const paths={
+    feather:'<path d="M20 3C11 2 5 8 5 15c0 2 1 3 3 3 7 0 13-8 12-15ZM3 22L15 9M8 16l5-1M11 12h5"/>',
     grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
     book:'<path d="M4 4.5h6a3 3 0 0 1 2 1 3 3 0 0 1 2-1h6v15h-6a3 3 0 0 0-2 1 3 3 0 0 0-2-1H4zM12 5.5v15"/>',
     route:'<circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><path d="M6 7v5a4 4 0 0 0 4 4h4a4 4 0 0 0 4-4V5M15 8l3-3 3 3"/>',
@@ -294,10 +312,10 @@ function toggleSidebar(){state.sidebarCollapsed=!state.sidebarCollapsed;saveStat
 function reviewProblems(){return problems.filter(p=>state.stars[p.label]||statusOf(p).errors>0)}
 function shell(content,active){
   const stats=aggregateStats(),isProblem=route.path.startsWith('/problem/'),current=isProblem?problemMap.get(decodeRouteLabel(route.path.split('/').pop())):null;
-  const nav=[['dashboard','grid'],['problems','book'],['study','route'],['mock','timer'],['review','bookmark']];
+  const nav=[['dashboard','grid'],['learn','feather'],['problems','book'],['study','route'],['mock','timer'],['review','bookmark']];
   return `<div class="app-shell ${isProblem?'is-problem':''} ${state.sidebarCollapsed?'sidebar-collapsed':''}">
     <aside id="appSidebar" class="sidebar" aria-label="${t('navigation')}">
-      <button class="sidebar-brand" onclick="go('/dashboard')" aria-label="CI Practice"><span class="brand-mark">${icon('code')}</span><span class="brand-text">CI Practice<span>${t('practiceWorkspace')}</span></span></button>
+      <button class="sidebar-brand" onclick="go('/dashboard')" aria-label="Plume"><span class="brand-mark"><img src="assets/plume.svg" alt=""></span><span class="brand-text"><strong>Plume</strong><small>CI Programming Practice</small></span></button>
       <button class="sidebar-search" onclick="openCommandPalette()" title="${t('quickSearch')}" aria-label="${t('quickSearch')}">${icon('search')}<span>${t('quickSearch')}</span><kbd>${shortcutLabel()}</kbd></button>
       <div class="sidebar-section-label">${t('practiceSection')}</div>
       <nav class="sidebar-nav">${nav.map(([key,glyph])=>`<button class="nav-item ${active===key?'active':''}" ${active===key?'aria-current="page"':''} onclick="go('/${key}')" title="${t(key)}" aria-label="${t(key)}">${icon(glyph)}<span class="nav-label">${t(key)}</span>${key==='problems'?`<span class="nav-count">${problems.length}</span>`:key==='review'&&reviewProblems().length?`<span class="nav-count">${reviewProblems().length}</span>`:''}</button>`).join('')}</nav>
@@ -306,22 +324,24 @@ function shell(content,active){
     <div class="workspace"><header class="window-toolbar">
       <div class="toolbar-navigation"><button class="sidebar-toggle icon-button" onclick="toggleSidebar()" aria-controls="appSidebar" aria-expanded="${!state.sidebarCollapsed}" title="${t(state.sidebarCollapsed?'expandSidebar':'collapseSidebar')}" aria-label="${t(state.sidebarCollapsed?'expandSidebar':'collapseSidebar')}">${icon('panel')}</button><span class="toolbar-divider"></span><button class="icon-button" onclick="navBack()" title="${t('back')}" aria-label="${t('back')}" ${navMeta.idx<=0?'disabled':''}>${icon('left')}</button><button class="icon-button" onclick="navForward()" title="${t('forward')}" aria-label="${t('forward')}" ${navMeta.idx>=navMeta.max?'disabled':''}>${icon('right')}</button></div>
       <div class="toolbar-title">${current?`<button class="toolbar-breadcrumb" onclick="go('/problems')">${t('problems')}</button>${icon('right')}<span>${esc(current.label)}</span>`:`<span>${t(active)}</span>`}</div>
-      <div class="toolbar-actions">${state.mock&&!state.mock.finished?`<button class="toolbar-mock" onclick="go('/mock')">${icon('timer')}<span id="globalMockTimer">${formatTime(Math.max(0,state.mock.durationMs-(Date.now()-state.mock.startedAt)))}</span></button>`:''}<button class="global-search-trigger icon-button" onclick="openCommandPalette()" title="${t('quickSearch')}" aria-label="${t('quickSearch')}">${icon('search')}</button><select class="language-select" aria-label="${t('uiLanguage')}" onchange="setUiLang(this.value)"><option value="zh" ${state.uiLang==='zh'?'selected':''}>中文</option><option value="ja" ${state.uiLang==='ja'?'selected':''}>日本語</option><option value="en" ${state.uiLang==='en'?'selected':''}>English</option></select><button class="icon-button" onclick="toggleTheme()" title="${t('theme')}" aria-label="${t('theme')}">${icon(state.theme==='dark'?'sun':'moon')}</button></div>
+      <div class="toolbar-actions">${state.mock&&!state.mock.finished?`<button class="toolbar-mock" onclick="go('/mock')">${icon('timer')}<span id="globalMockTimer">${formatTime(Math.max(0,state.mock.durationMs-(Date.now()-state.mock.startedAt)))}</span></button>`:''}<button class="global-search-trigger icon-button" onclick="openCommandPalette()" title="${t('quickSearch')}" aria-label="${t('quickSearch')}">${icon('search')}</button><select class="language-select" aria-label="${t('uiLanguage')}" onchange="setUiLang(this.value)"><option value="zh" ${state.uiLang==='zh'?'selected':''}>中文</option><option value="ja" ${state.uiLang==='ja'?'selected':''}>日本語</option><option value="en" ${state.uiLang==='en'?'selected':''}>English</option></select><button class="icon-button" onclick="toggleTheme()" title="${t('theme')}" aria-label="${t('theme')}">${icon(effectiveTheme()==='dark'?'sun':'moon')}</button></div>
     </header><main class="page-content ${isProblem?'problem-page':''}" id="mainContent">${content}</main></div></div>`;
 }
 function render(){clearTimeout(setProblemQuery.timer);if(!problems.length)return;const p=route.path;let html,active;
   if(p==='/dashboard'){html=renderDashboard();active='dashboard'}
   else if(p==='/problems'){html=renderProblems();active='problems'}
   else if(p.startsWith('/problem/')){html=renderProblem(decodeRouteLabel(p.split('/').pop()));active='problems'}
+  else if(p==='/learn'){html=window.PlumeAcademy.renderIndex({uiLang:state.uiLang,progress:state.academy});active='learn'}
+  else if(p.startsWith('/learn/')){html=window.PlumeAcademy.renderLesson({id:decodeRouteLabel(p.slice(7)),uiLang:state.uiLang,progress:state.academy});active='learn'}
   else if(p==='/study'){html=renderStudy();active='study'}
   else if(p==='/mock'){html=renderMock();active='mock'}
   else if(p==='/review'){html=renderReview();active='review'}
   else if(p==='/settings'){html=renderSettings();active='settings'}
   else{go('/dashboard');return}
-  codeEditorInstance?.destroy?.();codeEditorInstance=null;window.MathJax?.typesetClear?.();document.getElementById('app').innerHTML=shell(html,active);const label=p.startsWith('/problem/')?decodeRouteLabel(p.split('/').pop()):t(active||'dashboard');if(p.startsWith('/problem/')&&problemMap.has(label))rememberProblem(label);document.title=`${label} — CI Practice`;bindAfterRender();
+  window.PlumeAcademy?.destroy();codeEditorInstance?.destroy?.();codeEditorInstance=null;window.MathJax?.typesetClear?.();document.getElementById('app').innerHTML=shell(html,active);const label=p.startsWith('/problem/')?decodeRouteLabel(p.split('/').pop()):t(active||'dashboard');if(p.startsWith('/problem/')&&problemMap.has(label))rememberProblem(label);document.title=`${label} — ${PRODUCT_NAME}`;bindAfterRender();
 }
 function setUiLang(v){state.uiLang=['zh','ja','en'].includes(v)?v:'zh';saveState();applyAppearance();render()}
-function toggleTheme(){state.theme=state.theme==='dark'?'light':'dark';saveState();applyAppearance();render()}
+function toggleTheme(){state.theme=effectiveTheme()==='dark'?'light':'dark';saveState();applyAppearance();render()}
 
 function statCard(label,value,detail,cls=''){return `<div class="card stat"><div class="label">${label}</div><div class="value ${cls}">${value}</div><div class="detail">${detail}</div></div>`}
 function renderHeatmap(){const out=[];const now=new Date();for(let i=41;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);const key=localDay(d.getTime()),n=state.attempts.filter(a=>a.source!=='mock'&&localDay(a.time)===key).length;out.push(`<span class="day" data-n="${Math.min(4,n)}" title="${key} · ${n}"></span>`)}return `<div class="heatmap">${out.join('')}</div>`}
@@ -467,7 +487,7 @@ function ensureRunner(){
   return runnerReadyPromise;
 }
 function resetRunner(){runnerReadyReject?.(new Error('Runtime reset'));try{runnerWorker?.terminate()}catch{}for(const pending of runnerPending.values()){clearTimeout(pending.timer);pending.reject(new Error('Runtime reset'))}runnerPending.clear();runnerWorker=null;runnerReadyPromise=null;runnerReadyResolve=null;runnerReadyReject=null}
-function cancelPythonRuns(){runBatchGeneration++;runnerBusy=false;resetRunner()}
+function cancelPythonRuns(){window.PlumeAcademy?.cancel();runBatchGeneration++;runnerBusy=false;resetRunner()}
 async function executePython(code,input,timeoutMs=6000){resetRunner();await ensureRunner();if(!runnerWorker)throw new Error('runtime unavailable');const id=++runnerSeq;return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{runnerPending.delete(id);resetRunner();reject(Object.assign(new Error('TLE'),{code:'TLE'}))},timeoutMs);runnerPending.set(id,{resolve,reject,timer});runnerWorker.postMessage({type:'run',id,code,input})})}
 function currentCode(label){const el=document.getElementById('codeEditor');if(el){state.codes[label]=el.value;saveState();return el.value}return state.codes[label]??defaultCode()}
 async function runActiveCase(label){const p=problemMap.get(label);if(!p)return;if(runnerBusy){toast(t('runtimeBusy'));return}const generation=runBatchGeneration;state.workTab='tests';saveState();render();setTimeout(()=>{if(generation===runBatchGeneration&&route.path===`/problem/${encodeURIComponent(label)}`)runCase(label,casesFor(label)[0].id)},0)}
@@ -579,9 +599,21 @@ function renderReview(){
   return `<div class="page-head"><div><h1>${t('reviewTitle')}</h1><p>${t('reviewSub')}</p></div><span class="library-total">${t('practiceCount',{count:items.length})}</span></div>${items.length?`<div class="review-list">${items.map(p=>{const status=statusOf(p);return `<button class="review-row" onclick="go('/problem/${encodeURIComponent(p.label)}')"><span class="review-marker ${status.solved?'solved':''}">${icon(status.solved?'check':'bookmark')}</span><span class="review-copy"><span class="review-heading"><strong>${esc(p.label)}</strong><span>${esc(titleOf(p))}</span></span><span class="review-excerpt">${esc(reviewExcerpt(p).slice(0,130))}${reviewExcerpt(p).length>130?'…':''}</span><span class="review-meta"><span>L${p.level}</span><span>${status.errors} ${t('errors')}</span><span>${t(status.solved?'solvedLater':'stillUnsolved')}</span></span></span>${icon('right','row-chevron')}</button>`}).join('')}</div>`:`<div class="empty-state review-empty">${icon('bookmark')}<h2>${t('reviewEmptyTitle')}</h2><p>${t('reviewEmptyBody')}</p><button class="btn" onclick="go('/problems')">${t('viewLibrary')}</button></div>`}`;
 }
 
-function saveUserAndSync(){const next=(document.getElementById('atcoderUser')?.value||'').trim();if(!/^[A-Za-z0-9_]{0,40}$/.test(next)){toast(t('invalidHandle'));return}if(next!==state.atcoderUser){invalidateAtCoderSync();retainMockAccount(state.atcoderUser);state.attempts=state.attempts.filter(a=>a.source!=='atcoder');state.syncCursor=0;state.lastSync=0}state.atcoderUser=next;state.autoSync=!!document.getElementById('autoSync')?.checked;state.dailyGoal=clamp(parseInt(document.getElementById('dailyGoalSetting')?.value||String(state.dailyGoal),10),1,50);saveState();render();if(state.atcoderUser)syncAtCoder(false,true)}
+function saveUserAndSync(){
+  const next=((document.getElementById('setting-atcoderUser')||document.getElementById('atcoderUser'))?.value||'').trim();
+  if(!/^[A-Za-z0-9_]{0,40}$/.test(next)){toast(t('invalidHandle'));return}
+  const changed=next!==state.atcoderUser,oldAccount=state.atcoderUser;
+  const patch={atcoderUser:next,autoSync:!!(document.getElementById('setting-autoSync')||document.getElementById('autoSync'))?.checked,dailyGoal:clamp(parseInt(document.getElementById('dailyGoalSetting')?.value||String(state.dailyGoal),10),1,50)};
+  if(changed){
+    const keepAccount=mock=>{if(!mock)return mock;const copy=structuredClone(mock);if(oldAccount&&!copy.atcoderUser)copy.atcoderUser=oldAccount;return copy};
+    Object.assign(patch,{attempts:state.attempts.filter(a=>a.source!=='atcoder'),syncCursor:0,lastSync:0,mock:keepAccount(state.mock),mockHistory:state.mockHistory.map(keepAccount)});
+  }
+  if(!storeSettings(patch))return;
+  if(changed)invalidateAtCoderSync();
+  accountHandleDraft=null;render();if(state.atcoderUser)syncAtCoder(false,true);
+}
 function exportData(){
-  const content=JSON.stringify({app:'CI Practice',schema:DATA_SCHEMA,exportedAt:new Date().toISOString(),state},null,2),filename=`ci-practice-backup-${localDay()}.json`;
+  const content=JSON.stringify({app:PRODUCT_NAME,schema:DATA_SCHEMA,exportedAt:new Date().toISOString(),state},null,2),filename=`plume-backup-${localDay()}.json`;
   if(window.webkit?.messageHandlers?.saveFile){window.webkit.messageHandlers.saveFile.postMessage({filename,content,mime:'application/json'});return}
   const url=URL.createObjectURL(new Blob([content],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
 }
@@ -590,23 +622,26 @@ async function importData(file){
   try{
     if(file.size>25*1024*1024)throw new Error('Backup too large');
     const payload=JSON.parse(await file.text());
-    if(payload?.schema>DATA_SCHEMA||payload?.app&&payload.app!=='CI Practice')throw new Error('Unsupported backup');
+    if(payload?.schema>DATA_SCHEMA||payload?.app&&!['CI Practice',PRODUCT_NAME].includes(payload.app))throw new Error('Unsupported backup');
     const incoming=payload.state||payload;
     if(!incoming||typeof incoming!=='object'||!Array.isArray(incoming.attempts))throw new Error('Not a practice backup');
     const next=normalizeState(incoming);
     if(!confirm(t('importConfirm')))return;
     localStorage.setItem(STORAGE_KEY,JSON.stringify(next));
-    invalidateAtCoderSync();cancelPythonRuns();state=next;clearInterval(startMockTimer.i);applyAppearance();render();toast(t('backupImported'));
+    window.CIEditor?.clearSessions?.();
+    invalidateAtCoderSync();cancelPythonRuns();accountHandleDraft=null;state=next;clearInterval(startMockTimer.i);applyAppearance();render();toast(t('backupImported'));
   }catch(error){console.warn(error);toast(t('invalidBackup'))}
 }
 function resetAll(){
   if(!confirm(t('resetConfirm')))return;
-  try{localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(LEGACY_KEY)}catch{toast(t('resetFailed'));return}
-  invalidateAtCoderSync();state=structuredClone(DEFAULT_STATE);clearInterval(startMockTimer.i);cancelPythonRuns();applyAppearance();render();toast(t('resetDone'));
+  // Remove the fallback first so a failed current-key deletion cannot revive old progress.
+  try{localStorage.removeItem(LEGACY_KEY);localStorage.removeItem(STORAGE_KEY)}catch{toast(t('resetFailed'));return}
+  window.CIEditor?.clearSessions?.();
+  invalidateAtCoderSync();accountHandleDraft=null;state=structuredClone(DEFAULT_STATE);clearInterval(startMockTimer.i);cancelPythonRuns();applyAppearance();render();toast(t('resetDone'));
 }
 
 async function syncAtCoder(full=false,userInitiated=true,forMock=false){
-  if(!state.atcoderUser){go('/settings');return}
+  if(!state.atcoderUser){go('/settings?section=account');return}
   const owner=state,account=state.atcoderUser,generation=atcoderSyncGeneration;
   const current=()=>state===owner&&state.atcoderUser===account&&atcoderSyncGeneration===generation;
   if(atcoderSyncFlight&&atcoderSyncFlight.owner===owner&&atcoderSyncFlight.account===account&&atcoderSyncFlight.generation===generation){
@@ -678,20 +713,17 @@ function bindAfterRender(){
   if(route.path.startsWith('/problem/')){
     const label=decodeRouteLabel(route.path.split('/').pop()),code=document.getElementById('codeEditor'),note=document.getElementById('problemNote');
     code?.addEventListener('input',()=>{state.codes[label]=code.value;saveState()});
-    code?.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();runActiveCase(label)}if(e.key==='Tab'){e.preventDefault();const s=code.selectionStart,en=code.selectionEnd;code.setRangeText('    ',s,en,'end');state.codes[label]=code.value;saveState()}});
-    if(code&&window.CIEditor){try{codeEditorInstance=window.CIEditor.mount(code,{onChange:value=>{state.codes[label]=value;saveState()},onRun:()=>runActiveCase(label),problemKey:label,dark:state.theme==='dark'})}catch(error){code.hidden=false;console.warn('Editor initialization:',error)}}
+    code?.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();runActiveCase(label)}if(e.key==='Tab'){e.preventDefault();const s=code.selectionStart,en=code.selectionEnd;code.setRangeText(' '.repeat(state.preferences.tabSize),s,en,'end');state.codes[label]=code.value;saveState()}});
+    if(code&&window.CIEditor){try{codeEditorInstance=window.CIEditor.mount(code,{onChange:value=>{state.codes[label]=value;saveState()},onRun:()=>runActiveCase(label),problemKey:label,...editorOptions()})}catch(error){code.hidden=false;console.warn('Editor initialization:',error)}}
     note?.addEventListener('input',()=>{state.notes[label]=note.value;saveState()});
     document.querySelectorAll('[data-role="input"],[data-role="expected"],[data-role="hasExpected"]').forEach(el=>el.addEventListener('input',()=>persistCaseEditors(label)));
     bindProblemSplitter();
     typesetStatement();
   }
   if(state.mock&&!state.mock.finished)startMockTimer();
-  if(route.path==='/settings'){
-    document.getElementById('themeSetting')?.addEventListener('change',e=>{state.theme=e.target.value;saveState();applyAppearance();render()});
-    document.getElementById('uiLangSetting')?.addEventListener('change',e=>setUiLang(e.target.value));
-    document.getElementById('statementLangSetting')?.addEventListener('change',e=>{state.statementLang=e.target.value;saveState();render()});
-    document.getElementById('autoSync')?.addEventListener('change',e=>{state.autoSync=e.target.checked;saveState()});
-    document.getElementById('dailyGoalSetting')?.addEventListener('change',e=>{state.dailyGoal=clamp(parseInt(e.target.value||'5',10),1,50);saveState()});
+  if(route.path==='/settings')bindSettings();
+  if(route.path==='/learn'||route.path.startsWith('/learn/')){
+    const owner=state;window.PlumeAcademy.bind({id:decodeRouteLabel(route.path.slice(7)),uiLang:state.uiLang,progress:state.academy,editorOptions:editorOptions(),navigate:go,rerender:render,toast,executePython,save:()=>state===owner&&saveState(),acquireRun:()=>{if(runnerBusy)return false;runnerBusy=true;return true},releaseRun:()=>{runnerBusy=false},stopRun:()=>{runBatchGeneration++;resetRunner()}});
   }
 }
 
@@ -722,9 +754,10 @@ function renderCommandResults(){
 function closeCommandPalette(){const dialog=document.getElementById('commandPalette');commandState.open=false;if(dialog?.open)dialog.close()}
 function chooseCommand(label){if(!problemMap.has(label))return;closeCommandPalette();go('/problem/'+encodeURIComponent(label))}
 
-window.addEventListener('hashchange',()=>{const next=parseRoute();if(next.path!==route.path||String(next.params)!==String(route.params)){route=next;render()}});
+window.addEventListener('hashchange',()=>{const next=parseRoute();if(next.path!==route.path||String(next.params)!==String(route.params)){route=next;render();window.scrollTo?.(0,0)}});
 
 window.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key===','){e.preventDefault();go('/settings');return}
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();commandState.open?closeCommandPalette():openCommandPalette();return}
   const tag=(document.activeElement?.tagName||'').toLowerCase();if(['input','textarea','select'].includes(tag))return;
   if(e.altKey&&e.key==='ArrowLeft'){e.preventDefault();navBack()}
@@ -756,28 +789,71 @@ function renderDashboard(){
   const stats=aggregateStats(),next=continuationProblem(),today=solvedToday(),goal=state.dailyGoal,progress=Math.min(100,today/goal*100),resume=next&&state.lastProblem===next.label;
   const recommended=studyRecommendations().filter(p=>p.label!==next?.label).slice(0,4);
   const date=new Intl.DateTimeFormat(langLocale(),{month:'long',day:'numeric',weekday:'long'}).format(new Date());
-  return `<div class="home-header"><div><div class="eyebrow">${t('homeSubtitle')}</div><h1>${t('homeTitle')}</h1></div><div class="home-date">${icon('calendar')}<span>${date}</span></div></div>
+  return `<div class="home-header"><div><div class="eyebrow home-owner">${state.profile.displayName?esc(state.profile.displayName)+' <span>·</span> ':''}${t('practiceWorkspace')}</div><h1>${t('homeTitle')}</h1></div><div class="home-date">${icon('calendar')}<span>${date}</span></div></div>
   <div class="home-grid"><div class="home-primary"><section class="focus-card"><div class="focus-heading"><span>${icon(resume?'play':'book')}${t(resume?'lastOpened':'nextUp')}</span><span class="focus-language">Python 3</span></div>${next?`<div class="continue-problem"><span class="continue-label">${esc(next.label)}</span><h2 class="continue-title">${esc(titleOf(next))}</h2><div class="continue-meta"><span>L${next.level} · ${LEVEL_NAMES[state.uiLang][next.level]}</span>${difficultyOf(next)!==null?`<span>Difficulty ${difficultyOf(next)}</span>`:''}</div></div><div class="focus-actions"><button class="btn primary" onclick="go('/problem/${encodeURIComponent(next.label)}')">${icon('play')}${t(resume?'continuePractice':'startPractice')}</button><button class="btn ghost" onclick="randomUnsolved()">${icon('shuffle')}${t('randomUnsolved')}</button></div>`:''}</section>
   <section class="recommendations-panel"><div class="section-heading"><h2>${t('recommendedForYou')}</h2><button class="text-button" onclick="go('/problems')">${t('viewLibrary')}${icon('right')}</button></div><div class="recommendation-list">${recommended.length?recommended.map(recommendationRow).join(''):`<div class="empty-state"><h3>${t('allCompletedTitle')}</h3><p>${t('allCompletedBody')}</p><button class="btn" onclick="go('/review')">${t('review')}</button></div>`}</div></section></div>
-  <div class="home-secondary"><section class="goal-card"><div class="section-heading"><h2>${t('dailyTarget')}</h2><button class="icon-button" title="${t('editGoal')}" aria-label="${t('editGoal')}" onclick="go('/settings')">${icon('target')}</button></div><div class="goal-value">${today}<span>/ ${goal}</span></div><div class="goal-progress progress"><i style="width:${progress}%"></i></div><div class="goal-caption">${t('goalProgress',{done:today,goal})}</div></section><section class="learning-path"><div class="section-heading"><h2>${t('study')}</h2><button class="icon-button" title="${t('study')}" aria-label="${t('study')}" onclick="go('/study')">${icon('right')}</button></div>${renderLearningPath()}</section></div></div>
+  <div class="home-secondary"><section class="goal-card"><div class="section-heading"><h2>${t('dailyTarget')}</h2><button class="icon-button" title="${t('editGoal')}" aria-label="${t('editGoal')}" onclick="go('/settings?section=practice')">${icon('target')}</button></div><div class="goal-value">${today}<span>/ ${goal}</span></div><div class="goal-progress progress"><i style="width:${progress}%"></i></div><div class="goal-caption">${t('goalProgress',{done:today,goal})}</div></section><section class="learning-path"><div class="section-heading"><h2>${t('study')}</h2><button class="icon-button" title="${t('study')}" aria-label="${t('study')}" onclick="go('/study')">${icon('right')}</button></div>${renderLearningPath()}</section></div></div>
   <section class="progress-strip" aria-label="${t('yourProgress')}">${[[t('solved'),`${stats.solved}<small> / ${problems.length}</small>`],[t('verified'),stats.verified],[t('attempted'),stats.attempted],[t('streak'),`${currentStreak()}<small> ${t('days')}</small>`]].map(([label,value])=>`<div class="progress-metric"><span>${label}</span><strong>${value}</strong></div>`).join('')}</section>
-  <section class="activity-panel"><div class="section-heading"><h2>${t('recent')}</h2><span>${t('last42')}</span></div><div class="activity-content"><div class="activity-heatmap">${renderHeatmap()}</div><div class="recent">${renderRecent()}</div></div></section>`;
+  ${renderCourseInvitation()}<section class="activity-panel"><div class="section-heading"><h2>${t('recent')}</h2><span>${t('last42')}</span></div><div class="activity-content"><div class="activity-heatmap">${renderHeatmap()}</div><div class="recent">${renderRecent()}</div></div></section>`;
 }
 
+let accountHandleDraft=null;
 function renderSettings(){
-  const points=problems.filter(p=>pointOf(p)!==null).length,difficulty=problems.filter(p=>difficultyOf(p)!==null).length;
-  const preference=(id,label,control)=>`<div class="settings-row"><label for="${id}">${t(label)}</label><div class="settings-control">${control}</div></div>`;
-  const languages=id=>`<select id="${id}">${[['zh','中文'],['ja','日本語'],['en','English']].map(([value,title])=>`<option value="${value}" ${state[id==='uiLangSetting'?'uiLang':'statementLang']===value?'selected':''}>${title}</option>`).join('')}</select>`;
-  return `<div class="settings-intro"><p>${t('settingsIntro')}</p></div><div class="settings">
-    <section class="settings-section"><div class="settings-section-head"><h2>${t('interfaceSection')}</h2></div>
-      ${preference('themeSetting','theme',`<select id="themeSetting"><option value="light" ${state.theme==='light'?'selected':''}>${t('light')}</option><option value="dark" ${state.theme==='dark'?'selected':''}>${t('dark')}</option></select>`)}
-      ${preference('uiLangSetting','uiLanguage',languages('uiLangSetting'))}${preference('statementLangSetting','statementLanguage',languages('statementLangSetting'))}
-      ${preference('dailyGoalSetting','dailyGoalSetting',`<input id="dailyGoalSetting" type="number" min="1" max="50" value="${state.dailyGoal}">`)}
-    </section>
-    <section class="settings-section"><div class="settings-section-head"><h2>${t('atcoderSync')}</h2><p>${t('atcoderSyncBody')}</p></div><div class="settings-row"><label for="atcoderUser">${t('handle')}</label><div class="settings-control settings-control-action"><input id="atcoderUser" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(state.atcoderUser)}" placeholder="AtCoder ID"><button class="btn" onclick="saveUserAndSync()">${icon('refresh')}${t('saveSync')}</button></div></div><div class="settings-row"><label for="autoSync">${t('autoSync')}</label><div class="settings-control"><label class="switch-line"><input id="autoSync" type="checkbox" ${state.autoSync?'checked':''}><span>${t('lastSync')}: ${state.lastSync?fmtDate(state.lastSync):t('never')}</span></label></div></div></section>
-    <section class="settings-section"><div class="settings-section-head"><h2>${t('librarySection')}</h2><p>${t('localLibraryNote')}</p></div><div class="library-grid">${[['中文',localStatementCount('zh')],['日本語',localStatementCount('ja')],['English',localStatementCount('en')],[t('coverage'),problems.filter(p=>Object.keys(metaOf(p)).length>0).length]].map(([label,count])=>`<div><span>${label}</span><strong>${count}<small> / ${problems.length}</small></strong></div>`).join('')}</div><div class="settings-note"><span>${t('metadataCoverageNote')}<br>${t('points')}: ${points}/${problems.length} · Difficulty: ${difficulty}/${problems.length}</span><button class="btn compact" onclick="refreshMetadata(true)">${icon('refresh')}${t('refreshMetadata')}</button></div></section>
-    <section class="settings-section"><div class="settings-section-head"><h2>${t('backupSection')}</h2><p>${t('backupDescription')}</p></div><div class="settings-row"><label>${t('backup')}</label><div class="settings-control settings-buttons"><button class="btn" onclick="exportData()">${icon('download')}${t('export')}</button><button class="btn" onclick="document.getElementById('importFile').click()">${icon('upload')}${t('import')}</button><input id="importFile" type="file" accept="application/json,.json" hidden onchange="importData(this.files[0]);this.value=''"></div></div><div class="settings-row"><label>${t('mockHistory')}</label><div class="settings-control">${mockHistoryButton()}</div></div><div class="settings-row"><label>${t('restart')}</label><div class="settings-control"><button class="btn danger" onclick="resetAll()">${t('resetAll')}</button></div></div></section>
-  </div>`;
+  let storageBytes=0;try{storageBytes=new Blob([JSON.stringify(state)]).size}catch{}
+  return window.AquilaSettings.render({section:route.params.get('section'),article:route.params.get('article'),productName:PRODUCT_NAME,uiLang:state.uiLang,state:accountHandleDraft===null?state:{...state,atcoderUser:accountHandleDraft},counts:{total:problems.length,statements:['zh','ja','en'].reduce((n,lang)=>n+localStatementCount(lang),0),samples:Object.values(window.CI_STATEMENTS||{}).reduce((n,p)=>n+(p.ja?.samples?.length||0),0)||630,metadata:problems.filter(p=>Object.keys(metaOf(p)).length>0).length},environment:{storageBytes,lastSync:state.lastSync,isNative:!!window.webkit?.messageHandlers?.saveFile}});
+}
+function storeSettings(patch){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify({...state,...patch}));Object.assign(state,patch);return true}catch(error){toast(t('saveFailed'));console.warn(error);return false}
+}
+function updateSetting(path,value,renderView=true){
+  const top=['theme','uiLang','statementLang','dailyGoal','autoSync'];
+  const prefs=['homePage','editorFontSize','tabSize','lineWrapping','statementFontSize','reduceMotion'];
+  const candidate={...state,preferences:{...state.preferences},profile:{...state.profile}};
+  if(top.includes(path))candidate[path]=value;
+  else if(path==='profile.displayName')candidate.profile.displayName=value;
+  else if(path.startsWith('preferences.')&&prefs.includes(path.slice(12)))candidate.preferences[path.slice(12)]=value;
+  else return false;
+  const normalized=window.AquilaSettings.normalize(candidate);
+  const patch={theme:normalized.theme,uiLang:normalized.uiLang,statementLang:normalized.statementLang,dailyGoal:normalized.dailyGoal,autoSync:normalized.autoSync,preferences:normalized.preferences,profile:normalized.profile};
+  if(!storeSettings(patch))return false;
+  applyAppearance();if(renderView)render();return true;
+}
+function restorePreferences(){
+  const defaults=window.AquilaSettings.defaults;
+  if(!storeSettings({theme:defaults.theme,uiLang:defaults.uiLang,statementLang:defaults.statementLang,dailyGoal:defaults.dailyGoal,preferences:{...defaults.preferences}}))return;
+  applyAppearance();render();toast(t('preferencesRestored'));
+}
+function bindSettings(){
+  document.getElementById('setting-atcoderUser')?.addEventListener('input',event=>{accountHandleDraft=event.target.value});
+  document.querySelectorAll('[data-setting]').forEach(el=>el.addEventListener('input',()=>{
+    if(el.type==='number'){
+      const value=Number(el.value);if(el.value!==''&&Number.isInteger(value)&&value>=Number(el.min)&&value<=Number(el.max))updateSetting(el.dataset.setting,value,false);
+    }else if(el.dataset.setting==='profile.displayName')updateSetting(el.dataset.setting,el.value,false);
+  }));
+  document.querySelectorAll('[data-settings-section]').forEach(el=>el.addEventListener('click',()=>go('/settings?section='+el.dataset.settingsSection)));
+  document.querySelectorAll('[data-help-article]').forEach(el=>el.addEventListener('click',()=>go('/settings?section=guide&article='+el.dataset.helpArticle)));
+  document.querySelectorAll('[data-settings-route]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.settingsRoute)));
+  document.querySelectorAll('[data-setting]').forEach(el=>el.addEventListener('change',()=>{
+    const path=el.dataset.setting;if(path==='atcoderUser')return;
+    const preserveField=el.type==='number'||path==='profile.displayName',focused=el.id;
+    const saved=updateSetting(path,el.type==='checkbox'?el.checked:el.type==='number'?Number(el.value):el.value,!preserveField);
+    if(preserveField&&saved){el.value=path==='profile.displayName'?state.profile.displayName:path.startsWith('preferences.')?state.preferences[path.slice(12)]:state[path];}
+    else if(!preserveField)document.getElementById(focused)?.focus();
+  }));
+  const actions={sync:saveUserAndSync,export:exportData,import:()=>document.getElementById('settingsImportFile').click(),reset:resetAll,'refresh-metadata':()=>refreshMetadata(true),'restore-preferences':restorePreferences,signature:openSignature};
+  document.querySelectorAll('[data-settings-action]').forEach(el=>el.addEventListener('click',()=>actions[el.dataset.settingsAction]?.()));
+  document.getElementById('settingsImportFile')?.addEventListener('change',event=>{importData(event.target.files[0]);event.target.value=''});
+}
+function renderCourseInvitation(){
+  if(!window.PlumeAcademy||!window.AQUILA_ACADEMY?.lessons?.length)return '';
+  const course=window.PlumeAcademy,next=course.nextLesson(state.academy),done=course.progressCount(state.academy),total=window.AQUILA_ACADEMY.lessons.length;
+  return `<section class="home-course"><span class="home-course-mark">${icon('feather')}</span><div><span class="eyebrow">${t('learn')} · ${done}/${total}</span><h2>${done===total?esc({zh:'基础课程已完成',ja:'基礎コースを完了',en:'Foundations complete'}[state.uiLang]):esc(next.content[state.uiLang].title)}</h2><p>${t('courseInvitation')}</p></div><button class="text-button" onclick="go('/learn')">${t('viewCourse')}${icon('right')}</button></section>`;
+}
+function openSignature(){
+  const dialog=document.getElementById('signatureDialog');if(!dialog)return;
+  dialog.innerHTML=`<button class="icon-button signature-close" aria-label="${t('searchClose')}" onclick="document.getElementById('signatureDialog').close()">${icon('close')}</button><svg class="signature-sky" viewBox="0 0 340 210" aria-hidden="true"><path d="M38 123L105 72L163 93L194 120L288 55M105 72L137 35M163 93L153 174L265 153"/><g>${[[38,123,2],[105,72,3],[163,93,4.5],[194,120,2.5],[288,55,2],[137,35,2],[153,174,2],[265,153,2]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g><text x="174" y="83">Altair</text></svg><div class="signature-copy"><h2>${t('signatureTitle')}</h2><p>Plume · ${t('signatureLine')}</p><small>2026</small></div>`;
+  dialog.setAttribute('aria-label','Aquila');dialog.showModal();
+  if(!dialog.dataset.bound){dialog.dataset.bound='1';dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close()}});}
 }
 
 init();

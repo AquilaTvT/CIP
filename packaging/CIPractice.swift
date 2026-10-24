@@ -3,6 +3,12 @@ import WebKit
 import Network
 import Darwin
 
+enum Product {
+    static let name = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "Plume"
+    static let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.1.0"
+    static let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
+}
+
 // WebKit persists localStorage asynchronously in another process. Confirm each
 // application-state mutation in our own atomic file before returning to JS.
 final class DurableStorage {
@@ -109,7 +115,8 @@ final class LocalServer {
             respond(connection, type: "text/html; charset=utf-8", body: Data("<!doctype html><title>Storage test</title>".utf8), head: head); return
         }
         if path == "/__health" {
-            respond(connection, body: Data("{\"ok\":true,\"app\":\"CI Practice\",\"build\":\"ci-practice-offline-20261024\"}".utf8), head: head); return
+            let payload: [String: Any] = ["ok": true, "app": Product.name, "version": Product.version, "build": Product.build]
+            respond(connection, body: (try? JSONSerialization.data(withJSONObject: payload)) ?? Data(), head: head); return
         }
         if path == "/__proxy" {
             guard let value = components.queryItems?.first(where: { $0.name == "url" })?.value,
@@ -122,7 +129,7 @@ final class LocalServer {
         }
         if path == "/" { path = "/index.html" }
         let pieces = path.split(separator: "/").map(String.init)
-        let publicFiles = ["index.html", "app.js", "styles.css", "pyworker.js", "manifest.webmanifest", "CIPractice.icns"]
+        let publicFiles = ["index.html", "app.js", "settings.js", "academy.js", "styles.css", "pyworker.js", "manifest.webmanifest", "CIPractice.icns"]
         guard !pieces.isEmpty, !pieces.contains(where: { $0.hasPrefix(".") }),
               (publicFiles.contains(pieces.joined(separator: "/")) || ["data", "vendor", "assets"].contains(pieces[0])) else { respond(connection, status: 404, body: Data()); return }
         guard !path.contains("\0"), !path.contains("\\") else { respond(connection, status: 404, body: Data()); return }
@@ -153,24 +160,28 @@ final class MetadataProxy: NSObject, URLSessionTaskDelegate {
     }
 }
 
-final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
+final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler, NSMenuItemValidation {
     var window: NSWindow!
     var webView: WKWebView!
     var server: LocalServer!
     let runtimeTest = CommandLine.arguments.contains("--runtime-test") || CommandLine.arguments.contains("--network-test")
     let networkTest = CommandLine.arguments.contains("--network-test")
     let lifecycleTest = CommandLine.arguments.contains("--lifecycle-test")
+    let menuTest = CommandLine.arguments.contains("--menu-test")
     let storageWrite = CommandLine.arguments.contains("--storage-test-write")
     let storageRead = CommandLine.arguments.contains("--storage-test-read")
     let storageClear = CommandLine.arguments.contains("--storage-test-clear")
     let storageEmpty = CommandLine.arguments.contains("--storage-test-empty")
     let storageMigrate = CommandLine.arguments.contains("--storage-test-migrate")
     var storageTest: Bool { storageWrite || storageRead || storageClear || storageEmpty || storageMigrate }
-    var testMode: Bool { runtimeTest || storageTest || lifecycleTest }
+    var testMode: Bool { runtimeTest || storageTest || lifecycleTest || menuTest }
     var didRunTest = false
     var finishedTest = false
     var testExitCode: Int32 = 0
     var processRecoveries = 0
+    var lastTestProgress: String = "Native application starting"
+    var lastTestProgressAt = ProcessInfo.processInfo.systemUptime
+    var progressWatchdog: Timer?
     var activationObserver: NSObjectProtocol?
     let activationName = Notification.Name("org.cipractice.activate")
     var durableStorage: DurableStorage?
@@ -189,12 +200,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
             else { self.showWindow() }
         }
         if testMode {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 90) { [weak self] in
-                self?.finishTest(["ok": false, "error": "Native integration test exceeded 90 seconds"])
+            // The course suite intentionally initializes a fresh WASM runtime for
+            // every fixture. Keep a bounded total budget and fail a genuine stall
+            // much earlier using native (unthrottled) progress timestamps.
+            let testTimeout = runtimeTest ? 900.0 : 90.0
+            DispatchQueue.main.asyncAfter(deadline: .now() + testTimeout) { [weak self] in
+                self?.finishTest(["ok": false, "error": "Native integration test exceeded \(Int(testTimeout)) seconds", "lastProgress": self?.lastTestProgress ?? ""])
+            }
+            if runtimeTest {
+                progressWatchdog = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
+                    guard let self = self, !self.finishedTest else { return }
+                    if ProcessInfo.processInfo.systemUptime - self.lastTestProgressAt > 75 {
+                        self.finishTest(["ok": false, "error": "Native runtime made no progress for 75 seconds", "lastProgress": self.lastTestProgress])
+                    }
+                }
             }
         }
         createMenu()
         let configuration = WKWebViewConfiguration()
+        // Background integration views must keep executing after page loading ends.
+        // Normal application windows retain WebKit's default scheduling policy.
+        if testMode, #available(macOS 14.0, *) {
+            configuration.preferences.inactiveSchedulingPolicy = .none
+        }
         // Integration tests must never read or mutate the user's practice records.
         configuration.websiteDataStore = testMode ? .nonPersistent() : .default()
         if !testMode || storageTest {
@@ -227,8 +255,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
             }
         }
         configuration.userContentController.addUserScript(WKUserScript(source: "window.__ciNetworkTest = \(networkTest ? "true" : "false");", injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        let productPayload = (try? JSONSerialization.data(withJSONObject: ["name": Product.name, "version": Product.version])) ?? Data("{}".utf8)
+        configuration.userContentController.addUserScript(WKUserScript(source: "window.__ciNativeApp = \(String(decoding: productPayload, as: UTF8.self));", injectionTime: .atDocumentStart, forMainFrameOnly: true))
         configuration.userContentController.add(self, name: "saveFile")
         configuration.userContentController.add(self, name: "runtimeTest")
+        if runtimeTest { configuration.userContentController.add(self, name: "runtimeProgress") }
         configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
         webView = WKWebView(frame: .zero, configuration: configuration)
         let savedZoom = UserDefaults.standard.double(forKey: "CIPracticePageZoom")
@@ -237,12 +268,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
         webView.uiDelegate = self
         if #available(macOS 13.3, *) { webView.isInspectable = runtimeTest }
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1320, height: 860), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
-        window.title = "CI Practice"
+        window.title = Product.name
         window.minSize = NSSize(width: 860, height: 600)
         window.contentView = webView
         window.center()
         window.setFrameAutosaveName("CI Practice Main Window")
-        showWindow()
+        if !testMode { showWindow() }
+        else if runtimeTest, #unavailable(macOS 14.0) { window.orderFront(nil) }
         guard let resource = Bundle.main.resourceURL else { fatalError("Missing application resources") }
         server = LocalServer(root: resource.appendingPathComponent("site"), testPage: testMode)
         server.start(ready: {
@@ -251,8 +283,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
         }, failed: { message in
             if self.testMode { self.finishTest(["ok": false, "error": "Local server failed: " + message]); return }
             let alert = NSAlert()
-            alert.messageText = "CI Practice could not start"
-            alert.informativeText = "Port 18765 is unavailable. Close any previous CI Practice instance and open the app again.\n\n\(message)"
+            alert.messageText = "\(Product.name) could not start"
+            alert.informativeText = "Port 18765 is unavailable. Close any previous \(Product.name) or CI Practice instance and open the app again.\n\n\(message)"
             alert.runModal()
             NSApp.terminate(nil)
         })
@@ -261,15 +293,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
     func createMenu() {
         let main = NSMenu()
         let appItem = NSMenuItem(); main.addItem(appItem)
-        let appMenu = NSMenu(); appItem.submenu = appMenu
-        appMenu.addItem(withTitle: "About CI Practice", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+        let appMenu = NSMenu(title: Product.name); appItem.submenu = appMenu
+        let about = appMenu.addItem(withTitle: "About \(Product.name)", action: #selector(showAbout), keyEquivalent: ""); about.target = self
         appMenu.addItem(.separator())
-        appMenu.addItem(withTitle: "Hide CI Practice", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
+        let settings = appMenu.addItem(withTitle: "Settings…", action: #selector(openSettings), keyEquivalent: ","); settings.target = self
+        appMenu.addItem(.separator())
+        let services = NSMenu(title: "Services")
+        let servicesItem = appMenu.addItem(withTitle: "Services", action: nil, keyEquivalent: "")
+        servicesItem.submenu = services; NSApp.servicesMenu = services
+        appMenu.addItem(.separator())
+        appMenu.addItem(withTitle: "Hide \(Product.name)", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
         let hideOthers = appMenu.addItem(withTitle: "Hide Others", action: #selector(NSApplication.hideOtherApplications(_:)), keyEquivalent: "h")
         hideOthers.keyEquivalentModifierMask = [.command, .option]
         appMenu.addItem(withTitle: "Show All", action: #selector(NSApplication.unhideAllApplications(_:)), keyEquivalent: "")
         appMenu.addItem(.separator())
-        appMenu.addItem(withTitle: "Quit CI Practice", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appMenu.addItem(withTitle: "Quit \(Product.name)", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         let editItem = NSMenuItem(); main.addItem(editItem)
         let editMenu = NSMenu(title: "Edit"); editItem.submenu = editMenu
         for (title, action, key) in [("Undo", "undo:", "z"), ("Cut", "cut:", "x"), ("Copy", "copy:", "c"), ("Paste", "paste:", "v"), ("Select All", "selectAll:", "a")] {
@@ -293,10 +331,47 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
         windowMenu.addItem(withTitle: "Minimize", action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
         windowMenu.addItem(withTitle: "Zoom", action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
         NSApp.windowsMenu = windowMenu
+        let helpItem = NSMenuItem(); main.addItem(helpItem)
+        let helpMenu = NSMenu(title: "Help"); helpItem.submenu = helpMenu
+        let guide = helpMenu.addItem(withTitle: "\(Product.name) Guide", action: #selector(openGuide), keyEquivalent: "?"); guide.target = self
+        NSApp.helpMenu = helpMenu
         NSApp.mainMenu = main
     }
+    @objc func showAbout() {
+        NSApp.orderFrontStandardAboutPanel(options: [
+            .applicationName: Product.name,
+            .applicationVersion: Product.version,
+            .version: Product.build,
+            .credits: NSAttributedString(string: "Python and algorithms for CI preparation.\nCreated by Aquila.\n\nAtCoder problem statements retain their original attribution.\nThird-party notices are available in Settings.")
+        ])
+    }
+    func openLocalRoute(_ route: String, completion: ((Error?) -> Void)? = nil) {
+        guard let webView = webView, let server = server,
+              let data = try? JSONSerialization.data(withJSONObject: route, options: [.fragmentsAllowed]),
+              let literal = String(data: data, encoding: .utf8) else { completion?(CocoaError(.fileReadUnknown)); return }
+        showWindow()
+        if let url = webView.url, url.scheme == "http", url.host == "127.0.0.1", url.port == Int(server.port) {
+            // Hash navigation keeps editor buffers and the existing WebKit view alive.
+            webView.evaluateJavaScript("location.hash = " + literal) { _, error in completion?(error) }
+        } else if let url = URL(string: "http://127.0.0.1:\(server.port)/" + route) {
+            webView.load(URLRequest(url: url)); completion?(nil)
+        }
+    }
+    @objc func openSettings() { openLocalRoute("#/settings") }
+    @objc func openGuide() { openLocalRoute("#/settings?section=guide") }
+    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        switch menuItem.action {
+        case #selector(goBack): return webView?.canGoBack == true
+        case #selector(goForward): return webView?.canGoForward == true
+        case #selector(zoomIn): return (webView?.pageZoom ?? 1) < 1.75
+        case #selector(zoomOut): return (webView?.pageZoom ?? 1) > 0.75
+        case #selector(resetZoom): return webView?.pageZoom != 1
+        case #selector(openSettings), #selector(openGuide), #selector(reloadPage): return webView != nil && server != nil
+        default: return true
+        }
+    }
     func showWindow() {
-        guard let window = window else { return }
+        guard !testMode, let window = window else { return }
         window.deminiaturize(nil)
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
@@ -314,6 +389,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
     @objc func reloadPage() { webView.reload() }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
     func applicationWillTerminate(_ notification: Notification) {
+        progressWatchdog?.invalidate()
         server?.listener?.cancel()
         if let observer = activationObserver { DistributedNotificationCenter.default().removeObserver(observer) }
     }
@@ -323,12 +399,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
         if processRecoveries <= 2 { webView.reload() }
         else {
             let alert = NSAlert(); alert.messageText = "The workspace needs to reload"
-            alert.informativeText = "Your saved practice records are kept on this Mac. Close and reopen CI Practice to continue."
+            alert.informativeText = "Your saved practice records are kept on this Mac. Close and reopen \(Product.name) to continue."
             alert.beginSheetModal(for: window)
         }
     }
     func finishTest(_ result: [String: Any]) {
         guard !finishedTest else { return }; finishedTest = true
+        progressWatchdog?.invalidate()
         testExitCode = result["ok"] as? Bool == true ? 0 : 1
         let data = (try? JSONSerialization.data(withJSONObject: result, options: [.sortedKeys])) ?? Data("{}".utf8)
         print(String(decoding: data, as: UTF8.self)); fflush(stdout)
@@ -357,11 +434,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
         panel.beginSheetModal(for: window) { response in completionHandler(response == .OK ? panel.urls : nil) }
     }
     func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
-        let alert = NSAlert(); alert.messageText = "CI Practice"; alert.informativeText = message
+        let alert = NSAlert(); alert.messageText = Product.name; alert.informativeText = message
         alert.beginSheetModal(for: window) { _ in completionHandler() }
     }
     func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
-        let alert = NSAlert(); alert.messageText = "CI Practice"; alert.informativeText = message
+        let alert = NSAlert(); alert.messageText = Product.name; alert.informativeText = message
         alert.addButton(withTitle: "OK"); alert.addButton(withTitle: "Cancel")
         alert.beginSheetModal(for: window) { response in completionHandler(response == .alertFirstButtonReturn) }
     }
@@ -387,6 +464,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
         }
     }
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        if message.name == "runtimeProgress", runtimeTest, message.frameInfo.isMainFrame,
+           let text = message.body as? String, text.utf8.count <= 4096 {
+            lastTestProgress = text
+            lastTestProgressAt = ProcessInfo.processInfo.systemUptime
+            print("RUNTIME_PROGRESS " + text); fflush(stdout)
+            return
+        }
         if message.name == "runtimeTest", runtimeTest {
             guard let text = message.body as? String, let data = text.data(using: .utf8),
                   let result = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else {
@@ -416,6 +500,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
                 alert.beginSheetModal(for: self.window) { _ in NSApp.terminate(nil) }
             }
         }
+        if menuTest {
+            guard !didRunTest else { return }; didRunTest = true
+            guard let appMenu = NSApp.mainMenu?.items.first?.submenu,
+                  let settingsIndex = appMenu.items.firstIndex(where: { $0.action == #selector(openSettings) }),
+                  appMenu.items[settingsIndex].keyEquivalent == ",",
+                  appMenu.items[settingsIndex].keyEquivalentModifierMask == [.command],
+                  let helpMenu = NSApp.helpMenu,
+                  let guideIndex = helpMenu.items.firstIndex(where: { $0.action == #selector(openGuide) }),
+                  Bundle.main.bundleIdentifier == "org.cipractice.desktop" else {
+                finishTest(["ok": false, "error": "Native menu shortcuts or stable bundle identity are missing"]); return
+            }
+            let existingView = webView
+            appMenu.performActionForItem(at: settingsIndex)
+            webView.evaluateJavaScript("location.hash") { value, error in
+                guard error == nil, value as? String == "#/settings" else {
+                    self.finishTest(["ok": false, "error": "Settings menu did not open the local settings page"]); return
+                }
+                helpMenu.performActionForItem(at: guideIndex)
+                webView.evaluateJavaScript("location.hash") { value, error in
+                    let ok = error == nil && value as? String == "#/settings?section=guide" && existingView === self.webView
+                    self.finishTest(["ok": ok, "checks": ["native Settings Command-comma shortcut", "Help opens local guide in existing view", "stable upgrade bundle identity"], "error": error?.localizedDescription ?? ""])
+                }
+            }
+            return
+        }
         if storageTest {
             guard !didRunTest else { return }; didRunTest = true
             let script: String
@@ -440,6 +549,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 let app = NSApplication.shared
 let delegate = AppDelegate()
 app.delegate = delegate
-app.setActivationPolicy(.regular)
+app.setActivationPolicy(delegate.testMode ? .accessory : .regular)
 app.run()
 exit(delegate.testExitCode)

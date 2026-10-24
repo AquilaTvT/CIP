@@ -14,3 +14,5 @@ ci-practice-backup-*.json
 /output/
 /research/
 /tmp/
+
+plume-backup-*.json

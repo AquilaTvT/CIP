@@ -9,7 +9,8 @@ const source=fs.readFileSync(path.join(root,'app.js'),'utf8').replace(/\ninit\(\
 function app(){
  const stored=new Map(),elements={atcoderUser:{value:'beta'},autoSync:{checked:false},dailyGoalSetting:{value:'5'}};
  const context=vm.createContext({console:{...console,warn(){}},URL,URLSearchParams,structuredClone,Map,Set,Date,Math,Number,JSON,Intl,Promise,Blob,setTimeout,clearTimeout,setInterval,clearInterval,crypto:require('node:crypto').webcrypto,document:{getElementById:k=>elements[k]||null,addEventListener(){},querySelectorAll:()=>[],activeElement:null},location:{hash:'#/dashboard',protocol:'http:',hostname:'localhost',href:'http://localhost/'},localStorage:{getItem:k=>stored.get(k)||null,setItem:(k,v)=>stored.set(k,v),removeItem:k=>stored.delete(k)},sessionStorage:{getItem:()=>null,setItem(){}},window:{CI_PROBLEMS:[{label:'ABC001A',url:'https://atcoder.jp/contests/abc001/tasks/abc001_1',problemId:'abc001_1'},{label:'ABC002A'},{label:'ABC003A'}],CI_METADATA:{ABC001A:{point:100}},addEventListener(){}},navigator:{},confirm:()=>true});
- vm.runInContext(source,context);
+ for (const file of ['settings.js','data/academy.js','academy.js']) vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context);
+  vm.runInContext(source,context);
  const run=code=>vm.runInContext(code,context);
  run(`problems=window.CI_PROBLEMS;problemMap=new Map(problems.map(p=>[p.label,p]));render=()=>{};toast=()=>{};startMockTimer=()=>{};applyAppearance=()=>{};state.metadataCache={ABC001A:{point:100}};state.atcoderUser='alpha';refreshMetadata=async()=>{};window.requests=[];apiFetch=url=>new Promise(resolve=>window.requests.push({url,resolve}));`);
  const finish=(i,items)=>{context.items=items;run(`window.requests[${i}].resolve({ok:true,json:async()=>items})`)};

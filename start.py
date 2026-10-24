@@ -18,7 +18,7 @@ import webbrowser
 
 ROOT = Path(__file__).resolve().parent
 BUILD_ID = "ci-practice-offline-20261024"
-PUBLIC_FILES = {"index.html", "app.js", "styles.css", "pyworker.js", "CIPractice.icns", "manifest.webmanifest"}
+PUBLIC_FILES = {"index.html", "app.js", "settings.js", "academy.js", "styles.css", "pyworker.js", "CIPractice.icns", "manifest.webmanifest"}
 PUBLIC_DIRS = {"data", "vendor", "assets"}
 
 
@@ -117,7 +117,7 @@ class Handler(SimpleHTTPRequestHandler):
             return
         path = urlparse(self.path).path
         if path == "/__health":
-            self.json_response({"ok": True, "app": "CI Practice", "build": BUILD_ID})
+            self.json_response({"ok": True, "app": "Plume", "version": "1.1.0", "build": BUILD_ID})
             return
         if path == "/__proxy":
             url = parse_qs(urlparse(self.path).query).get("url", [""])[0]
@@ -164,7 +164,7 @@ def run():
         parser.exit(1, f"Port {args.port} is unavailable. Close the previous server or choose --port. {error}\n")
     if not args.no_browser:
         threading.Timer(.2, lambda: webbrowser.open(f"http://127.0.0.1:{args.port}/")).start()
-    print(f"CI Practice: http://127.0.0.1:{args.port}/", flush=True)
+    print(f"Plume: http://127.0.0.1:{args.port}/", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

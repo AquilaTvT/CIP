@@ -7,8 +7,10 @@ const root = path.join(__dirname, '..');
 const source = fs.readFileSync(path.join(root,'app.js'),'utf8').replace(/\ninit\(\);\s*$/, '\n');
 function app() {
   const stored = new Map();
-  const document = {getElementById:()=>null,addEventListener(){},querySelectorAll:()=>[],activeElement:null};
+  const styleValues={};
+  const document = {documentElement:{dataset:{},style:{setProperty:(key,value)=>{styleValues[key]=value}},lang:''},getElementById:()=>null,addEventListener(){},querySelectorAll:()=>[],activeElement:null};
   const context = vm.createContext({console,URL,URLSearchParams,structuredClone,Map,Set,Date,Math,Number,JSON,Intl,Promise,Blob,setTimeout,clearTimeout,setInterval,clearInterval,crypto:require('node:crypto').webcrypto,document,location:{hash:'#/dashboard',protocol:'http:',hostname:'localhost',href:'http://localhost/'},localStorage:{getItem:k=>stored.get(k)||null,setItem:(k,v)=>stored.set(k,v),removeItem:k=>stored.delete(k)},sessionStorage:{getItem:()=>null,setItem(){}},window:{CI_PROBLEMS:[{label:'ABC001A',url:'https://atcoder.jp/contests/abc001/tasks/abc001_1',problemId:'abc001_1'},{label:'ABC002A'},{label:'ABC003A'}],CI_METADATA:{ABC001A:{point:100}},addEventListener(){}},navigator:{},confirm:()=>true});
+  for (const file of ['settings.js','data/academy.js','academy.js']) vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context);
   vm.runInContext(source,context);
   vm.runInContext('problems=window.CI_PROBLEMS;problemMap=new Map(problems.map(p=>[p.label,p]));render=()=>{};toast=()=>{};startMockTimer=()=>{};',context);
   return {run:code=>vm.runInContext(code,context),stored,context};
@@ -146,11 +148,119 @@ test('mock history is newest-first, deduplicated, and uses safely encoded naviga
  const a=app();a.run(`const baseMock={durationMs:9000000,finished:true,finishedAt:100000,labels:['ABC001A','ABC002A','ABC003A'],scoreMode:'ci300',attempts:[]};state.mockHistory=[{...baseMock,id:'older',startedAt:1000},{...baseMock,id:"quote'&history",startedAt:2000},{...baseMock,id:'older',startedAt:1000}];state.mock={...baseMock,id:'older',startedAt:1000};route={path:'/mock',params:new URLSearchParams('history')}`);
  assert.equal(a.run('mockHistoryEntries().length'),2);assert.equal(a.run('mockHistoryEntries()[0].startedAt'),2000);
  const html=a.run('renderMock()');assert.match(html,/history=quote%27%26history/);assert.equal((html.match(/class="mock-history-row"/g)||[]).length,2);assert.ok(html.includes(a.run("t('mockCompleted',{done:0,total:3})")));
- assert.ok(a.run('renderSettings()').includes("go('/mock?history')"));
+ a.run("route.params.set('section','practice')");assert.ok(a.run('renderSettings()').includes('data-settings-route="/mock?history"'));
  a.run('state.mock.finished=false;route.params=new URLSearchParams()');assert.ok(a.run('renderMock()').includes("go('/mock?history')"));
 });
 test('missing or empty mock history has an explicit return path and never falls back to a current mutable summary',()=>{
  const a=app();a.run("route={path:'/mock',params:new URLSearchParams('history=missing')}");
  const missing=a.run('renderMock()');assert.ok(missing.includes(a.run("t('mockHistoryMissing')")));assert.ok(missing.includes("go('/mock')"));assert.doesNotMatch(missing,/resetMock\(|finishMock\(/);
  a.run('route.params=new URLSearchParams("history")');const empty=a.run('renderMock()');assert.ok(empty.includes(a.run("t('mockHistoryEmpty')")));assert.ok(empty.includes(a.run("t('returnMockSetup')")));
+});
+
+test('all persisted settings drive appearance, editor options, and startup routing',()=>{
+  const a=app();a.context.window.matchMedia=()=>({matches:true});
+  for(const [key,value] of [['theme','system'],['uiLang','ja'],['statementLang','en'],['dailyGoal',7],['profile.displayName','Ada'],['preferences.homePage','learn'],['preferences.editorFontSize',20],['preferences.tabSize',2],['preferences.lineWrapping',true],['preferences.statementFontSize',19],['preferences.reduceMotion',true]]) {
+    a.context.settingKey=key;a.context.settingValue=value;
+    assert.equal(a.run('updateSetting(settingKey,settingValue)'),true,key);
+  }
+  assert.equal(a.run('document.documentElement.dataset.theme'),'dark');
+  assert.equal(a.run('document.documentElement.dataset.motion'),'reduced');
+  assert.equal(a.run('document.documentElement.lang'),'ja');
+  assert.equal(a.run('editorOptions().editorFontSize'),20);
+  assert.equal(a.run('editorOptions().tabSize'),2);
+  assert.equal(a.run('editorOptions().lineWrapping'),true);
+  assert.equal(a.run('editorOptions().dark'),true);
+  assert.equal(a.run('homeRoute()'),'/learn');
+  const saved=JSON.parse(a.stored.get('ciPracticeHubState.v2'));
+  assert.equal(saved.profile.displayName,'Ada');assert.equal(saved.dailyGoal,7);assert.equal(saved.preferences.statementFontSize,19);
+  a.run('state=loadState()');assert.equal(a.run('state.preferences.homePage'),'learn');assert.equal(a.run('state.uiLang'),'ja');
+});
+
+test('settings reject unknown paths and remain unchanged on a storage failure',()=>{
+  const a=app();assert.equal(a.run(`updateSetting('preferences.__proto__',{polluted:true})`),false);
+  assert.equal(a.run(`updateSetting('codes','malicious')`),false);
+  a.context.console={...console,warn(){}};a.run(`localStorage.setItem=()=>{throw new Error('quota')};window.before=JSON.stringify(state)`);
+  assert.equal(a.run(`updateSetting('preferences.editorFontSize',22)`),false);
+  assert.equal(a.run('JSON.stringify(state)===window.before'),true);
+});
+
+test('restoring preferences preserves identity, code, course completion, and account',()=>{
+  const a=app();a.run(`window.lessonId=window.AQUILA_ACADEMY.lessons[0].id;state.profile.displayName='Ada';state.atcoderUser='public_handle';state.autoSync=true;state.codes.ABC001A='print(42)';state.academy.completed[window.lessonId]=123;state.preferences.editorFontSize=22;state.uiLang='en';restorePreferences()`);
+  assert.equal(a.run('state.preferences.editorFontSize'),14);assert.equal(a.run('state.theme'),'system');
+  assert.equal(a.run('state.profile.displayName'),'Ada');assert.equal(a.run('state.atcoderUser'),'public_handle');
+  assert.equal(a.run('state.autoSync'),true);assert.equal(a.run('state.codes.ABC001A'),'print(42)');assert.equal(a.run('state.academy.completed[window.lessonId]'),123);
+});
+
+test('Plume backups export and restore course progress and personalized preferences',async()=>{
+  const a=app();let exported;
+  a.context.window.webkit={messageHandlers:{saveFile:{postMessage:message=>{exported=message}}}};
+  a.run(`window.lessonId=window.AQUILA_ACADEMY.lessons[0].id;state.profile.displayName='Aquila';state.preferences.editorFontSize=21;state.academy.codes[window.lessonId]='print("Hello, Aquila!")';state.academy.completed[window.lessonId]=12345;state.academy.attempts[window.lessonId]=2;state.academy.solutions[window.lessonId]=true;state.codes.ABC001A='print(7)';exportData()`);
+  const payload=JSON.parse(exported.content);
+  assert.equal(payload.app,'Plume');assert.equal(payload.schema,4);assert.match(exported.filename,/^plume-backup-/);
+  assert.equal(payload.state.preferences.editorFontSize,21);
+  a.run('state=structuredClone(DEFAULT_STATE)');
+  a.context.file={size:exported.content.length,text:async()=>exported.content};await a.run('importData(file)');
+  assert.equal(a.run('state.academy.completed[window.lessonId]'),12345);assert.equal(a.run('state.academy.attempts[window.lessonId]'),2);
+  assert.equal(a.run('state.academy.solutions[window.lessonId]'),true);assert.equal(a.run('state.preferences.editorFontSize'),21);
+  assert.equal(a.run('state.codes.ABC001A'),'print(7)');assert.equal(a.run('state.profile.displayName'),'Aquila');
+});
+
+test('legacy CI Practice schema 3 imports keep code and obtain safe new defaults',async()=>{
+  const a=app();a.context.file={size:100,text:async()=>JSON.stringify({app:'CI Practice',schema:3,state:{attempts:[],codes:{ABC001A:'print(9)'},uiLang:'en'}})};
+  await a.run('importData(file)');assert.equal(a.run('state.codes.ABC001A'),'print(9)');assert.equal(a.run('state.uiLang'),'en');
+  assert.equal(a.run('state.preferences.editorFontSize'),14);assert.equal(a.run('state.profile.displayName'),'');assert.equal(a.run('Object.keys(state.academy.completed).length'),0);
+});
+
+test('future or unrelated backup formats cannot overwrite local progress',async()=>{
+  const a=app();a.context.console={...console,warn(){}};a.run(`state.codes.ABC001A='keep'`);
+  for(const [appName,schema] of [['Plume',999],['OtherApp',4]]) {
+    a.context.file={size:100,text:async()=>JSON.stringify({app:appName,schema,state:{attempts:[],codes:{ABC001A:'replace'}}})};
+    await a.run('importData(file)');assert.equal(a.run('state.codes.ABC001A'),'keep');
+  }
+});
+
+test('course records from backup cannot inject unknown lesson IDs or cross into AtCoder progress',()=>{
+  const a=app();a.run(`window.lessonId=window.AQUILA_ACADEMY.lessons[0].id;state=normalizeState({attempts:[],academy:{codes:{[window.lessonId]:'print(1)',unknown:'bad'},completed:{[window.lessonId]:123,unknown:456},lastLessonId:'unknown'}})`);
+  assert.equal(a.run('state.academy.codes.unknown'),undefined);assert.equal(a.run('state.academy.completed.unknown'),undefined);
+  assert.equal(a.run('state.academy.lastLessonId'),'');assert.equal(a.run('state.attempts.length'),0);assert.equal(a.run('statusOf(problems[0]).solved'),false);
+});
+
+test('account handle drafts survive rerenders caused by other preferences',()=>{
+  const a=app(),handlers={};const field={value:'alpha',addEventListener:(event,fn)=>{handlers[event]=fn}};
+  a.context.document.getElementById=id=>id==='setting-atcoderUser'?field:null;
+  a.run(`state.atcoderUser='alpha';route.params.set('section','account');bindSettings()`);
+  for(const draft of ['new_handle','invalid-draft','']){
+    field.value=draft;handlers.input({target:field});a.run(`updateSetting('autoSync',true)`);
+    assert.equal(a.run('state.atcoderUser'),'alpha','editing the draft must not switch the synced account');
+    const html=a.run('renderSettings()');assert.ok(html.includes(`value="${draft}"`),`draft ${draft} was lost`);
+  }
+});
+
+test('account switching is atomic when storing the replacement account fails',()=>{
+  const a=app();a.context.console={...console,warn(){}};
+  a.context.document.getElementById=id=>id==='setting-atcoderUser'?{value:'beta'}:id==='setting-autoSync'?{checked:true}:null;
+  a.run(`state.atcoderUser='alpha';state.attempts=[{id:'old',problemKey:'ABC001A',result:'AC',source:'atcoder',atcoderUser:'alpha',time:123}];accountHandleDraft='beta';window.syncCount=0;syncAtCoder=()=>{window.syncCount++};localStorage.setItem=()=>{throw new Error('quota')};saveUserAndSync()`);
+  assert.equal(a.run('state.atcoderUser'),'alpha');assert.equal(a.run('state.attempts.length'),1);
+  assert.equal(a.run('accountHandleDraft'),'beta');assert.equal(a.run('window.syncCount'),0);
+});
+
+test('successful reset and import invalidate editor sessions while failed transactions preserve undo',async()=>{
+  const a=app();let clears=0;a.context.window.CIEditor={clearSessions(){clears++}};
+  a.run('resetAll()');assert.equal(clears,1);
+  a.context.file={size:100,text:async()=>JSON.stringify({app:'Plume',schema:4,state:{attempts:[]}})};
+  await a.run('importData(file)');assert.equal(clears,2);
+  a.context.console={...console,warn(){}};
+  a.run(`localStorage.setItem=()=>{throw new Error('quota')};localStorage.removeItem=()=>{throw new Error('disk')}`);
+  await a.run('importData(file)');a.run('resetAll()');assert.equal(clears,2,'failed operations should not discard the user’s current undo stack');
+});
+
+test('a failed current-state reset keeps the authoritative progress and cannot revive legacy data',()=>{
+  const a=app();
+  a.run("state.codes.ABC001A='current code';saveState();localStorage.setItem(LEGACY_KEY,JSON.stringify({attempts:[],codes:{ABC001A:'obsolete code'}}))");
+  const remove=a.context.localStorage.removeItem;
+  a.context.localStorage.removeItem=key=>{if(key==='ciPracticeHubState.v2')throw new Error('disk');remove(key)};
+  a.run('resetAll()');
+  assert.equal(a.run("loadState().codes.ABC001A"),'current code');
+  assert.equal(a.run("state.codes.ABC001A"),'current code');
+  assert.equal(a.run('localStorage.getItem(LEGACY_KEY)'),null);
 });

@@ -3,10 +3,12 @@
 Run on a logged-in macOS desktop. No accessibility or screen-recording permission
 is required. All tests use nonpersistent WebKit storage. Restart tests use one
 dedicated key and a temporary native snapshot directory, never user records.
+Set CI_NATIVE_PROGRESS_LOG to a temporary log path for live native diagnostics.
 """
 import json
 import os
 from pathlib import Path
+import plistlib
 import subprocess
 import sys
 import time
@@ -21,13 +23,25 @@ APP = os.environ.get('CI_NATIVE_APP', '')
 class NativeRuntimeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.executable = str(Path(APP).resolve() / 'Contents/MacOS/CI Practice')
+        contents = Path(APP).resolve() / 'Contents'
+        cls.info = plistlib.loads((contents / 'Info.plist').read_bytes())
+        cls.executable = str(contents / 'MacOS' / cls.info['CFBundleExecutable'])
 
     def run_app(self, flag, storage_directory=None):
         environment = os.environ.copy()
         if storage_directory is not None:
             environment['CI_NATIVE_STORAGE_DIR'] = storage_directory
-        result = subprocess.run([self.executable, flag], capture_output=True, text=True, timeout=110, env=environment)
+        timeout = 930 if flag in ('--runtime-test', '--network-test') else 110
+        progress_log = os.environ.get('CI_NATIVE_PROGRESS_LOG')
+        if progress_log:
+            with open(progress_log, 'a+', encoding='utf-8') as log:
+                log.seek(0, 2)
+                offset = log.tell()
+                result = subprocess.run([self.executable, flag], stdout=log, stderr=subprocess.PIPE, text=True, timeout=timeout, env=environment)
+                log.seek(offset)
+                result.stdout = log.read()
+        else:
+            result = subprocess.run([self.executable, flag], capture_output=True, text=True, timeout=timeout, env=environment)
         lines = [line for line in result.stdout.splitlines() if line.startswith('{')]
         self.assertTrue(lines, result.stderr or result.stdout)
         payload = json.loads(lines[-1])
@@ -39,6 +53,15 @@ class NativeRuntimeTests(unittest.TestCase):
         result = self.run_app('--runtime-test')
         self.assertIn('fresh interpreter isolates modules and files', result['checks'])
         self.assertIn('local MathJax renders formulas', result['checks'])
+        self.assertIn('all academy reference cases pass in WebKit Pyodide', result['checks'])
+        self.assertIn('academy cases leave no interpreter or filesystem state', result['checks'])
+
+    def test_native_settings_and_help(self):
+        self.assertEqual(self.info['CFBundleIdentifier'], 'org.cipractice.desktop')
+        self.assertEqual(self.info['CFBundleShortVersionString'], '1.1.0')
+        result = self.run_app('--menu-test')
+        self.assertIn('native Settings Command-comma shortcut', result['checks'])
+        self.assertIn('Help opens local guide in existing view', result['checks'])
 
     def test_persistence_across_restarts(self):
         with tempfile.TemporaryDirectory(prefix='ci-native-storage-') as directory:
@@ -64,7 +87,7 @@ class NativeRuntimeTests(unittest.TestCase):
             while time.monotonic() < deadline and host.poll() is None:
                 try:
                     with urlopen('http://127.0.0.1:18765/__health', timeout=1) as response:
-                        if json.load(response).get('app') == 'CI Practice': break
+                        if json.load(response).get('app') == self.info['CFBundleDisplayName']: break
                 except OSError: time.sleep(.1)
             else: self.fail('Lifecycle test host did not start')
             second = subprocess.run([self.executable], capture_output=True, text=True, timeout=15)
@@ -82,6 +105,7 @@ class NativeRuntimeTests(unittest.TestCase):
     def test_online_metadata_proxy(self):
         result = self.run_app('--network-test')
         self.assertIn('native online AtCoder metadata proxy', result['checks'])
+        self.assertIn('native online AtCoder submissions proxy', result['checks'])
 
 
 if __name__ == '__main__': unittest.main()

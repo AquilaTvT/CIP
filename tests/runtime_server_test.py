@@ -34,7 +34,11 @@ class RuntimeServerTests(unittest.TestCase):
         client.close(); return result
 
     def test_health_and_static(self):
-        self.assertEqual(json.loads(self.request('/__health')[2])['app'], 'CI Practice')
+        health = json.loads(self.request('/__health')[2])
+        self.assertEqual(health['app'], 'Plume')
+        self.assertEqual(health['version'], '1.1.0')
+        for path in ['/settings.js', '/academy.js', '/data/academy.js', '/assets/plume.svg']:
+            self.assertEqual(self.request(path)[0], 200, path)
         self.assertEqual(self.request('/')[0], 200)
         self.assertEqual(self.request('/vendor/pyodide/pyodide.asm.wasm')[1]['Content-type'], 'application/wasm')
 

@@ -7,7 +7,7 @@ import {indentUnit} from '@codemirror/language';
 import {oneDark} from '@codemirror/theme-one-dark';
 
 const theme = EditorView.theme({
-  '&': {height:'100%', fontSize:'12px', backgroundColor:'var(--surface)', color:'var(--text)'},
+  '&': {height:'100%', fontSize:'var(--editor-size, 14px)', backgroundColor:'var(--surface)', color:'var(--text)'},
   '.cm-scroller': {fontFamily:'var(--mono)', lineHeight:'1.85', overflow:'auto'},
   '.cm-content': {padding:'18px 0', caretColor:'var(--accent)'},
   '.cm-line': {padding:'0 18px 0 12px'},
@@ -26,15 +26,22 @@ const theme = EditorView.theme({
 });
 
 const sessions = new Map();
+let sessionGeneration = 0;
 
 window.CIEditor = {
-  mount(textarea, {onChange, onRun, dark = false, problemKey = ''}) {
+  clearSessions() {
+    sessionGeneration++;
+    sessions.clear();
+  },
+  mount(textarea, {onChange, onRun, dark = false, problemKey = '', tabSize = 4, lineWrapping = false}) {
+    const generation = sessionGeneration;
     const host = document.createElement('div');
     host.className = 'code-editor-host';
     textarea.before(host);
     textarea.hidden = true;
     const extensions = [
-          basicSetup, python(), indentUnit.of('    '),
+          basicSetup, python(), indentUnit.of(' '.repeat(tabSize === 2 ? 2 : 4)), EditorState.tabSize.of(tabSize === 2 ? 2 : 4),
+          lineWrapping ? EditorView.lineWrapping : [],
           dark ? oneDark : [], theme,
           EditorView.contentAttributes.of({'aria-label':'Python editor', 'spellcheck':'false'}),
           Prec.highest(keymap.of([{key:'Mod-Enter', run:() => {onRun(); return true;}}, indentWithTab])),
@@ -53,7 +60,8 @@ window.CIEditor = {
     if (cached) view.scrollDOM.scrollTop = cached.scrollTop;
     return {
       destroy() {
-        if (problemKey) {
+        // An editor mounted before an import/reset must not restore its old undo history.
+        if (problemKey && generation === sessionGeneration) {
           sessions.delete(problemKey);
           sessions.set(problemKey, {state:view.state,scrollTop:view.scrollDOM.scrollTop});
           if (sessions.size > 12) sessions.delete(sessions.keys().next().value);

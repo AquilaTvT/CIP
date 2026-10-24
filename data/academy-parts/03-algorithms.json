@@ -1,0 +1,1776 @@
+[
+  {
+    "id": "stacks-and-queues",
+    "content": {
+      "zh": {
+        "title": "栈与队列",
+        "summary": "用明确的取出顺序管理尚未完成的工作。",
+        "objectives": [
+          "区分后进先出与先进先出",
+          "使用列表栈与 deque 队列",
+          "用不变量证明括号匹配"
+        ],
+        "sections": [
+          {
+            "title": "为什么需要等待处理的容器",
+            "body": "程序经常遇到“现在发现，但稍后才能处理”的工作。读取左括号时，还不知道它对应的右括号在哪里；搜索一个地点时，也会发现以后才要访问的邻居。此时除了保存数据，还必须决定下一次先处理谁。栈采取后进先出，像把盘子叠起来，只能先拿走最上面一只；队列采取先进先出，像依次接受服务的人。两者都能存相同元素，但取出顺序改变算法的含义，不能只因某个容器写起来方便就随意替换。先在纸上写出加入顺序与预期取出顺序，再选结构。本课用括号匹配理解栈，用任务排队理解队列，为之后两种搜索建立共同基础。"
+          },
+          {
+            "title": "Python 中的栈与队列",
+            "body": "Python 列表末尾的 append(x) 与 pop() 可以组成栈。append 没有返回新列表，而是修改原列表；pop 会删除并返回最后一个元素。空栈执行 pop 会报 IndexError，因此先检查 if stack。队列则用 collections.deque，末尾 append，开头 popleft。不要把列表的 pop(0) 当作大规模队列：删除首项后，其余元素要整体移动，反复操作可能累计成平方级时间。两种结构都可保存数字、字符串或坐标元组。容器保存的是尚未处理的工作，不应把它与保存所有访问结果的数组混为一谈。队列为空表示没有等待的任务，并不表示从未处理过任何任务。",
+            "code": "from collections import deque\nstack = []\nqueue = deque()\nfor value in [10, 20, 30]:\n    stack.append(value)\n    queue.append(value)\nprint(stack.pop(), stack.pop())\nprint(queue.popleft(), queue.popleft())\n",
+            "output": "30 20\n10 20\n"
+          },
+          {
+            "title": "手算一次嵌套匹配",
+            "body": "考虑字符串 (()())。第一个左括号入栈，栈长变成一；第二个左括号入栈，长度变成二；第三个字符是右括号，必须与最近尚未匹配的左括号配对，所以弹出一个，长度回到一。之后的左右括号使长度依次变成二、一、零。观察的关键不是左右括号总数，而是每个前缀是否仍有可配对的左括号。例如 )( 的总数相等，却在第一个字符就失败。再看 (()：扫描中从未缺少左括号，但结束时还剩一个，因此同样失败。请遮住代码，逐字符写出栈内容；如果无法解释某一次弹出对应哪个开括号，就先不要跳到完整程序。",
+            "code": "stack = []\nfor ch in \"(()())\":\n    if ch == \"(\":\n        stack.append(ch)\n    else:\n        stack.pop()\n    print(ch, len(stack))\n",
+            "output": "( 1\n( 2\n) 1\n( 2\n) 1\n) 0\n"
+          },
+          {
+            "title": "把两种失败写进程序",
+            "body": "完整解法需要一个容器和一个失败标记。遇到左括号就压栈；遇到右括号时，如果栈非空就弹出，否则将 ok 设为 False 并停止扫描。这里停止是安全的：已经出现没有左括号可匹配的前缀，后面的字符无法回到过去修复它。循环结束后，只有 ok 为真并且栈为空才能输出 Yes。不要在循环内部仅因为栈暂时为空就宣布成功，后面仍可能出现多余右括号。输入只含圆括号，所以 else 分支确实代表右括号；若题目允许其他字符，应重新规定过滤或报错规则。输出必须保持指定大小写，不要附加“结果是”等解释文本。",
+            "code": "s = input().strip()\nstack = []\nok = True\nfor ch in s:\n    if ch == \"(\":\n        stack.append(ch)\n    elif stack:\n        stack.pop()\n    else:\n        ok = False\n        break\nprint(\"Yes\" if ok and not stack else \"No\")\n",
+            "exampleInput": "(()())\n",
+            "output": "Yes\n"
+          },
+          {
+            "title": "为什么正确，为什么快",
+            "body": "循环不变量是：若到目前为止没有失败，栈中恰好保存已读前缀里尚未匹配的左括号，顺序与它们出现的顺序一致。开始时前缀为空，空栈满足定义。加入左括号扩展未匹配集合；读入右括号并弹出最近的左括号，恰好完成一组合法嵌套。无法弹出就证明前缀不合法。结束时，栈为空排除了未闭合的左括号，因而全部字符匹配完成。每个字符最多入栈或出栈一次，列表末尾操作的摊还代价为常数，总时间为 O(L)，L 是字符串长度。全部是左括号时栈可能长到 L，因此最坏空间是 O(L)，不是因为只有一种字符就自动成为常数。"
+          },
+          {
+            "title": "边界与可定位的错误",
+            "body": "测试至少覆盖单个左括号、单个右括号、恰好一对、连续多组、深层嵌套和先合法后多出右括号六种形状。单个右括号能发现空栈弹出错误，单个左括号能发现忘记检查最终空栈，()() 能检查是否错误地在第一次闭合后停止。深层嵌套帮助检查是否真的按照后进先出处理。调试时可临时打印当前位置、字符和栈长，但提交前必须移除这些额外输出。若程序报错，先寻找第一次与手算状态不同的位置，而不是从最后结果盲目修改条件。本练习保证输入非空，所以空串不在输入范围内；算法能自然处理空串，并不等于可以擅自改变题目格式。"
+          },
+          {
+            "title": "从括号推广到搜索",
+            "body": "一个括号类型也可以只用整数余额解决：左括号加一，右括号减一，任何前缀不能为负，结束必须为零。但当同时出现 ()、[] 等类型时，仅保存数量就不够，因为最近的未匹配类型也要相同，栈更能体现结构。撤销操作、表达式解析、显式模拟递归也会用到栈。队列则适合按发现先后处理工作；下一课的 BFS 用它保持距离层次。DFS 用栈优先深入最近发现的分支，但它的首次到达距离通常不是最短路。选择时分别问：我需要最近的工作、最早的工作，还是最小优先级的工作？最后一种通常需要堆，而不是强行改动栈或队列。"
+          },
+          {
+            "title": "独立完成本课练习",
+            "body": "开始编码前，先写三行计划：容器保存未匹配左括号；右括号在空容器出现时立即失败；扫描结束后容器必须为空。再将每行计划对应到一个代码位置，避免记住代码顺序却忘了条件来源。完成后先运行自己设计的小例子，再运行课程检查。若所有样例通过，试着口头解释为什么很长的全左括号输入不会被接受，以及为什么总数相同不能保证正确。最后可以把栈替换成余额写第二个版本，对所有长度较小的括号串枚举比较两种实现。这个练习不是要求背会 append 与 pop，而是练会为“还有什么未处理”给出明确表示，并用不变量检查每一次更新。"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "为什么 )( 不合法？",
+            "answer": "第一步出现右括号，当前没有可以匹配的左括号。"
+          },
+          {
+            "question": "为什么不能用反复 pop(0) 实现大队列？",
+            "answer": "每次删除首项都可能移动剩余元素，累计可达平方级时间。"
+          }
+        ],
+        "exerciseTitle": "括号是否匹配",
+        "task": "给定仅含 ( 和 ) 的非空字符串 S，长度不超过 200000。判断它能否按照正确的嵌套规则完全匹配。正确输出 Yes，否则输出 No。",
+        "input": "一行字符串 S。",
+        "output": "输出 Yes 或 No。",
+        "hint": "右括号出现时需要一个尚未匹配的左括号；最后不能有剩余。",
+        "explanation": "用空列表开始。读到左括号就添加；读到右括号则弹出最近尚未匹配的左括号，空栈时直接失败。最后同时检查没有中途失败且列表为空。每个字符只处理一次，时间 O(L)，最坏空间 O(L)。可分别用单个左右括号检验两种失败分支。"
+      },
+      "en": {
+        "title": "Stacks and queues",
+        "summary": "Manage unfinished work with an explicit removal order.",
+        "objectives": [
+          "Distinguish LIFO from FIFO",
+          "Use list stacks and deque queues",
+          "Prove bracket matching with an invariant"
+        ],
+        "sections": [
+          {
+            "title": "Why pending work needs an order",
+            "body": "Programs often discover work that cannot be completed immediately. An opening parenthesis must wait for a later closing parenthesis; a discovered neighbor may wait until the current vertex has been processed. Keeping these pending items is only half the problem: you must also decide which item is handled next. A stack chooses the most recently added item, whereas a queue chooses the oldest. The contents can be identical while the resulting algorithm behaves differently. Write down the required removal order before choosing a container. Parentheses provide a concrete reason for a stack; scheduled visits provide a reason for a queue."
+          },
+          {
+            "title": "Stack and queue operations in Python",
+            "body": "Use a Python list as a stack: append adds at the end and pop removes and returns the last item. Neither operation creates a new list. Calling pop on an empty list raises IndexError, so test the container first. For a queue, import deque from collections and combine append with popleft. Repeated list.pop(0) shifts the remaining elements and can turn a linear process into a quadratic one. A pending-work container can hold integers, strings, or coordinate tuples. It is distinct from an array that remembers results: an empty queue means no work remains, not that no work has ever been done.",
+            "code": "from collections import deque\nstack = []\nqueue = deque()\nfor value in [10, 20, 30]:\n    stack.append(value)\n    queue.append(value)\nprint(stack.pop(), stack.pop())\nprint(queue.popleft(), queue.popleft())\n",
+            "output": "30 20\n10 20\n"
+          },
+          {
+            "title": "Trace a nested pair by hand",
+            "body": "Trace (()()) from left to right. The stack sizes become one, two, one, two, one, zero. At the first closing parenthesis, the most recent unmatched opening parenthesis is removed, which explains the last-in, first-out rule. Total counts alone are insufficient: )( contains one of each character but fails immediately because its first prefix has no opening parenthesis available. Conversely, (() never tries to remove from an empty stack, yet finishes with an unmatched opening parenthesis. Cover the code and record the stack after every character. Explain the particular opening parenthesis that each removal matches before moving on.",
+            "code": "stack = []\nfor ch in \"(()())\":\n    if ch == \"(\":\n        stack.append(ch)\n    else:\n        stack.pop()\n    print(ch, len(stack))\n",
+            "output": "( 1\n( 2\n) 1\n( 2\n) 1\n) 0\n"
+          },
+          {
+            "title": "Encode both ways to fail",
+            "body": "The complete solution stores pending opening parentheses and a failure flag. Push on an opening character. On a closing character, pop if possible; otherwise mark failure and stop. Stopping is safe because a prefix with too many closing parentheses cannot be repaired by characters that occur later. After the loop, require both a true flag and an empty stack. Do not announce success merely because the stack becomes empty midway through the string. The input contract contains only round parentheses, making the final branch unambiguous. With other characters, the validation rules would need to change. Print exactly the requested capitalization.",
+            "code": "s = input().strip()\nstack = []\nok = True\nfor ch in s:\n    if ch == \"(\":\n        stack.append(ch)\n    elif stack:\n        stack.pop()\n    else:\n        ok = False\n        break\nprint(\"Yes\" if ok and not stack else \"No\")\n",
+            "exampleInput": "(()())\n",
+            "output": "Yes\n"
+          },
+          {
+            "title": "Correctness and running time",
+            "body": "Use this invariant: before failure, the stack contains exactly the unmatched opening parentheses of the processed prefix, in their original order. The empty prefix satisfies it. An opening character extends that set; a closing character removes precisely the latest unmatched opening character. An impossible removal proves invalidity, and an empty final stack proves that no opening characters remain. Each character causes at most one insertion or removal. End operations on a list have amortized constant cost, so total time is O(L). A string consisting entirely of opening parentheses stores L items, giving O(L) worst-case space rather than constant space."
+          },
+          {
+            "title": "Boundaries that reveal mistakes",
+            "body": "Choose tests for distinct failure modes: one opening character, one closing character, a single pair, consecutive pairs, deep nesting, and a valid prefix followed by an extra closing character. A lone closing character catches an unchecked pop; a lone opening character catches a missing final emptiness check. Consecutive pairs reveal premature success after the first pair. While debugging, temporarily print the index, character, and stack size, then remove these diagnostics before submission. Find the first state that differs from your hand trace instead of randomly changing the final condition. The exercise excludes an empty input string, even though the algorithm naturally generalizes to it."
+          },
+          {
+            "title": "From matching to graph search",
+            "body": "For one bracket type, an integer balance can replace the stack: add one for opening, subtract one for closing, forbid negative prefixes, and finish at zero. Multiple bracket types need more information because the most recent type must also match. Stacks also support undo, expression parsing, and explicit recursion simulation. Queues suit work processed in discovery order; BFS uses that order to preserve distance layers. DFS uses a stack to pursue a recent branch but does not generally find shortest paths on first arrival. Ask whether the next item should be the newest, oldest, or smallest-priority item; the third requirement usually calls for a heap."
+          },
+          {
+            "title": "Complete the exercise independently",
+            "body": "Before coding, write three commitments: the container stores unmatched openings; a closing character with no available opening fails immediately; the final container must be empty. Point to the code that enforces each commitment. Run your own small examples before the course checks. Then explain aloud why a long sequence of openings is rejected and why equal totals are not enough. As an extension, write the balance-counter version and compare the two on every short bracket string. The goal is not to memorize method names. It is to represent unfinished work precisely and justify how every update preserves that representation."
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "Why is )( invalid?",
+            "answer": "Its first closing parenthesis has no preceding unmatched opening."
+          },
+          {
+            "question": "Why avoid repeated list.pop(0) for a large queue?",
+            "answer": "Each removal may shift all remaining items, producing quadratic total work."
+          }
+        ],
+        "exerciseTitle": "Balanced parentheses",
+        "task": "Given a nonempty string S containing only ( and ), with length at most 200000, determine whether all parentheses form a valid nested sequence. Print Yes if valid and No otherwise.",
+        "input": "One line containing S.",
+        "output": "Print Yes or No.",
+        "hint": "Every closing parenthesis needs an unmatched opening; none may remain at the end.",
+        "explanation": "Start with an empty list. Push opening parentheses and remove the most recent unmatched opening for each closing one. An empty stack at removal means failure. Finish by requiring both no earlier failure and an empty stack. Each character is processed once: O(L) time and O(L) worst-case space. Lone opening and closing characters test the two different failure branches."
+      },
+      "ja": {
+        "title": "スタックとキュー",
+        "summary": "未処理の仕事を取り出す順序を決める。",
+        "objectives": [
+          "後入れ先出しと先入れ先出しを区別する",
+          "リストと deque を使い分ける",
+          "不変条件で括弧判定を説明する"
+        ],
+        "sections": [
+          {
+            "title": "保留中の仕事に順序を与える",
+            "body": "プログラムでは、見つけた瞬間には終えられず、後で処理する仕事がよく現れます。開き括弧を読んでも、対応する閉じ括弧はまだ先にあります。探索中に隣接点を発見しても、現在の点を処理してから訪問したい場合があります。このとき必要なのは保存場所だけでなく、次にどの仕事を取り出すかという規則です。スタックは最後に入れた物から取り出し、積んだ皿の一番上を取る操作に似ています。キューは最初に入れた物から取り出し、受付の順番待ちに似ています。同じ要素を保存していても取り出す順序が違えば計算の意味が変わります。書きやすさだけで選ばず、追加と取り出しの順序を紙に書き、問題に合う構造を選びましょう。"
+          },
+          {
+            "title": "Python での基本操作",
+            "body": "Python のリストでは末尾への append(x) と末尾からの pop() を使えばスタックになります。append は新しいリストを返す操作ではなく、元のリストを変更します。pop は最後の要素を削除すると同時に、その値を返します。空のリストから取り出すと IndexError になるので、先に if stack などで確認します。キューには collections の deque を用い、append と popleft を組み合わせます。リストの pop(0) は残りの要素をずらすため、大量に繰り返すと二乗程度の処理になります。要素には整数だけでなく文字や座標の組も保存できます。また、処理待ちの容器と結果を記録する配列は別物です。キューが空でも、過去に訪問した記録まで消えるわけではありません。",
+            "code": "from collections import deque\nstack = []\nqueue = deque()\nfor value in [10, 20, 30]:\n    stack.append(value)\n    queue.append(value)\nprint(stack.pop(), stack.pop())\nprint(queue.popleft(), queue.popleft())\n",
+            "output": "30 20\n10 20\n"
+          },
+          {
+            "title": "入れ子の括弧を手で追う",
+            "body": "文字列 (()()) を左から追います。最初の開き括弧を追加すると個数は一、次の開き括弧で二になります。三文字目は閉じ括弧なので、まだ対応していない中で最も新しい開き括弧を取り除き、個数は一に戻ります。その後は二、一、零と変化します。ここで見るべきなのは最終的な左右の個数だけではなく、途中の各接頭辞で閉じる相手が残っているかです。例えば )( は左右の個数が等しくても最初の文字で失敗します。一方 (() は途中で取り出せなくなることはありませんが、最後に開き括弧が残るので失敗です。コードを隠し、各文字の後のスタックを書いてください。どの開き括弧を取り除いたか説明できると、規則を理解したことになります。",
+            "code": "stack = []\nfor ch in \"(()())\":\n    if ch == \"(\":\n        stack.append(ch)\n    else:\n        stack.pop()\n    print(ch, len(stack))\n",
+            "output": "( 1\n( 2\n) 1\n( 2\n) 1\n) 0\n"
+          },
+          {
+            "title": "二種類の失敗をコードにする",
+            "body": "完成版では、未対応の開き括弧を保存する容器と、失敗したかを表す変数を用います。開き括弧なら追加し、閉じ括弧なら取り出します。ただし空なら ok を False にして走査を終えます。閉じ括弧が先行した接頭辞は、後から文字を足しても過去の対応を修復できないため、ここで終了して構いません。ループ終了後は、ok が真で、さらにスタックが空のときだけ Yes です。途中で空になった瞬間に成功としないでください。後ろに余分な閉じ括弧が来る可能性があります。入力は丸括弧だけという条件なので、else を閉じ括弧として扱えます。別の文字も許される問題なら、その扱いを定義し直す必要があります。出力には説明文を加えず、指定の大文字と小文字を守ります。",
+            "code": "s = input().strip()\nstack = []\nok = True\nfor ch in s:\n    if ch == \"(\":\n        stack.append(ch)\n    elif stack:\n        stack.pop()\n    else:\n        ok = False\n        break\nprint(\"Yes\" if ok and not stack else \"No\")\n",
+            "exampleInput": "(()())\n",
+            "output": "Yes\n"
+          },
+          {
+            "title": "正しさと計算量を説明する",
+            "body": "不変条件を言葉にすると、「失敗していない限り、スタックには読み終えた接頭辞の未対応の開き括弧だけが、出現順に入っている」となります。最初は空の接頭辞と空のスタックなので成り立ちます。開き括弧を追加すると未対応の集合が増え、閉じ括弧で最後の要素を取り除くと最も内側の組が完成します。取り出せなければ、その接頭辞が不正だと分かります。最後に空なら閉じ忘れもありません。各文字に対して追加か削除を高々一回行い、リスト末尾の操作は償却定数時間なので全体は O(L) 時間です。開き括弧が並ぶ入力では L 個まで保存するため、最悪の使用領域は O(L) です。文字の種類が一種類でも領域が定数になるわけではありません。"
+          },
+          {
+            "title": "間違いを切り分ける境界例",
+            "body": "境界テストは、開き括弧一個、閉じ括弧一個、一組だけ、複数組の連続、深い入れ子、正しい列の後ろに余分な閉じ括弧を付けたものを用意します。閉じ括弧一個は空からの pop を、開き括弧一個は最後の空判定忘れを検出します。()() は最初の一組が閉じた時点で誤って終了するコードを見つけられます。入れ子の例は最後に入れたものを取り出しているかを確認できます。調査中は位置、文字、スタックの長さを一時的に出力してもよいですが、提出前には取り除きます。最後の答えを見て条件を適当に変えるより、手計算と初めて異なる状態を探す方が原因に近づけます。この課題では空文字列は入力されません。自然に扱えることと、問題の入力条件を変更してよいことは別です。"
+          },
+          {
+            "title": "括弧から探索へつなげる",
+            "body": "括弧が一種類だけなら整数の残高でも解けます。開くと一を足し、閉じると一を引き、途中で負にならず最後に零なら正しいという判定です。しかし () と [] など複数種類が混ざると、数だけでは直近の種類が一致するか分かりません。スタックが保存する情報の意味が重要になります。取り消し操作、式の解析、再帰を明示的に置き換える処理にも使われます。一方、発見順に処理したいならキューが適しています。次の BFS では距離の層を保つために使います。DFS はスタックで新しく見つけた枝を先に進みますが、最初の到着が最短とは限りません。次に必要なのが最新、最古、最小優先度のどれかを問いましょう。最小優先度なら通常はヒープという別の構造を検討します。"
+          },
+          {
+            "title": "自分で実装する手順",
+            "body": "実装前に、未対応の開き括弧を保存する、空の状態で閉じ括弧が来たら失敗する、最後に空でなければ失敗する、という三つの約束を書きます。その後、それぞれを保証するコードの場所を指してください。コードの順番だけを覚え、条件の理由を忘れることを防げます。自分で作った小例を試してからコースのテストを実行します。通過したら、非常に長い開き括弧だけの入力がなぜ不正になるか、左右の総数が等しいだけではなぜ不十分かを説明します。発展として残高だけを使う版を書き、短い括弧列を全列挙して両者の結果を比較してもよいでしょう。目的はメソッド名の暗記ではありません。何が未処理なのかを正確に表し、更新のたびにその意味が保たれると説明する練習です。"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": ")( はなぜ不正ですか。",
+            "answer": "最初の閉じ括弧に対応する開き括弧がありません。"
+          },
+          {
+            "question": "大きなキューで pop(0) を避ける理由は。",
+            "answer": "先頭削除のたびに残りの要素をずらし、合計が二乗程度になり得るためです。"
+          }
+        ],
+        "exerciseTitle": "括弧の対応",
+        "task": "( と ) のみからなる空でない文字列 S が与えられます。長さは 200000 以下です。すべての括弧が正しい入れ子で対応するなら Yes、そうでなければ No を出力してください。",
+        "input": "一行に文字列 S。",
+        "output": "Yes または No を出力してください。",
+        "hint": "閉じ括弧には未対応の開き括弧が必要です。最後に残ってもいけません。",
+        "explanation": "空のリストから始め、開き括弧を追加し、閉じ括弧では直近の未対応要素を取り除きます。空から取り出そうとしたら失敗です。最後に途中の失敗がなく、リストが空であることを確認します。各文字を一度処理するので O(L) 時間、最悪 O(L) 領域です。左右一個ずつの例で二種類の失敗を確認できます。"
+      }
+    },
+    "order": 17,
+    "stage": "graphs",
+    "minutes": 40,
+    "prerequisiteIds": [
+      "two-pointers"
+    ],
+    "relatedProblems": [
+      "ABC340B",
+      "ABC216D",
+      "ABC335C"
+    ],
+    "solution": "s = input().strip()\nstack = []\nok = True\nfor ch in s:\n    if ch == \"(\":\n        stack.append(ch)\n    elif stack:\n        stack.pop()\n    else:\n        ok = False\n        break\nprint(\"Yes\" if ok and not stack else \"No\")\n",
+    "starter": "s = input().strip()\n# TODO\n",
+    "tests": [
+      {
+        "input": "()\n",
+        "expected": "Yes\n"
+      },
+      {
+        "input": ")\n",
+        "expected": "No\n"
+      },
+      {
+        "input": "(\n",
+        "expected": "No\n"
+      },
+      {
+        "input": "(()())\n",
+        "expected": "Yes\n"
+      },
+      {
+        "input": "()()\n",
+        "expected": "Yes\n"
+      },
+      {
+        "input": "())(\n",
+        "expected": "No\n"
+      }
+    ]
+  },
+  {
+    "id": "breadth-first-search",
+    "order": 18,
+    "stage": "graphs",
+    "minutes": 50,
+    "prerequisiteIds": [
+      "stacks-and-queues"
+    ],
+    "relatedProblems": [
+      "ABC325C",
+      "ABC304C",
+      "ABC272D"
+    ],
+    "content": {
+      "zh": {
+        "title": "广度优先搜索",
+        "summary": "用距离层次求等代价移动的最短路。",
+        "sections": [
+          {
+            "title": "先把移动问题变成图",
+            "body": "地图上的最短路问题可以先去掉画面，保留“状态”和“允许的移动”。每个可通行格子是一个状态，也叫顶点；一次合法移动是连接两个状态的边。本课的状态只需行号与列号，因为之后能走哪里仅由位置和固定地图决定。如果题目还含钥匙、剩余体力或时间，就必须判断这些信息是否也要进入状态，不能照搬二维距离表。这里四个方向每走一步代价都是一，所以答案就是边的最少条数。坐标使用零下标，左上角为 (0,0)，右下角为 (H-1,W-1)。开始写搜索前，先确定墙不是可访问状态，斜向移动也不是允许的边。模型一旦错了，队列写得再熟练也会求出另一个问题的答案。"
+          },
+          {
+            "title": "距离表与队列各自负责什么",
+            "body": "建立 H 行 W 列的 dist 表，初始全部为 -1，表示尚未发现；起点设为 0，表示不用移动就已站在那里。队列只保存已发现但尚未展开邻居的格子。dist 同时承担访问标记：值不是 -1，就不应再次入队。务必在入队时而不是出队时写入距离，否则两个父节点可能把同一个格子重复加入，队列膨胀，路径计数也容易错。二维列表必须逐行新建，写成 [[-1]*W for _ in range(H)]。若用 [[-1]*W]*H，多行实际共享同一个列表，修改一格会让多个位置一起改变。保存访问结果和保存待办工作是两种职责；理解这一点比背下一行 deque 初始化更重要。",
+            "code": "dist = [[-1] * 3 for _ in range(2)]\ndist[0][1] = 0\nprint(dist[0])\nprint(dist[1])\n",
+            "output": "[-1, 0, -1]\n[-1, -1, -1]\n"
+          },
+          {
+            "title": "用小地图观察距离层",
+            "body": "手画两行三列地图，第一行 ...，第二行 .#.。初始队列只有左上角，距离零。展开它时发现下方和右方，距离都是一，按方向顺序入队。先处理下方时，它的右侧是墙，其余方向越界或已访问，所以不会增加新点。处理第一行中间时，发现右上角，距离二；随后右上角发现右下角，距离三。队列中较早的距离一全部处理完，才轮到距离二；这就是先进先出的作用。请逐轮列出“弹出的格子、它的距离、刚入队的格子”，不要只画最终路线。无路可走的格子仍会被正常取出并结束处理，不需要额外制造一个失败状态。只有整个队列耗尽后终点仍未发现，才说明不可到达。"
+          },
+          {
+            "title": "完整程序的四个邻居检查",
+            "body": "每次 popleft 取出坐标 (r,c)，对四组方向差计算 (nr,nc)。检查顺序先是行列范围，然后才读取地图，最后判断是否尚未发现。Python 负下标不会总是报错，例如 grid[-1] 会读最后一行，因此漏掉 nr>=0 会产生悄悄穿越地图的错误。满足条件后，把新距离设为当前距离加一，并将坐标元组入队。程序无需保存整条路径，因为题目只问最少步数；若要求输出路线，可另存每个格子的父坐标并从终点倒推。这个版本完整遍历所有能到达的格子，便于理解未到达位置仍为 -1 的含义。读行使用 input()，不要 split 成单词，否则字符坐标将不再对应格子。",
+            "code": "from collections import deque\n\nh, w = map(int, input().split())\ngrid = [input() for _ in range(h)]\ndist = [[-1] * w for _ in range(h)]\ndist[0][0] = 0\nqueue = deque([(0, 0)])\nwhile queue:\n    r, c = queue.popleft()\n    for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:\n        nr, nc = r + dr, c + dc\n        if 0 <= nr < h and 0 <= nc < w:\n            if grid[nr][nc] == \".\" and dist[nr][nc] == -1:\n                dist[nr][nc] = dist[r][c] + 1\n                queue.append((nr, nc))\nprint(dist[h - 1][w - 1])\n",
+            "exampleInput": "2 3\n...\n.#.\n",
+            "output": "3\n"
+          },
+          {
+            "title": "首次发现为何是最短距离",
+            "body": "证明依赖“层”的顺序。起点的距离零显然最短。假设正在处理所有距离为 d 的格子，它们加入的未访问邻居被标为 d+1。任何到这个邻居更短的路径，其倒数第二格距离至多 d-1，应当在更早的层处理过，并已经发现它，这与现在仍未访问矛盾。因此首次赋值就是最短距离，不需要反复更新。此证明要求每条边代价相同；如果有零代价和一代价混合、或者任意不同权重，普通队列规则不能直接保证结论。每个格子最多入队一次，每次最多检查四个邻居，时间 O(HW)。距离表和队列最坏都可容纳与格子数同阶的数据，空间也是 O(HW)，不是按最短路线长度来计算。"
+          },
+          {
+            "title": "检查起点、墙与不可达",
+            "body": "一格地图中起点就是终点，答案应为零，不能因为没有移动就输出 -1。两格之间有墙、终点被隔离、只有一行或只有一列，也都要单独检查。题目保证起终点可通行，所以代码可直接初始化起点；若换题后没有这个保证，就必须补充判断。很窄的通道能检查方向和边界，多条同长路线能检查是否重复访问。不要把格子个数与移动次数混淆：经过 k 个格子的路线只走了 k-1 步。也不要把 dist 为零当成未访问，零是起点的有效距离。本课的 -1 同时表达“未访问”和最终“不可达”，只有搜索结束之后才能把这个值作为到达性的结论。调试可以打印距离表，但正式输出只留终点距离。"
+          },
+          {
+            "title": "选择 BFS，而不是记住地图模板",
+            "body": "看到网格不一定使用 BFS：求连通区域数量时 DFS 也能完成；只按给定指令移动时，普通循环就足够。BFS 的核心需求是“所有转移代价相等，并且需要最少转移次数或按层扩展”。图也不一定有二维外观，字符串变换、整数操作、棋盘状态都可能形成图。先估计状态数，再估计每个状态的邻居数，确认枚举是否可承受。本题最多二千五百格，每格四邻居，非常适合直接搜索。做练习时，独立写出状态含义、初始化、邻居生成和访问条件四项，然后才拼成程序。若可以解释队列顺序为什么构成距离层，便具备将方法迁移到普通邻接表图的基础，而不是仅会复制网格代码。"
+          }
+        ],
+        "exerciseTitle": "网格最短路",
+        "task": "给定 H 行 W 列网格，. 可以通行，# 是墙。起点是左上角，终点是右下角，两者保证可通行。每次可上下左右移动一格，求最少步数；无法到达时输出 -1。1 ≤ H,W ≤ 50。",
+        "input": "第一行 H W；接下来 H 行，每行 W 个字符，仅含 . 和 #。",
+        "output": "输出最少移动步数，或 -1。",
+        "hint": "从 (0, 0) 开始 BFS；邻居必须在边界内、不是墙且距离为 -1。",
+        "explanation": "先把每个可通行格子视为顶点。距离表初始化为 -1，起点为 0。队列按先入先出展开邻居；范围内、非墙、未访问三个条件都满足时立即记录父距离加一并入队。每个点只会入队一次，距离按层递增，所以首次发现是最短。最后直接输出终点距离，单格为 0，不可达仍为 -1。时间与空间均为 O(HW)。",
+        "objectives": [
+          "建立状态、边和距离表",
+          "在入队时标记并避免重复",
+          "证明首次发现距离最短"
+        ],
+        "checkpoints": [
+          {
+            "question": "为什么不能出队时才标记？",
+            "answer": "同一格子可能被多个父节点重复入队，破坏每格一次的保证。"
+          },
+          {
+            "question": "权重不同还能直接使用普通BFS吗？",
+            "answer": "不能；按边数的层次不再对应总代价，需要选择适合权重的算法。"
+          }
+        ]
+      },
+      "en": {
+        "title": "Breadth-first search",
+        "summary": "Use distance layers for shortest paths with equal-cost moves.",
+        "sections": [
+          {
+            "title": "Turn movement into a graph",
+            "body": "Remove the drawing from a movement problem and keep its states and legal transitions. An open cell is a vertex, and one permitted move is an edge. Here a state needs only a row and column because future moves depend on position and a fixed map. Keys, remaining energy, or time would require reconsidering that state definition. Every legal move costs one, so the shortest path minimizes the number of edges. Coordinates start at zero. Before writing a queue, establish that walls are not usable vertices and diagonal moves are not edges. A correct search over an incorrect model still solves the wrong problem."
+          },
+          {
+            "title": "Separate distances from pending visits",
+            "body": "Create a distance table initialized to minus one, meaning undiscovered. Set the starting distance to zero. The queue contains discovered cells whose neighbors have not yet been expanded. These roles differ: the table remembers knowledge while the queue stores pending work. Distance also acts as the visited flag, so record it when enqueuing, not when removing. Otherwise several parents can enqueue the same cell. Build independent row lists with a comprehension. Multiplying one inner list repeats references rather than copying rows, and updating one cell can silently change several rows. Know what each structure represents before memorizing its initialization.",
+            "code": "dist = [[-1] * 3 for _ in range(2)]\ndist[0][1] = 0\nprint(dist[0])\nprint(dist[1])\n",
+            "output": "[-1, 0, -1]\n[-1, -1, -1]\n"
+          },
+          {
+            "title": "Trace distance layers on a small map",
+            "body": "Draw a two-row map whose row strings are \"...\" and \".#.\". Start with the top-left cell at distance zero. Its lower and right neighbors enter at distance one. The lower cell adds nothing because its other neighbors are blocked, outside the map, or already known. The top-middle cell discovers the top-right at distance two, which later discovers the bottom-right at distance three. All distance-one work is processed before distance-two work. For each round, write the removed cell, its distance, and newly enqueued cells. A dead end is simply a cell that adds nothing. Unreachability follows only when all pending work is exhausted without discovering the destination."
+          },
+          {
+            "title": "Implement the four neighbor checks",
+            "body": "Remove a coordinate with popleft and try four direction offsets. Check row and column bounds before indexing the grid, then check openness and the undiscovered marker. Negative Python indices are valid in many cases, so omitting a lower bound can create an accidental connection to the opposite edge instead of an exception. Assign the neighbor distance before appending its coordinate. The task asks only for length, so storing whole paths is unnecessary. If an actual route were required, store a parent coordinate and reconstruct backward. Read each grid row as a string; splitting it into words would destroy the intended character indexing.",
+            "code": "from collections import deque\n\nh, w = map(int, input().split())\ngrid = [input() for _ in range(h)]\ndist = [[-1] * w for _ in range(h)]\ndist[0][0] = 0\nqueue = deque([(0, 0)])\nwhile queue:\n    r, c = queue.popleft()\n    for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:\n        nr, nc = r + dr, c + dc\n        if 0 <= nr < h and 0 <= nc < w:\n            if grid[nr][nc] == \".\" and dist[nr][nc] == -1:\n                dist[nr][nc] = dist[r][c] + 1\n                queue.append((nr, nc))\nprint(dist[h - 1][w - 1])\n",
+            "exampleInput": "2 3\n...\n.#.\n",
+            "output": "3\n"
+          },
+          {
+            "title": "Why first discovery is shortest",
+            "body": "The proof relies on layers. Distance zero is correct at the start. When processing distance-d cells, their undiscovered neighbors receive d plus one. If such a neighbor had a shorter route, its predecessor on that route would belong to an earlier layer and would already have discovered it. This contradicts the undiscovered marker. First assignment is therefore final. Equal edge cost is essential: arbitrary weights do not obey this queue argument. Each cell enters once and checks at most four directions, giving O(HW) time. The distance table and queue can both contain a number of entries proportional to the grid size, giving O(HW) space."
+          },
+          {
+            "title": "Check start, walls, and unreachable cases",
+            "body": "A one-cell grid has answer zero because start and finish coincide. Also test a blocked destination region, a single row, a single column, a narrow corridor, and several equally short routes. The exercise guarantees open endpoints; another task without that guarantee needs an explicit check. A route containing k cells uses k minus one moves, so do not count vertices as steps. Zero is a valid distance, not an unvisited marker. Minus one means undiscovered during the search and unreachable only after exploration ends. Printing the whole distance table is useful for debugging, but the submitted output must contain only the destination value."
+          },
+          {
+            "title": "Choose BFS for the right reason",
+            "body": "A grid alone does not imply BFS. Counting connected regions can use DFS, and following prescribed moves may require only a loop. Choose BFS because transitions have equal cost and you need the fewest transitions or a layered exploration. The states could also be strings, integers, or board configurations. Estimate the number of states and neighbors before assuming the search is feasible. This exercise has at most 2,500 cells with four neighbors each. Independently specify the state, initialization, neighbor generation, and visited condition before assembling the program. Understanding why queue order creates distance layers lets you transfer the method to adjacency-list graphs."
+          }
+        ],
+        "exerciseTitle": "Shortest grid path",
+        "task": "Given an H-by-W grid, . is open and # is a wall. Start at the top-left and finish at the bottom-right; both are open. A move goes one cell up, down, left, or right. Find the minimum moves, or print -1 if unreachable. 1 ≤ H,W ≤ 50.",
+        "input": "H W on the first line; then H rows of W characters, each either . or #.",
+        "output": "Print the minimum number of moves, or -1.",
+        "hint": "Start BFS at (0, 0). A neighbor must be in bounds, open, and have distance -1.",
+        "explanation": "Treat each open cell as a vertex. Initialize distances to minus one and the start to zero. Expand the queue in FIFO order. A neighbor must be in bounds, open, and undiscovered; immediately assign its parent distance plus one before enqueuing. Each cell enters once, and increasing distance layers make first discovery shortest. Print the destination value directly: zero for a single cell, minus one if unreachable. Time and space are O(HW).",
+        "objectives": [
+          "Model states, edges, and distances",
+          "Mark on enqueue to avoid duplicates",
+          "Justify shortest first-discovery distances"
+        ],
+        "checkpoints": [
+          {
+            "question": "Why mark on enqueue rather than removal?",
+            "answer": "Several parents could enqueue the same cell before its first removal."
+          },
+          {
+            "question": "Does ordinary BFS handle unequal edge costs?",
+            "answer": "No. Layers count edges, which no longer equal total cost."
+          }
+        ]
+      },
+      "ja": {
+        "title": "幅優先探索",
+        "summary": "同じコストの移動を距離の層で調べる。",
+        "sections": [
+          {
+            "title": "移動をグラフで表す",
+            "body": "地図の見た目を離れ、状態と許される移動だけを残して考えます。通行可能なマスが頂点で、一回の合法な移動が辺です。この課題では、以後の移動が現在位置と固定された地図だけで決まるので、状態は行と列で十分です。鍵の所持、残り体力、時刻などが条件に入るなら、それらも状態として区別すべきかを考え直します。上下左右の移動はどれも一回なので、最短路は辺の本数が最少の道です。座標は零から始め、左上は (0,0)、右下は (H-1,W-1) です。探索を書く前に、壁は訪問できず、斜め移動も辺ではないことを確認します。モデルを間違えると、キューを正しく操作しても別の問題の答えを求めてしまいます。"
+          },
+          {
+            "title": "距離表とキューの役割を分ける",
+            "body": "距離表 dist を H 行 W 列で作り、未発見を表す -1 で埋めます。始点は移動せず立っているので零です。キューには、発見済みだが隣接マスをまだ展開していない場所を入れます。dist は知っている結果を残し、キューはこれから処理する仕事を保存する、という役割の違いがあります。距離が -1 でなければ訪問済みと判断できます。距離は取り出す時ではなく、追加する時に記録してください。遅らせると複数の親から同じマスが重複して追加されます。二次元リストは [[-1]*W for _ in range(H)] のように各行を別に作ります。一つの行を H 倍すると参照が共有され、一マスの変更が他の行まで変えてしまいます。",
+            "code": "dist = [[-1] * 3 for _ in range(2)]\ndist[0][1] = 0\nprint(dist[0])\nprint(dist[1])\n",
+            "output": "[-1, 0, -1]\n[-1, -1, -1]\n"
+          },
+          {
+            "title": "小さな地図で距離の層を見る",
+            "body": "二行三列の地図を描き、一行目を ...、二行目を .#. とします。最初のキューには距離零の左上だけが入っています。そこから下と右を距離一で追加します。下のマスを取り出しても、ほかの方向は壁、範囲外、訪問済みなので増えません。一行目の中央を処理すると右上が距離二で見つかり、さらに右下が距離三になります。先入れ先出しにより、距離一の仕事がすべて終わってから距離二を処理することが分かります。各回について、取り出したマス、その距離、新たに追加したマスを書いてください。行き止まりは何も追加しないだけで、特別な失敗状態は不要です。すべての仕事が終わっても目的地が未発見なら、初めて到達不能と判断します。"
+          },
+          {
+            "title": "隣接マスの条件を実装する",
+            "body": "popleft で座標 (r,c) を取り出し、四種類の方向差から (nr,nc) を計算します。まず行と列が範囲内かを確認し、その後で地図を参照して、通れることと未発見であることを調べます。Python では負の添字が必ずしもエラーにならず、grid[-1] は最後の行を読みます。下限の確認を忘れると地図の反対側へつながったような誤答になります。条件を満たしたら距離に一を足して記録し、座標の組を追加します。求めるのは長さだけなので、経路全体を保存する必要はありません。道順が必要なら親の座標を別に保存して終点から戻ります。この実装は到達可能な場所を最後まで調べ、未到達の -1 をそのまま答えに使います。",
+            "code": "from collections import deque\n\nh, w = map(int, input().split())\ngrid = [input() for _ in range(h)]\ndist = [[-1] * w for _ in range(h)]\ndist[0][0] = 0\nqueue = deque([(0, 0)])\nwhile queue:\n    r, c = queue.popleft()\n    for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:\n        nr, nc = r + dr, c + dc\n        if 0 <= nr < h and 0 <= nc < w:\n            if grid[nr][nc] == \".\" and dist[nr][nc] == -1:\n                dist[nr][nc] = dist[r][c] + 1\n                queue.append((nr, nc))\nprint(dist[h - 1][w - 1])\n",
+            "exampleInput": "2 3\n...\n.#.\n",
+            "output": "3\n"
+          },
+          {
+            "title": "最初の発見が最短になる理由",
+            "body": "正しさは層の順番から説明します。始点の距離零は明らかに最短です。距離 d のマスを処理して未発見の隣接点を見つけたら、その距離を d+1 とします。もしもっと短い道があるなら、その道の直前のマスは d-1 以下の層にあり、既に処理されて目的のマスを発見したはずです。未発見であることと矛盾するため、最初の値が最短になります。この説明には、すべての辺の代価が等しいという前提があります。零と一が混在したり任意の重みがあったりすると、そのままでは成り立ちません。各マスは一回だけ追加され、四方向だけを確認するので O(HW) 時間です。距離表とキューはいずれもマス数に比例する大きさになり得るため、領域も O(HW) です。"
+          },
+          {
+            "title": "始点と壁と到達不能を確認する",
+            "body": "一マスの地図では始点と終点が同じなので答えは零です。移動しなかったことを到達不能と混同しないでください。終点の領域が壁で分離される例、一行、一列、細い通路、同じ長さの道が複数ある例も試します。この課題は始点と終点が通れると保証していますが、別の問題ではその保証を読み直し、必要なら初期チェックを追加します。k 個のマスを通る道の移動は k-1 回です。また、零は始点の正しい距離なので未訪問の印にはできません。-1 は探索途中では未発見、探索完了後には到達不能を意味します。完了する前に不可達だと結論してはいけません。距離表を表示すると調査に役立ちますが、提出時には終点の距離だけを残します。"
+          },
+          {
+            "title": "地図の形ではなく条件で選ぶ",
+            "body": "グリッドが出たという理由だけで BFS を選ぶ必要はありません。連結領域の個数なら DFS でもよく、指定された指示どおり動くだけなら普通のループで十分です。BFS を選ぶ理由は、すべての遷移の代価が等しく、最少の遷移回数や層ごとの探索が必要だからです。状態は文字列、整数、盤面全体などでも構いません。状態の数と各状態から出る辺の数を見積もり、探索できる規模かを確認します。本課題は最大二千五百マスで各四方向なので直接探索できます。状態の意味、初期化、隣接点の生成、訪問条件を自分の言葉で先に書き、それからプログラムに組み立てましょう。キューが距離の層を作る理由を説明できれば、二次元コードの暗記を越えて通常のグラフへ応用できます。"
+          }
+        ],
+        "exerciseTitle": "グリッドの最短経路",
+        "task": "H 行 W 列のグリッドが与えられます。. は通行可能、# は壁です。左上から右下を目指します。両方のマスは通行可能です。1 回で上下左右のいずれかへ 1 マス移動できます。最小移動回数を求め、到達できなければ -1 を出力してください。1 ≤ H,W ≤ 50 です。",
+        "input": "1 行目に H W、その後 H 行に、. または # からなる長さ W の文字列が与えられます。",
+        "output": "最小移動回数、または -1 を出力してください。",
+        "hint": "(0, 0) から BFS を行います。隣接マスは範囲内、壁でない、距離が -1 の 3 条件を満たす必要があります。",
+        "explanation": "通行可能なマスを頂点と考え、距離を -1、始点を零にします。キューを先入れ先出しで処理し、範囲内・壁ではない・未発見という三条件を満たす隣接点に、現在の距離に一を足した値を記録してから追加します。各点は一回だけ追加され、距離の層の順になるため初回の発見が最短です。終点の値を出力すれば、一マスなら零、到達不能なら -1 になります。時間と領域は O(HW) です。",
+        "objectives": [
+          "状態と辺と距離表を定める",
+          "追加時に記録して重複を防ぐ",
+          "最初の距離が最短と説明する"
+        ],
+        "checkpoints": [
+          {
+            "question": "取り出す時に訪問印を付けると何が起きますか。",
+            "answer": "複数の親から同じマスが重複して追加されることがあります。"
+          },
+          {
+            "question": "辺のコストが異なる場合も普通の BFS でよいですか。",
+            "answer": "いいえ。辺数の層と総コストが一致しなくなるためです。"
+          }
+        ]
+      }
+    },
+    "starter": "from collections import deque\n\nh, w = map(int, input().split())\ngrid = [input() for _ in range(h)]\n# TODO\n",
+    "solution": "from collections import deque\n\nh, w = map(int, input().split())\ngrid = [input() for _ in range(h)]\ndist = [[-1] * w for _ in range(h)]\ndist[0][0] = 0\nqueue = deque([(0, 0)])\nwhile queue:\n    r, c = queue.popleft()\n    for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:\n        nr, nc = r + dr, c + dc\n        if 0 <= nr < h and 0 <= nc < w:\n            if grid[nr][nc] == \".\" and dist[nr][nc] == -1:\n                dist[nr][nc] = dist[r][c] + 1\n                queue.append((nr, nc))\nprint(dist[h - 1][w - 1])\n",
+    "tests": [
+      {
+        "input": "1 1\n.\n",
+        "expected": "0\n"
+      },
+      {
+        "input": "2 2\n.#\n#.\n",
+        "expected": "-1\n"
+      },
+      {
+        "input": "1 5\n.....\n",
+        "expected": "4\n"
+      },
+      {
+        "input": "5 5\n.....\n####.\n.....\n.####\n.....\n",
+        "expected": "16\n"
+      }
+    ]
+  },
+  {
+    "id": "depth-first-search",
+    "content": {
+      "zh": {
+        "title": "深度优先式遍历与连通分量",
+        "summary": "用显式栈遍历整张图，并解释每个分量为何只数一次。",
+        "objectives": [
+          "建立无向邻接表",
+          "使用显式栈避免递归深度限制",
+          "证明访问集合恰好是一个连通分量"
+        ],
+        "sections": [
+          {
+            "title": "先问能否相连，不急着问最短",
+            "body": "并非每个图问题都需要距离。有时只问哪些点能通过若干条边互相到达，例如朋友网络被分成几组、线路系统有几个独立区域。一个连通分量就是这样一组顶点：组内任意两点有路径相连，不同组之间没有路径。这里边没有方向，所以“能到达”具有对称性。孤立顶点也单独组成一个分量，不能因为它没有边就忽略它。我们需要从一个未处理点开始，把与它相连的所有点找完，再寻找下一组。本课用显式栈完成深度优先式遍历，不依赖 Python 函数递归，因此长链不会因为调用栈深度上限而失败。先明确求的是分组数量，不是走法数量，也不是最短路线长度。"
+          },
+          {
+            "title": "邻接表如何表示输入的边",
+            "body": "顶点编号为一到 N，但 Python 列表下标为零到 N-1，所以读入边后统一减一。graph[v] 保存与 v 直接相连的顶点编号。无向边 (a,b) 必须在 graph[a] 中加入 b，也在 graph[b] 中加入 a；漏掉一边就变成方向不同的另一张图。初始化仍需为每个顶点创建独立列表，不能用 [[]]*N。邻接矩阵需要 N² 个位置，对本课二十万顶点不可行；邻接表只保存真实边，空间为 O(N+M)。重复边和自环可以原样存入，因为后面的访问标记会阻止重复处理。不要急着去重并引入额外集合，先判断输入规模和题目是否需要精确的边重数。本题只关心连通性，所以重复边不会改变答案。"
+          },
+          {
+            "title": "用小图跟踪栈与访问标记",
+            "body": "考虑五个点，边为 1-2、2-3、4-5。外层先找到点一，分量计数变成一，标记点一并入栈。弹出点一后发现点二，标记并压栈；接着由点二发现点三。点三没有未访问邻居，栈最终清空，第一组完成。外层继续遇到点二和点三时直接跳过，因为它们已属于第一组；遇到点四才开始第二次搜索，得到第二组。请记录每次外层计数增加的原因，而不是把每次 pop 当成一个分量。访问标记要在压栈时设置，这保证同一点即使被多个邻居发现，也只会压栈一次。邻居枚举顺序可能改变访问次序，却不会改变最终分组，所以不要把某条具体访问序列写死成正确性的依据。",
+            "code": "graph = [[1], [0, 2], [1], [4], [3]]\nseen = [False] * 5\nfor start in range(5):\n    if seen[start]:\n        continue\n    group = []\n    seen[start] = True\n    stack = [start]\n    while stack:\n        v = stack.pop()\n        group.append(v + 1)\n        for to in graph[v]:\n            if not seen[to]:\n                seen[to] = True\n                stack.append(to)\n    print(group)\n",
+            "output": "[1, 2, 3]\n[4, 5]\n"
+          },
+          {
+            "title": "外层找新组，内层找同组",
+            "body": "完整程序有两个不同层次的循环。外层遍历所有顶点，确保不漏掉与第一个点不相连的区域；内层 while stack 负责把当前分量彻底找完。只从顶点一搜索一次，只能得知一所在的分量，不能统计整张图。seen 必须在所有外层轮次之间保留，不能每开始一个分量就重新初始化。每次启动搜索前先标记 start，再放入栈，内层对未访问邻居执行相同的标记和添加步骤。这个版本适合连通性与可达性；若以后需要精确的递归进入、退出时刻或后序顺序，必须在栈里保存更多状态，不能认为简单 pop 顺序等同于所有递归 DFS 的细节。当前目标不需要这些额外信息，保持表示简单即可。",
+            "code": "n, m = map(int, input().split())\ngraph = [[] for _ in range(n)]\nfor _ in range(m):\n    a, b = map(int, input().split())\n    a -= 1\n    b -= 1\n    graph[a].append(b)\n    graph[b].append(a)\nseen = [False] * n\ncomponents = 0\nfor start in range(n):\n    if seen[start]:\n        continue\n    components += 1\n    seen[start] = True\n    stack = [start]\n    while stack:\n        v = stack.pop()\n        for to in graph[v]:\n            if not seen[to]:\n                seen[to] = True\n                stack.append(to)\nprint(components)\n",
+            "exampleInput": "5 3\n1 2\n2 3\n4 5\n",
+            "output": "2\n"
+          },
+          {
+            "title": "可达性证明与线性复杂度",
+            "body": "搜索不会越过分量边界：起点属于当前组，每次只沿真实边加入邻居，所以加入的点都与起点相连。搜索也不会漏掉同组顶点：如果某个可达点最终未访问，取一条从起点到它的路径，沿路找到第一条从已访问点走向未访问点的边；已访问点被处理时本应加入那个邻居，产生矛盾。因此一次搜索恰好覆盖一个分量，外层每次从未访问点启动，就恰好多数出一组而不重数。每个点只压栈一次，所有邻接表总长度为 2M，即使含自环与重复边，也仍按输入边数计入工作量。总时间 O(N+M)，空间 O(N+M)。不能把嵌套循环机械地相乘成 N×M，内层各轮处理的是互不重复的顶点集合。"
+          },
+          {
+            "title": "长链、环、孤立点怎样暴露漏洞",
+            "body": "没有边时，每个顶点都应该成为独立分量，答案为 N；这能检测只统计有边顶点的错误。所有点构成长链时答案为一，同时提醒你递归调用可能过深。三角形形成环时，也应只处理三个点；若忘记 seen，搜索会沿边来回走而无法结束。重复边不应增加分量，自环也不会把自己变成新组。编号转换常见错误是只给 a 减一却忘了 b，或混用输入编号和数组下标；用包含顶点 N 的边容易发现越界。还要确认 visited 的生命周期：它属于整次图分析，不属于某个局部节点。调试时打印每次新搜索的 start 和该次访问的点，可以明确区分“漏了某组”与“同组重复开始”两类问题。"
+          },
+          {
+            "title": "何时用栈搜索，何时需要别的方法",
+            "body": "DFS 式遍历和 BFS 都能找连通分量，选择栈不代表它总比队列更好。若目标改为无权最短路，优先使用前一课有距离层保证的 BFS；若要不断添加边并查询两点是否连通，可以考虑并查集，重新遍历整张图可能太慢。若边有方向，沿出边能到达的集合不等于无向连通分量，更不自动等于强连通分量，必须重新定义问题。练习时先写“图是无向的、我要统计最大互相可达组”的一句话，再建立输入、图、访问表、两层循环四部分。通过测试后，试着把计数扩展为记录每组大小，检查这些大小之和是否等于 N。这一额外不变量能帮助你检验遍历是否遗漏或重复，但不必改变本题规定的输出。"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "为什么外层必须扫描所有顶点？",
+            "answer": "第一个点所在分量之外可能还有区域或孤立点。"
+          },
+          {
+            "question": "嵌套循环为什么不是 O(NM)？",
+            "answer": "每个点只会进入一次搜索，所有邻接表总共只扫描 2M 项。"
+          }
+        ],
+        "exerciseTitle": "数连通分量",
+        "task": "给定 N 个顶点、M 条无向边，顶点编号为 1 到 N。允许重复边和自环。输出连通分量数量；孤立顶点也算一个分量。1≤N≤200000，0≤M≤200000。",
+        "input": "第一行 N M，之后 M 行每行 a b，表示一条无向边。",
+        "output": "输出连通分量数量。",
+        "hint": "外层遍历未访问起点，内层用栈访问它所在的全部区域。",
+        "explanation": "用双向邻接表存边。seen 在整次算法中保留，每遇到未访问起点就增加分量数，并用栈标记与它相连的所有点。加入邻居时先标记，重复边和环不会重复处理。一次遍历不会越过当前分量，且沿路径不能漏掉可达点，因此计数准确。时间和空间 O(N+M)。"
+      },
+      "en": {
+        "title": "Stack traversal and components",
+        "summary": "Traverse a whole graph with an explicit stack and count each component once.",
+        "objectives": [
+          "Build an undirected adjacency list",
+          "Avoid recursion depth with an explicit stack",
+          "Prove that each search covers one component"
+        ],
+        "sections": [
+          {
+            "title": "Connectivity before shortest paths",
+            "body": "Some graph problems ask which vertices are connected, not how far apart they are. A connected component is a maximal group in which every pair is linked by a path. Different components have no path between them. Because this graph is undirected, reachability is symmetric. An isolated vertex still forms a component even though it has no edges. We will start from an unprocessed vertex, discover its whole group, and repeat. The traversal uses an explicit stack instead of recursive Python calls, avoiding recursion-depth failures on a long chain. Keep the objective precise: count groups, not paths or shortest distances."
+          },
+          {
+            "title": "Build an adjacency list",
+            "body": "Input labels run from one to N, while list indices run from zero to N minus one. Convert once when reading each edge. graph[v] stores neighbors of v. For an undirected edge, append in both directions; omitting the reverse entry changes the graph. Each vertex needs its own list, not repeated references to one list. An adjacency matrix requires N squared entries and is unsuitable for two hundred thousand vertices. An adjacency list uses O(N+M) space. Repeated edges and self-loops may remain because visited flags prevent repeated processing. Deduplication is unnecessary for connectivity under the stated size limits."
+          },
+          {
+            "title": "Trace the stack and visited flags",
+            "body": "Use five vertices with edges 1-2, 2-3, and 4-5. The outer loop reaches vertex one, increments the component count, marks it, and pushes it. Popping one discovers two; popping two discovers three. The stack eventually empties, completing the first group. The outer loop skips two and three because they are already marked, then starts a second search at four. A pop does not represent a new component; only a new outer-loop search does. Mark when pushing so multiple neighbors cannot add the same vertex repeatedly. Neighbor order may change the visiting sequence but not the final partition.",
+            "code": "graph = [[1], [0, 2], [1], [4], [3]]\nseen = [False] * 5\nfor start in range(5):\n    if seen[start]:\n        continue\n    group = []\n    seen[start] = True\n    stack = [start]\n    while stack:\n        v = stack.pop()\n        group.append(v + 1)\n        for to in graph[v]:\n            if not seen[to]:\n                seen[to] = True\n                stack.append(to)\n    print(group)\n",
+            "output": "[1, 2, 3]\n[4, 5]\n"
+          },
+          {
+            "title": "One loop for groups, one for visits",
+            "body": "The complete program has two distinct loop levels. The outer loop covers every vertex, including components disconnected from vertex one. The inner while loop finishes the current component. A single search from vertex one cannot count the whole graph. Keep the same seen array across all searches. Mark the starting vertex before pushing it, then use the same rule for its neighbors. This explicit-stack traversal is sufficient for reachability and components. Algorithms requiring recursive entry/exit times or postorder need additional stack state; a simple pop order does not reproduce every recursive DFS detail. Store only what this task actually requires.",
+            "code": "n, m = map(int, input().split())\ngraph = [[] for _ in range(n)]\nfor _ in range(m):\n    a, b = map(int, input().split())\n    a -= 1\n    b -= 1\n    graph[a].append(b)\n    graph[b].append(a)\nseen = [False] * n\ncomponents = 0\nfor start in range(n):\n    if seen[start]:\n        continue\n    components += 1\n    seen[start] = True\n    stack = [start]\n    while stack:\n        v = stack.pop()\n        for to in graph[v]:\n            if not seen[to]:\n                seen[to] = True\n                stack.append(to)\nprint(components)\n",
+            "exampleInput": "5 3\n1 2\n2 3\n4 5\n",
+            "output": "2\n"
+          },
+          {
+            "title": "Prove reachability and linear work",
+            "body": "Every discovered vertex belongs to the starting component because it is reached through a real edge from an already reachable vertex. Conversely, suppose a reachable vertex remains unmarked. On a path to it, consider the first edge from a marked vertex to an unmarked one. Processing the marked endpoint would have discovered the other endpoint, a contradiction. One search therefore covers exactly one component, and the outer loop counts each once. Every vertex is pushed once, and all adjacency lists contain 2M entries. Total time and space are O(N+M). Do not multiply nested loop bounds mechanically: different searches process disjoint vertex sets."
+          },
+          {
+            "title": "Use chains, cycles, and isolated vertices",
+            "body": "With no edges, the answer is N; this catches code that ignores isolated vertices. A chain containing all vertices has one component and stresses recursive depth. A triangle still visits only three vertices; missing seen checks cause endless revisits around its cycle. Repeated edges do not add components, and a self-loop does not create a new group. Input conversion often fails when only one endpoint is decremented. Include an edge touching vertex N to expose that mistake. While debugging, print each new search start and its visited vertices. This separates missing groups from incorrectly starting several searches inside the same group."
+          },
+          {
+            "title": "Know the limits of this traversal",
+            "body": "Both stack traversal and BFS can find components; a stack is not universally superior. Use BFS for unweighted shortest paths because it has the distance-layer guarantee. If edges are added repeatedly with connectivity queries, a disjoint-set structure may avoid repeated full traversals. Directed reachability is different again and does not automatically identify strongly connected components. Before implementing, state that the graph is undirected and the requested objects are maximal connected groups. Build input conversion, adjacency lists, visited state, and the two loop levels separately. As a debugging extension, record group sizes and verify that their sum is N without changing the required output."
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "Why scan every vertex in the outer loop?",
+            "answer": "Other components and isolated vertices may be unreachable from the first start."
+          },
+          {
+            "question": "Why is the nested traversal not O(NM)?",
+            "answer": "Vertices enter only one search and the adjacency lists contain 2M entries in total."
+          }
+        ],
+        "exerciseTitle": "Count connected components",
+        "task": "An undirected graph has N vertices numbered 1 through N and M edges. Repeated edges and self-loops are allowed. Count its connected components, including isolated vertices. 1≤N≤200000 and 0≤M≤200000.",
+        "input": "N M, followed by M lines containing endpoints a b.",
+        "output": "Print the number of connected components.",
+        "hint": "Start a stack traversal at each still-unvisited vertex.",
+        "explanation": "Store every edge in both adjacency lists. Keep seen across the whole algorithm. Each unvisited outer-loop start begins one new component, and the stack marks everything reachable from it. Mark before pushing so cycles and repeated edges cannot add duplicate work. A traversal stays inside its component and cannot miss a reachable vertex. Time and space are O(N+M)."
+      },
+      "ja": {
+        "title": "スタック探索と連結成分",
+        "summary": "明示的なスタックでグラフ全体を調べ、成分を一度ずつ数える。",
+        "objectives": [
+          "無向隣接リストを作る",
+          "明示的スタックで深さ制限を避ける",
+          "一回の探索が一成分を覆うと示す"
+        ],
+        "sections": [
+          {
+            "title": "最短距離の前につながりを考える",
+            "body": "グラフの問題がすべて距離を求めるとは限りません。友人関係が何グループに分かれるか、路線網がいくつの独立した領域に分かれるかなど、つながりだけを知りたい場合があります。連結成分は、任意の二点が道で結ばれる頂点の最大の集まりです。異なる成分同士には道がありません。ここでは辺に向きがないので到達関係は対称です。辺を持たない孤立点も、一つの成分として数えます。未処理の点からその仲間をすべて探し、残りがあれば次のグループを探します。本課では Python の関数再帰を使わず、明示的なスタックで探索するため、長い鎖でも再帰の深さ制限には達しません。求めるのはグループ数であり、経路数や最短距離ではありません。"
+          },
+          {
+            "title": "隣接リストで辺を保存する",
+            "body": "入力の頂点番号は一から N、Python の添字は零から N-1 なので、辺を読むときに一度だけ一を引きます。graph[v] には v と直接つながる相手を保存します。無向辺 (a,b) は graph[a] に b、graph[b] に a の両方を追加します。片方を忘れると別の有向グラフになってしまいます。各頂点には独立したリストが必要で、[[]]*N のような共有参照を避けます。隣接行列は N² 個の場所を使うため、二十万頂点には適しません。隣接リストなら実際の辺だけを保存し、O(N+M) 領域で済みます。重複辺や自己ループを残しても、訪問印が処理の重複を防ぎます。この課題では連結性だけが必要なので、重複を除くための集合を追加する必要はありません。"
+          },
+          {
+            "title": "小さなグラフで状態を追う",
+            "body": "五頂点に辺 1-2、2-3、4-5 がある例を追います。外側のループで頂点一を見つけたら成分数を一にし、印を付けてスタックへ入れます。一を取り出すと二が見つかり、二から三が見つかります。三には未訪問の隣接点がなく、やがてスタックが空になり、一つ目のグループが終わります。外側のループで二や三に来ても既に印があるので飛ばし、四で二回目の探索を始めます。取り出すたびに成分を増やすのではなく、新しい探索を開始する時だけ増やす点が重要です。印は追加時に付け、複数の隣接点から同じ頂点を重ねて追加しないようにします。隣接点の列挙順で訪問順は変わり得ますが、最終的な分割は変わりません。",
+            "code": "graph = [[1], [0, 2], [1], [4], [3]]\nseen = [False] * 5\nfor start in range(5):\n    if seen[start]:\n        continue\n    group = []\n    seen[start] = True\n    stack = [start]\n    while stack:\n        v = stack.pop()\n        group.append(v + 1)\n        for to in graph[v]:\n            if not seen[to]:\n                seen[to] = True\n                stack.append(to)\n    print(group)\n",
+            "output": "[1, 2, 3]\n[4, 5]\n"
+          },
+          {
+            "title": "外側は新しい成分、内側は仲間",
+            "body": "完成したプログラムには意味の違う二重のループがあります。外側はすべての頂点を調べ、最初の頂点とつながっていない領域も見逃さないためのものです。内側の while stack は現在の連結成分を最後まで調べます。頂点一から一度だけ探索しても、そこに属する成分しか分かりません。seen はすべての探索で共有し、新しい成分を始めるたびに初期化してはいけません。開始点を追加する前に印を付け、隣接点にも同じ規則を使います。この形は到達可能性や成分数には十分です。ただし再帰の入る時刻・出る時刻や帰りがけ順が必要な別の算法では、スタックに追加の状態を持たせます。単純な取り出し順が、再帰 DFS のすべての動作を再現するわけではないことも覚えておきましょう。",
+            "code": "n, m = map(int, input().split())\ngraph = [[] for _ in range(n)]\nfor _ in range(m):\n    a, b = map(int, input().split())\n    a -= 1\n    b -= 1\n    graph[a].append(b)\n    graph[b].append(a)\nseen = [False] * n\ncomponents = 0\nfor start in range(n):\n    if seen[start]:\n        continue\n    components += 1\n    seen[start] = True\n    stack = [start]\n    while stack:\n        v = stack.pop()\n        for to in graph[v]:\n            if not seen[to]:\n                seen[to] = True\n                stack.append(to)\nprint(components)\n",
+            "exampleInput": "5 3\n1 2\n2 3\n4 5\n",
+            "output": "2\n"
+          },
+          {
+            "title": "到達性と線形時間を証明する",
+            "body": "探索で追加される点は、到達済みの点から実在する辺を通って見つかるので、開始点と同じ成分に属します。逆に同じ成分なのに最後まで未訪問の点があると仮定します。開始点からその点への道で、訪問済みから未訪問へ初めて移る辺を選ぶと、前者を処理した時に後者を追加するはずなので矛盾します。したがって一回の探索はちょうど一成分を覆い、外側は各成分を一度ずつ数えます。各頂点は一回だけ追加され、隣接リストの総長は 2M です。重複辺や自己ループも入力された辺数に含めれば同じ評価になります。時間と領域は O(N+M) です。見かけが二重ループでも、異なる探索で処理する頂点は重ならないため、単純に N と M を掛ける評価は誤りです。"
+          },
+          {
+            "title": "鎖・閉路・孤立点で確認する",
+            "body": "辺が一本もなければ、すべての頂点が別々の成分なので答えは N です。辺のある頂点だけを数える誤りを見つけられます。全頂点を結ぶ長い鎖は一成分で、再帰の深さに関する問題も意識できます。三角形の閉路でも三頂点を一回ずつ処理するだけです。seen を忘れると辺を何度も往復して終了しなくなります。重複辺で成分は増えず、自己ループでも新しい組はできません。番号変換では片方の端点だけ一を引く間違いがあり、頂点 N を含む辺が確認に役立ちます。訪問配列は頂点一個や探索一回のためではなく、グラフ全体の分析で保持します。調査中に開始点と訪問した点を表示すると、組を漏らしたのか、同じ組から何度も探索を始めたのかを区別できます。"
+          },
+          {
+            "title": "この探索が答えられる範囲",
+            "body": "スタックによる探索でも BFS でも連結成分は求められます。スタックが常に優れているわけではありません。重みなし最短路なら距離の層が保証される BFS を選びます。辺の追加と連結判定を何度も行う場合は、毎回全体を探索せず、連結集合を管理する構造を考える余地があります。また辺に向きがあると、出辺で到達できる集合は無向グラフの成分とは違い、強連結成分が自動的に得られるわけでもありません。まず無向グラフの最大の連結グループを数える、と問題を一文にします。番号変換、隣接リスト、訪問表、二段階のループを分けて組み立ててください。発展として各成分の大きさを記録し、合計が N かを確認すると、漏れや重複の調査にも役立ちます。"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "外側で全頂点を見る理由は。",
+            "answer": "最初の開始点から到達できない成分や孤立点もあるためです。"
+          },
+          {
+            "question": "二重ループでも O(NM) でない理由は。",
+            "answer": "各頂点は一度だけ探索され、隣接リストの総項目数は 2M だからです。"
+          }
+        ],
+        "exerciseTitle": "連結成分を数える",
+        "task": "一から N の番号を持つ N 頂点 M 辺の無向グラフがあります。重複辺と自己ループを許します。孤立点も含めて連結成分数を求めてください。1≤N≤200000、0≤M≤200000 です。",
+        "input": "最初に N M、その後 M 行に端点 a b。",
+        "output": "連結成分数を出力してください。",
+        "hint": "未訪問の開始点ごとにスタックで同じ領域を訪問します。",
+        "explanation": "各辺を両方向に保存し、seen を全探索で保持します。外側で未訪問点を見つけるたび成分数を増やし、スタックでそこから到達する点を調べます。追加前の印により、閉路や重複辺でも重ねて処理しません。一回の探索は成分から出ず、到達可能な点を漏らさないので正しく数えられます。時間と領域は O(N+M) です。"
+      }
+    },
+    "order": 19,
+    "stage": "graphs",
+    "minutes": 50,
+    "prerequisiteIds": [
+      "breadth-first-search"
+    ],
+    "relatedProblems": [
+      "ABC177D",
+      "ABC287C",
+      "ABC270C"
+    ],
+    "solution": "n, m = map(int, input().split())\ngraph = [[] for _ in range(n)]\nfor _ in range(m):\n    a, b = map(int, input().split())\n    a -= 1\n    b -= 1\n    graph[a].append(b)\n    graph[b].append(a)\nseen = [False] * n\ncomponents = 0\nfor start in range(n):\n    if seen[start]:\n        continue\n    components += 1\n    seen[start] = True\n    stack = [start]\n    while stack:\n        v = stack.pop()\n        for to in graph[v]:\n            if not seen[to]:\n                seen[to] = True\n                stack.append(to)\nprint(components)\n",
+    "starter": "n, m = map(int, input().split())\n# Read edges and build the graph.\n",
+    "tests": [
+      {
+        "input": "1 0\n",
+        "expected": "1\n"
+      },
+      {
+        "input": "4 0\n",
+        "expected": "4\n"
+      },
+      {
+        "input": "4 3\n1 2\n2 3\n3 4\n",
+        "expected": "1\n"
+      },
+      {
+        "input": "5 3\n1 2\n2 3\n4 5\n",
+        "expected": "2\n"
+      },
+      {
+        "input": "4 5\n1 2\n2 3\n3 1\n1 2\n4 4\n",
+        "expected": "2\n"
+      }
+    ]
+  },
+  {
+    "id": "grid-search",
+    "content": {
+      "zh": {
+        "title": "网格搜索与区域计数",
+        "summary": "用坐标、邻接规则和访问状态精确描述地图。",
+        "objectives": [
+          "区分四邻域与八邻域",
+          "对长方形地图安全生成邻居",
+          "统计区域并说明总复杂度"
+        ],
+        "sections": [
+          {
+            "title": "网格是图的一种紧凑表示",
+            "body": "网格题通常不给出一条条边，而是用地图字符和移动规则隐式定义边。既然邻居能由坐标计算，就不必为每个格子额外建立邻接表。本课问可通行区域数量，不问距离，因此沿用上一课的分量思路，把顶点编号换成坐标元组即可。需要先重新读懂字符含义：这里 . 是可通行格子，# 是墙；有些题刚好相反，不能按视觉直觉假定。还要重新读取相邻规则，四邻域只有上下左右，八邻域还包括斜向。这两种定义会改变分量数量。本课专门把“格子是否存在、是否可走、是否已经处理”拆开，训练你在看似相同的地图题之间准确调整模型，而不是复制一个固定的方向数组。"
+          },
+          {
+            "title": "行列与方向的约定",
+            "body": "统一使用 (r,c)：r 是行，从上往下增大；c 是列，从左往右增大。向下对应 (1,0)，向上是 (-1,0)，向右是 (0,1)，向左是 (0,-1)。如果在变量命名中使用 x、y，也必须始终保持第一个量对应行，不能一会儿按数学坐标一会儿按列表下标。H 控制行的上界，W 控制列的上界。方形地图会掩盖把 H 与 W 写反的错误，所以测试一定包含长方形。字符串适合只读地图，访问 grid[r][c] 返回一个字符；若想修改格子，需要列表化，但本课使用独立 seen 表，避免覆盖原始地图。这样调试时仍能看到输入，也能区分墙与已访问通路，两者虽然都不再入栈，原因却不同。"
+          },
+          {
+            "title": "对角接触为什么不是相连",
+            "body": "看两行两列的地图：第一行 .#，第二行 #.。虽然两个点在图形上角对角接触，但四方向移动都被墙挡住，因此有两个区域。若改成八方向，才会变成一个区域。再看三行三列，只有正中间是墙，其余是点；点可以绕着墙相连，所以仍是一个区域，不是根据每行的连续段分别计数。手算时给一个点涂色，并反复给与已涂色点四邻接的点涂同色，直到不能继续；再换颜色找下一个点。这个“染色过程”就是 flood fill，栈只是安排下一次染色的位置。不要通过比较相邻行有多少相同列来猜分量数，连接可能绕行多步，必须把传递到达的关系考虑完整。",
+            "code": "grid = [\".#\", \"#.\"]\nh, w = 2, 2\nneighbors = []\nfor dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:\n    nr, nc = dr, dc\n    if 0 <= nr < h and 0 <= nc < w and grid[nr][nc] == \".\":\n        neighbors.append((nr, nc))\nprint(neighbors)\n",
+            "output": "[]\n"
+          },
+          {
+            "title": "把染色流程变成两层扫描",
+            "body": "外层两个 for 按行列扫描地图，遇到墙或已访问格就跳过。每次发现新的通路，答案加一，标记它并启动一次栈搜索。内层取出坐标，检查四邻居，只有范围内、为点、未访问三个条件都满足，才标记并加入栈。这里虽然写了双重外层扫描，再嵌套一个 while 和方向循环，但并不会为每个起点重新搜索整张图：第一次塗色已将整个区域标记，之后外层会跳过它。请注意变量作用域，外层 r,c 是扫描位置，内层 x,y 是当前展开位置，不能误用外层位置生成所有邻居。每次生成新坐标应基于刚从栈中取出的点，否则搜索只会围绕起点打转，无法穿过长通道。",
+            "code": "h, w = map(int, input().split())\ngrid = [input().strip() for _ in range(h)]\nseen = [[False] * w for _ in range(h)]\nanswer = 0\nfor r in range(h):\n    for c in range(w):\n        if grid[r][c] == \"#\" or seen[r][c]:\n            continue\n        answer += 1\n        seen[r][c] = True\n        stack = [(r, c)]\n        while stack:\n            x, y = stack.pop()\n            for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]:\n                nx, ny = x + dx, y + dy\n                if 0 <= nx < h and 0 <= ny < w:\n                    if grid[nx][ny] == \".\" and not seen[nx][ny]:\n                        seen[nx][ny] = True\n                        stack.append((nx, ny))\nprint(answer)\n",
+            "exampleInput": "2 2\n.#\n#.\n",
+            "output": "2\n"
+          },
+          {
+            "title": "区域不会漏掉，也不会重复",
+            "body": "一次染色只沿合法的四方向通路扩展，所以不会跨墙进入另一个区域。对当前区域里的任意点，都存在一条由起点通向它的合法路径，沿路径逐点推理，每个后继都会在前驱展开时被发现，因此不会漏掉。于是每次答案增加恰好对应一个完整区域；已经标记的区域再也不会触发增加，计数既不漏也不重。地图读取和外层扫描需要 O(HW)，内层每个通路最多出栈一次，每次检查四个方向，也是 O(HW)，不是 O((HW)²)。seen 和栈最坏占 O(HW) 空间。墙虽然不入栈，也仍会被扫描，所以复杂度不能只看通路数量。若 H、W 都较大，应先用乘积估计内存，而不是只看单个维度。"
+          },
+          {
+            "title": "专门检查地图边缘与形状",
+            "body": "全是墙时答案是零，不应无条件从左上角启动搜索。全是点时，只要地图非空，答案就是一；这能检测外层是否忘记跳过已访问点。一格、一行、一列分别检查循环上下界，棋盘状点墙交错能检测误加斜向邻居。用带弯曲通道的地图检查坐标更新是否基于当前点。读入的每一行应保留 W 个字符，不要把空格分词当成地图字符，也不要把字符 . 当成布尔真假判断：非空字符串 '.' 和 '#' 都为真。判断通路必须显式比较字符。若想节省一张 seen 表而把访问后的点改成墙，应先将每行转为列表，并清楚记录这会丢失原图；初学阶段建议先保留分开的状态，降低调试成本。"
+          },
+          {
+            "title": "把同一模型迁移到别的地图题",
+            "body": "做其他网格题时，把需要修改的地方列成清单：哪些字符允许进入、邻接是四方向还是八方向、是否有传送或单行边、状态是否还需方向或钥匙、目标是距离还是区域数量。例如题库 ABC325C 的邻接包含斜向，不能直接使用本课四方向数组而不修改；关联题是迁移练习，不表示规则完全相同。若题目要求最少移动，改用队列并记录距离；若只求面积，可在每次出栈时累计当前区域大小。若要求边界长度，则对四邻居中越界或为墙的方向计数，而不是累计访问点数。通过辨认“状态、边、所求信息”这三个层次，你可以保留正确的通用部分，只替换确实变化的规则，避免把看起来像的题误当成同一道题。"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "两个点只在角上接触，本课算几个区域？",
+            "answer": "两个；本课只允许上下左右移动，不能沿斜对角直接连接。两点之间必须存在仅经过开放格子的合法路径才属于同一区域。"
+          },
+          {
+            "question": "为什么 if grid[r][c] 不能判断通路？",
+            "answer": "点和井号都是非空字符串，都被判断为真，必须显式比较字符。"
+          }
+        ],
+        "exerciseTitle": "数通路区域",
+        "task": "给定 H 行 W 列地图，. 是通路，# 是墙。两个通路格若能仅经通路上下左右移动到达，则属于同一区域。斜向不相邻。输出通路区域数量。1≤H,W≤200。",
+        "input": "第一行 H W，之后 H 行各 W 个 . 或 # 字符。",
+        "output": "输出区域数量，全是墙时输出 0。",
+        "hint": "每遇到未访问通路就加一，再完整标记它所在的区域。",
+        "explanation": "逐格扫描，跳过墙与已访问格。新的通路代表一个还未统计的区域，先加一，再用显式栈标记所有四方向可达通路。入栈时标记防止重复。外层扫描和内层搜索合计每格常数次工作，所以时间、空间均为 O(HW)。斜向点不会被方向数组连接，全墙时没有搜索开始，答案自然为零。"
+      },
+      "en": {
+        "title": "Grid search and flood fill",
+        "summary": "Model a map precisely with coordinates, adjacency, and visited state.",
+        "objectives": [
+          "Distinguish four and eight neighbors",
+          "Generate safe neighbors on rectangles",
+          "Count regions and bound total work"
+        ],
+        "sections": [
+          {
+            "title": "A grid is a compact graph representation",
+            "body": "Grid tasks usually define edges implicitly through characters and movement rules instead of listing them. Compute neighbors from coordinates rather than building an unnecessary adjacency list. This exercise asks for the number of open regions, so reuse the component idea with coordinate tuples instead of numbered vertices. Read character meanings carefully: here a dot is open and a hash is a wall, while other tasks may reverse that interpretation. Also distinguish four-neighbor and eight-neighbor adjacency. Diagonal connections change the answer. Separate whether a coordinate exists, whether it is traversable, and whether it has already been processed before assembling the search."
+          },
+          {
+            "title": "Fix row, column, and direction conventions",
+            "body": "Use the pair (r,c) consistently: row increases downward and column increases to the right. The four offsets are (1,0), (-1,0), (0,1), and (0,-1). If you prefer x and y, still keep the first coordinate tied to the row index; mixing mathematical axes with list indexing causes subtle errors. H bounds rows and W bounds columns. Square examples hide swapped dimensions, so include a rectangle. Strings are suitable for a read-only map. A separate seen table preserves the original characters and distinguishes blocked cells from already explored open cells, even though neither should be pushed again."
+          },
+          {
+            "title": "Why touching diagonally is not enough",
+            "body": "Consider a two-row map whose row strings are \".#\" and \"#.\". The two dots touch only at a corner, so four-neighbor movement leaves two regions. Eight-neighbor movement would give one. Now consider a three-by-three map with only the center blocked: all remaining dots connect around the obstacle, forming one region rather than separate row segments. By hand, color one dot, repeatedly color every open four-neighbor of a colored cell, and stop when no additions remain. Repeat with a new color. This is flood fill; the stack merely schedules the next expansion. Local counts of matching columns cannot replace transitive reachability through paths of many moves.",
+            "code": "grid = [\".#\", \"#.\"]\nh, w = 2, 2\nneighbors = []\nfor dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:\n    nr, nc = dr, dc\n    if 0 <= nr < h and 0 <= nc < w and grid[nr][nc] == \".\":\n        neighbors.append((nr, nc))\nprint(neighbors)\n",
+            "output": "[]\n"
+          },
+          {
+            "title": "Implement scanning plus flood fill",
+            "body": "Two outer loops scan every row and column. Skip walls and seen cells. Each remaining dot starts one new region: increment the answer, mark it, and run the stack search. Inside, generate neighbors from the coordinate just removed, not from the fixed outer-loop starting cell. A neighbor must be in bounds, open, and unseen before being marked and pushed. The nested loops do not launch a full search from every dot because the first flood fill marks its entire region. Later scans skip those cells. Distinguish the scan variables from the expansion variables to avoid accidentally exploring only the starting cell’s immediate neighborhood.",
+            "code": "h, w = map(int, input().split())\ngrid = [input().strip() for _ in range(h)]\nseen = [[False] * w for _ in range(h)]\nanswer = 0\nfor r in range(h):\n    for c in range(w):\n        if grid[r][c] == \"#\" or seen[r][c]:\n            continue\n        answer += 1\n        seen[r][c] = True\n        stack = [(r, c)]\n        while stack:\n            x, y = stack.pop()\n            for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]:\n                nx, ny = x + dx, y + dy\n                if 0 <= nx < h and 0 <= ny < w:\n                    if grid[nx][ny] == \".\" and not seen[nx][ny]:\n                        seen[nx][ny] = True\n                        stack.append((nx, ny))\nprint(answer)\n",
+            "exampleInput": "2 2\n.#\n#.\n",
+            "output": "2\n"
+          },
+          {
+            "title": "Why every region is counted once",
+            "body": "A flood fill cannot cross into another region because every expansion follows a legal open adjacency. It cannot miss a cell in its own region either: along a path from the start, each successor is discovered when its predecessor is expanded. Thus each increment corresponds to one entire region, and marked regions cannot trigger another increment. Reading and scanning cost O(HW). Each open cell is popped once and checks four directions, also O(HW), not the square of the cell count. The table and stack require O(HW) space. Walls still participate in the scan, so complexity should include the whole grid rather than only its open cells."
+          },
+          {
+            "title": "Test borders and shapes deliberately",
+            "body": "An all-wall map has zero regions, so never start unconditionally at the top-left. An all-open nonempty map has one region, exposing a missing seen check in the outer scan. Test a single cell, row, column, checkerboard, and a turning corridor. The checkerboard detects accidental diagonal adjacency; the corridor detects expansion from the wrong coordinate. Compare characters explicitly: both dot and hash are nonempty strings and therefore truthy in Python. Mutating visited dots into walls can save a separate table, but requires mutable rows and loses the original map. Keep the representations separate while learning so mistakes remain easier to inspect."
+          },
+          {
+            "title": "Transfer the model carefully",
+            "body": "When transferring this code, list the rules that may change: traversable characters, four versus eight directions, teleportation, one-way edges, additional state such as keys, and whether the goal is distance or region count. ABC325C includes diagonal adjacency, so its linked practice requires a deliberate change rather than blind copying. To obtain area, count popped cells within each fill. For a perimeter, count sides facing a wall or outside the map instead of counting cells. For minimum moves, restore the BFS queue and distance table. Separate state, transitions, and requested information so you can reuse the valid structure while changing the actual rules."
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "Do corner-touching dots form one region here?",
+            "answer": "No. Only horizontal and vertical moves connect cells."
+          },
+          {
+            "question": "Why is if grid[r][c] not an openness test?",
+            "answer": "Both dot and hash are nonempty strings and therefore truthy."
+          }
+        ],
+        "exerciseTitle": "Count open regions",
+        "task": "An H-by-W map contains open cells . and walls #. Open cells belong to the same region if connected by up/down/left/right moves through open cells. Diagonal contact does not connect regions. Count the open regions. 1≤H,W≤200.",
+        "input": "H W, followed by H rows of W dot/hash characters.",
+        "output": "Print the region count, or 0 if every cell is a wall.",
+        "hint": "Each unseen open cell starts one flood fill and one new region.",
+        "explanation": "Scan all cells, skipping walls and seen cells. A new dot starts one uncounted region; increment the answer and mark every four-neighbor-reachable dot with an explicit stack. Mark on insertion to prevent duplicates. Scanning and expansion perform constant work per cell, so time and space are O(HW). Diagonal dots remain separate; an all-wall map starts no search and naturally returns zero."
+      },
+      "ja": {
+        "title": "グリッド探索と塗りつぶし",
+        "summary": "座標・隣接規則・訪問状態で地図を正確に表す。",
+        "objectives": [
+          "四近傍と八近傍を区別する",
+          "長方形で安全に隣接点を作る",
+          "領域数と計算量を説明する"
+        ],
+        "sections": [
+          {
+            "title": "グリッドはグラフの省略表現",
+            "body": "グリッド問題は辺を一本ずつ列挙せず、文字と移動規則によって暗黙に定義することが多いです。隣接点を座標から計算できるなら、全マス分の隣接リストを別に作る必要はありません。今回は距離ではなく通行可能な領域の数を求めるので、前課の成分探索を座標の組に置き換えます。文字の意味は毎回読み直します。ここでは . が通路で # が壁ですが、別の問題では逆かもしれません。また上下左右の四近傍と、斜めも含む八近傍は異なり、成分数そのものが変わります。この課では、その座標が存在するか、通れるか、処理済みかを分けて考えます。似た地図問題でも規則を正確に変更できるようにし、固定の方向配列を無条件にコピーしない練習です。"
+          },
+          {
+            "title": "行・列・方向をそろえる",
+            "body": "座標は (r,c) に統一し、r は上から下へ増える行、c は左から右へ増える列とします。下は (1,0)、上は (-1,0)、右は (0,1)、左は (0,-1) です。x と y という名前を使う場合も、最初の座標が行であることを途中で変えないでください。数学の座標軸とリストの添字を混ぜると誤りになります。行の上限は H、列の上限は W です。正方形だけでは両者を取り違えても気づかないので、長方形を必ず試します。地図を読むだけなら文字列で十分です。変更したい場合は別の表現が必要ですが、本課では独立した seen を使って入力の地図を保存します。壁と訪問済み通路はどちらも追加しませんが、理由が違うことを保つと調査しやすくなります。"
+          },
+          {
+            "title": "斜めの接触をつながりとしない",
+            "body": "二行二列で、一行目が .#、二行目が #. の地図を考えます。二つの通路は角で触れますが、上下左右には壁しかないので二領域です。八方向を許した場合にだけ一領域になります。次に三行三列で中央だけが壁なら、周囲の通路は壁を回ってつながり、一領域です。行ごとの連続した区間を別々に数えてはいけません。手作業では一点に色を付け、同じ色の点から上下左右に隣接する通路へ色を広げ、もう増えなくなるまで繰り返します。残りがあれば別の色で始めます。この塗りつぶしが flood fill で、スタックは次に調べる場所を決めるだけです。上下の行で同じ列に通路がある数だけでは、何歩も迂回して届く関係まで捉えられません。",
+            "code": "grid = [\".#\", \"#.\"]\nh, w = 2, 2\nneighbors = []\nfor dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:\n    nr, nc = dr, dc\n    if 0 <= nr < h and 0 <= nc < w and grid[nr][nc] == \".\":\n        neighbors.append((nr, nc))\nprint(neighbors)\n",
+            "output": "[]\n"
+          },
+          {
+            "title": "全体走査と塗りつぶしを組み合わせる",
+            "body": "外側の二つの for で行と列を走査し、壁または訪問済みなら飛ばします。新しい通路を見つけるたび答えを一増やし、印を付けてスタック探索を始めます。内側では取り出した座標から四方向を作り、範囲内、通路、未訪問の三条件を満たすときだけ追加します。外側の二重走査の中に while と方向のループがありますが、すべての開始点から全地図を調べ直すわけではありません。最初の塗りつぶしで領域全体に印が付き、以後は飛ばされます。外側の r,c は走査位置、内側の x,y は今展開している場所です。隣接座標を間違って外側の開始位置から作り続けると、その周囲だけを調べて長い通路を進めません。必ず直前に取り出した点を基準にします。",
+            "code": "h, w = map(int, input().split())\ngrid = [input().strip() for _ in range(h)]\nseen = [[False] * w for _ in range(h)]\nanswer = 0\nfor r in range(h):\n    for c in range(w):\n        if grid[r][c] == \"#\" or seen[r][c]:\n            continue\n        answer += 1\n        seen[r][c] = True\n        stack = [(r, c)]\n        while stack:\n            x, y = stack.pop()\n            for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]:\n                nx, ny = x + dx, y + dy\n                if 0 <= nx < h and 0 <= ny < w:\n                    if grid[nx][ny] == \".\" and not seen[nx][ny]:\n                        seen[nx][ny] = True\n                        stack.append((nx, ny))\nprint(answer)\n",
+            "exampleInput": "2 2\n.#\n#.\n",
+            "output": "2\n"
+          },
+          {
+            "title": "各領域を一度だけ数える理由",
+            "body": "一回の塗りつぶしは合法な四方向の通路だけを進むので、壁を越えて別領域へ出ません。同じ領域の点には開始点から道があり、その道を順に見ると、前の点を展開したときに次の点が見つかるため、漏れもありません。したがって答えを増やす一回が、ちょうど一つの領域に対応します。印のある領域からは探索を始めないので重複もしません。入力と外側の走査は O(HW)、内側も各通路を一回取り出して四方向を見るだけなので O(HW) です。マス数を二乗した時間にはなりません。seen とスタックの領域も O(HW) です。壁はスタックに入らなくても走査されるため、通路だけの個数で全体の計算量を評価しないでください。大きい地図では各寸法より、その積で必要メモリを考えます。"
+          },
+          {
+            "title": "端と形を意識してテストする",
+            "body": "壁だけの地図なら答えは零です。左上から無条件に探索してはいけません。空でない地図がすべて通路なら一領域で、外側で訪問印を確認し忘れた誤りを発見できます。一マス、一行、一列で境界を、点と壁が交互の模様で斜め移動の混入を、曲がった通路で座標更新を確認します。行は W 個の文字として読みます。また Python では '.' も '#' も空でない文字列なので真です。if grid[r][c] だけでは通路判定にならず、文字を明示的に比較します。訪問済みの点を壁に書き換えれば別表を省けますが、行を変更可能なリストにして原図が失われることを理解する必要があります。初学段階では地図と訪問状態を分けた方が、どこで誤ったかを調べやすくなります。"
+          },
+          {
+            "title": "別の地図へモデルを移す",
+            "body": "他の地図問題へ移るときは、入れる文字、四方向か八方向か、転送や一方通行の有無、鍵や向きなど追加状態の必要性、目的が距離か領域数かを一覧にします。関連問題の ABC325C は斜めも隣接するため、本課の四方向をそのまま使ってはいけません。関連していることは、条件が同一という意味ではありません。面積が欲しければ取り出した点を成分ごとに数えます。周囲の長さなら、各点から見て壁や範囲外に接する方向を数え、単に点数を足す方法とは区別します。最少移動回数ならキューと距離表を戻します。状態、遷移、求める情報という三層に分けると、共通部分を保ちながら本当に変わった規則だけを正確に置き換えられます。"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "角だけで触れる点は一領域ですか。",
+            "answer": "いいえ。上下左右の移動だけを許すため別領域です。"
+          },
+          {
+            "question": "if grid[r][c] で通路を判定できない理由は。",
+            "answer": "点も井号も空でない文字列で、どちらも真になるためです。"
+          }
+        ],
+        "exerciseTitle": "通路の領域数",
+        "task": "H 行 W 列の地図で . は通路、# は壁です。通路だけを上下左右に移動して到達できるマスは同じ領域に属します。斜めは隣接しません。領域数を求めてください。1≤H,W≤200 です。",
+        "input": "H W、その後 H 行に長さ W の . または # の列。",
+        "output": "領域数を出力します。すべて壁なら 0 です。",
+        "hint": "未訪問の通路から一回塗りつぶすたび、領域数を一増やします。",
+        "explanation": "壁と訪問済みを飛ばして全マスを走査します。新しい通路を見つけたら一領域を数え、明示的なスタックで四方向に届く通路をすべて記録します。追加時に印を付けて重複を防ぎます。全体で各マスに定数回の処理を行うため、時間と領域は O(HW) です。斜めの点は接続せず、壁だけなら探索が始まらず零になります。"
+      }
+    },
+    "order": 20,
+    "stage": "graphs",
+    "minutes": 45,
+    "prerequisiteIds": [
+      "depth-first-search"
+    ],
+    "relatedProblems": [
+      "ABC325C",
+      "ABC075B",
+      "ABC341C"
+    ],
+    "solution": "h, w = map(int, input().split())\ngrid = [input().strip() for _ in range(h)]\nseen = [[False] * w for _ in range(h)]\nanswer = 0\nfor r in range(h):\n    for c in range(w):\n        if grid[r][c] == \"#\" or seen[r][c]:\n            continue\n        answer += 1\n        seen[r][c] = True\n        stack = [(r, c)]\n        while stack:\n            x, y = stack.pop()\n            for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]:\n                nx, ny = x + dx, y + dy\n                if 0 <= nx < h and 0 <= ny < w:\n                    if grid[nx][ny] == \".\" and not seen[nx][ny]:\n                        seen[nx][ny] = True\n                        stack.append((nx, ny))\nprint(answer)\n",
+    "starter": "h, w = map(int, input().split())\ngrid = [input().strip() for _ in range(h)]\n# TODO\n",
+    "tests": [
+      {
+        "input": "1 1\n#\n",
+        "expected": "0\n"
+      },
+      {
+        "input": "1 1\n.\n",
+        "expected": "1\n"
+      },
+      {
+        "input": "2 2\n.#\n#.\n",
+        "expected": "2\n"
+      },
+      {
+        "input": "1 7\n..#.#..\n",
+        "expected": "3\n"
+      },
+      {
+        "input": "3 3\n...\n.#.\n...\n",
+        "expected": "1\n"
+      },
+      {
+        "input": "3 5\n..#..\n#####\n.#.#.\n",
+        "expected": "5\n"
+      }
+    ]
+  },
+  {
+    "id": "dynamic-programming",
+    "order": 21,
+    "stage": "synthesis",
+    "minutes": 55,
+    "prerequisiteIds": [
+      "grid-search"
+    ],
+    "relatedProblems": [
+      "ABC291D",
+      "ABC266D",
+      "ABC286D"
+    ],
+    "content": {
+      "zh": {
+        "title": "动态规划：从定义到转移",
+        "summary": "从重复子问题出发，完整推导一个计数DP。",
+        "sections": [
+          {
+            "title": "为什么枚举会反复计算同一问题",
+            "body": "楼梯每次走一级或两级，若把所有步长序列逐条枚举，随着 N 增大，分支会快速增加。观察“还剩三级需要走”这个局面：不管之前经过哪条路线，后面的合法走法集合都一样。如果每条前缀都重新求一次同样的剩余问题，就在浪费计算。动态规划的做法是为可重复的小问题命名，并保存它的答案，让后续计算直接使用。它不是看到递归就加一个数组，也不是固定的一条公式。最重要的是状态必须保存足够的信息，使不同历史只要落到同一状态，就具有相同的后续选择。本课先选择一个没有额外限制的计数问题，把状态、初值、转移、顺序、答案位置这五个部分完整推导出来，再将这个流程迁移到其他题。"
+          },
+          {
+            "title": "状态的句子必须精确",
+            "body": "定义 dp[i] 为“恰好到达第 i 级的不同步长序列数量”。这里“恰好”“序列”“数量”都不能省略：不超过 i 的走法是另一个状态；不区分顺序的组合也是另一个问题；最少步数则需要另一种运算。先写含义，再决定数组长度为 N+1，因为必须包含第零级。dp[0]=1 表示不走任何一步这一种空序列，不是说发生了一次移动。其他位置先设零，表示还没有累计出合法走法。初始化不能凭直觉把所有位置设为一，否则在更复杂的题中会把不存在的方案算进去。若题目加入“不能连续走两次两级”，仅有 i 就不足以决定后续选择，还必须区分上一步的类型；这说明状态应由限制推导，而不是由喜欢的数组形状决定。"
+          },
+          {
+            "title": "按最后一步分组，避免重数",
+            "body": "任何到达 i 的合法序列，最后一步不是一级就是两级。若最后走一级，删掉它后得到一个到达 i-1 的序列；反过来，为任意到达 i-1 的序列加上一级，都得到一个合法结果，两者一一对应，因此有 dp[i-1] 个。最后走两级的情况同理有 dp[i-2] 个。这两类最后一步不同，互不重叠，而且已经覆盖所有允许步长，所以可以相加。i=1 时不存在来自 -1 级的走法，只取第一项。必须显式检查 i>=2，因为 Python 的 dp[-1] 会访问数组末尾而不是自动表示“不存在”。这个划分方法也说明，1,2 与 2,1 分在不同历史里，本题确实区分顺序，不应把它误解成用多少个一和多少个二的组合数量。"
+          },
+          {
+            "title": "跟踪整张表，再写完整程序",
+            "body": "手算 N=4：dp[0]=1；dp[1]=1；dp[2]=dp[1]+dp[0]=2；dp[3]=2+1=3；dp[4]=3+2=5。可列出五条序列：1111、112、121、211、22，检查计数是否吻合。计算顺序从小到大，读取的两项总是已完成的结果。暂时不要急于把数组压缩成两个变量，完整表更容易看出状态含义、依赖和边界。写成程序时先复制前一项，在 i>=2 时再加上前两项，正好对应推导的两类。N=0 时循环根本不执行，直接输出初始状态一，程序无需特殊补丁。调试可以输出整张表与手算比较，发现第一个错误位置；正式练习输出只保留 dp[N]。",
+            "code": "n = int(input())\ndp = [0] * (n + 1)\ndp[0] = 1\nfor i in range(1, n + 1):\n    dp[i] = dp[i - 1]\n    if i >= 2:\n        dp[i] += dp[i - 2]\nprint(dp[n])\n",
+            "exampleInput": "4\n",
+            "output": "5\n"
+          },
+          {
+            "title": "归纳证明与数字大小",
+            "body": "正确性可以用递增归纳说明：零级的空序列定义正确；假设所有较小状态都准确，到 i 时，最后一步划分既没有遗漏也没有重叠，使用已正确的前状态相加就得到正确答案。循环顺序保证归纳所需的值已计算。每个位置只做常数次加法，因此按整数运算次数计为 O(N)，保存 N+1 个整数需要 O(N) 个存储项。本题 N≤60，结果虽超过某些语言的三十二位范围，但 Python 整数能精确保存，不需要随意取模。严格讨论超大 N 时，大整数加法的成本也会随位数增长；竞赛里通常在题目范围下说明常用模型即可。是否取模是题目输出要求，不是看到数量很大就可以自行添加的优化。"
+          },
+          {
+            "title": "把错误状态与错误初值分开检查",
+            "body": "若所有答案都是零，先检查是否忘了 dp[0]=1；没有有效起点，后面再正确的转移也只会加出零。若 N=1 或 N=0 错，优先看数组长度、循环端点和负下标。若小值正确但大值不对，在 Python 中先检查是否无意取模或改变了转移，而不要马上归咎于溢出。还要区分“列举序列”与“数序列”：DP 保存的是数量，没有保存所有具体方案，所以内存不会像枚举树那样按方案数增长。为了独立验证，可以对 N≤8 写一个简单枚举器，与 DP 对照；小规模穷举虽然不适合最终大输入，却非常适合当正确性检查工具。测试应包括零、一、二、四和上界，分别覆盖空方案、单一前驱、双前驱、可手算值和大整数结果。"
+          },
+          {
+            "title": "识别 DP 的五个设计问题",
+            "body": "遇到新题时依次回答：状态表示什么，哪些历史可以合并；最小的确定状态是什么；最后一次选择有哪些互斥且完整的情况；依赖关系要求什么计算顺序；答案位于哪个状态。计数常把互斥方案相加，最小代价常取 min，最大价值常取 max，但运算符本身不是算法，必须配合状态含义。例如下一课背包的状态还会涉及已经考虑的物品，若忽略这一维，会把“一件只能用一次”变成“可重复使用”。不要为了套 dp[i]=dp[i-1]+dp[i-2] 而强行修改题意。先用一个小例子画依赖，再写状态句子和初值，最后写循环。能指出某个新增限制为什么需要新增状态信息，比记住更多公式更能帮助你独立解题。"
+          }
+        ],
+        "exerciseTitle": "登上楼梯",
+        "task": "有 N 级楼梯，每次可以上 1 级或 2 级。不同的步长顺序视为不同走法，例如 1,2 和 2,1 不同。输出恰好到达第 N 级的走法数。N = 0 时定义为 1。0 ≤ N ≤ 60，不取模。",
+        "input": "一个整数 N。",
+        "output": "输出走法数，一个整数。",
+        "hint": "定义 dp[i] 为到达第 i 级的走法数，从 dp[0] = 1 开始，按 i 递增计算。",
+        "explanation": "定义 dp[i] 为恰好到达 i 的步长序列数，空序列给出 dp[0]=1。按最后一步分为从 i-1 走一级与从 i-2 走两级，两类互斥且覆盖所有走法。按 i 递增计算，i=1 时只使用第一类，避免负下标。N=0 不进入循环，答案仍是一。每步常数次加法，使用 O(N) 个整数；本题要求精确结果，不取模。",
+        "objectives": [
+          "准确写出状态含义和初值",
+          "按互斥完整分类推导转移",
+          "用归纳与小规模枚举核对"
+        ],
+        "checkpoints": [
+          {
+            "question": "dp[0] 为什么是一而不是零？",
+            "answer": "不移动的空步长序列恰好有一种，它是构造后续走法的起点。"
+          },
+          {
+            "question": "若禁止连续两次走两级，状态需要什么变化？",
+            "answer": "还要保存上一步是否走两级，因为它会改变下一步允许的选择。"
+          }
+        ]
+      },
+      "en": {
+        "title": "Dynamic programming: states and transitions",
+        "summary": "Derive a counting DP from repeated subproblems.",
+        "sections": [
+          {
+            "title": "Recognize repeated subproblems",
+            "body": "Enumerating every sequence of one-step and two-step moves branches rapidly as N grows. Yet a situation with three stairs remaining has the same possible continuations regardless of how it was reached. Recomputing that subproblem for every prefix wastes work. Dynamic programming gives repeated subproblems explicit names, stores their answers, and reuses them. It is not simply adding an array to recursion or applying a universal formula. A state must retain enough information that histories assigned to it have equivalent relevant futures. We will derive the state, base case, transition, evaluation order, and answer location separately before attempting more complicated problems."
+          },
+          {
+            "title": "Write an exact state sentence",
+            "body": "Define dp[i] as the number of distinct move sequences that reach stair i exactly. Every word matters. Counting ways to reach at most i is different; ignoring move order is different; minimizing the number of moves is different. Allocate N plus one entries to include stair zero. Set dp[0] to one for the single empty sequence, not for an actual move. Other entries begin at zero before their valid ways are accumulated. If a new rule forbids consecutive two-step moves, position alone no longer describes future choices; the previous move type must also be retained. Derive state from restrictions, not from a preferred array shape."
+          },
+          {
+            "title": "Partition by the final move",
+            "body": "Every sequence reaching i ends with either a one-step or two-step move. Removing a final one-step move gives a sequence reaching i minus one; appending one reverses that operation, establishing a bijection. Therefore this class has dp[i-1] members. The other class similarly has dp[i-2] members. The classes are disjoint because their last moves differ, and exhaustive because no other moves are allowed. Add their counts. At i equal to one, only the first class exists. Check the boundary explicitly: Python’s negative index accesses the end of the array rather than representing an impossible predecessor."
+          },
+          {
+            "title": "Trace the table before compressing it",
+            "body": "For N equal to four, the table is 1, 1, 2, 3, 5. The five sequences are 1111, 112, 121, 211, and 22, providing an independent small check. Compute increasing indices so both predecessors are already finished. Keep the full table while learning rather than immediately compressing it into two variables; the table exposes dependencies and boundary meanings. Copy the previous count, then add the second predecessor only when it exists. With N equal to zero, the loop performs no iterations and the initial one is already the answer. Compare intermediate values with your hand calculation when debugging.",
+            "code": "n = int(input())\ndp = [0] * (n + 1)\ndp[0] = 1\nfor i in range(1, n + 1):\n    dp[i] = dp[i - 1]\n    if i >= 2:\n        dp[i] += dp[i - 2]\nprint(dp[n])\n",
+            "exampleInput": "4\n",
+            "output": "5\n"
+          },
+          {
+            "title": "Induction and the size of numbers",
+            "body": "Prove the algorithm by induction on the stair index. The empty sequence gives the correct base case. Assuming smaller entries are correct, the disjoint and exhaustive final-move partition combines correct counts into the correct next count. Increasing evaluation order supplies those predecessors. There are O(N) integer additions and O(N) stored integers. For N at most sixty, Python represents the exact answer even when it exceeds a signed thirty-two-bit range. Do not invent a modulus. For extremely large N, integer bit length would also affect arithmetic cost; distinguish that stricter analysis from the usual operation-count model under this task’s limits."
+          },
+          {
+            "title": "Diagnose state and initialization errors",
+            "body": "If every answer is zero, inspect dp[0] first: without a valid seed, correct additions still produce zero. Failures at zero or one often indicate array length, loop endpoints, or negative indexing. If only larger values fail in Python, check accidental modulo operations or altered transitions before blaming overflow. Counting sequences is different from storing every sequence; the DP table retains counts, so its memory does not grow with the enumeration tree. For small N, an independent exhaustive generator is an excellent oracle even though it is unsuitable for the largest inputs. Include zero, one, two, four, and the maximum supported value."
+          },
+          {
+            "title": "Five questions for designing a DP",
+            "body": "For a new DP, answer five questions: what does a state mean; which histories can merge; what base facts are known; how do choices form complete, nonoverlapping transitions; and in what order are dependencies available? Also locate the final answer explicitly. Counting often adds, minimization often uses min, and maximization often uses max, but an operator alone is not an algorithm. Knapsack will additionally track which items have been considered; ignoring that information can allow an item to be reused. Draw a small dependency example before writing loops. Explaining why a new restriction requires additional state is more useful than memorizing another recurrence."
+          }
+        ],
+        "exerciseTitle": "Climbing stairs",
+        "task": "A staircase has N steps. Each move climbs 1 or 2 steps. Different move orders are different ways: 1,2 and 2,1 are distinct. Count ways to reach step N exactly. Define the answer for N = 0 as 1. 0 ≤ N ≤ 60; do not take a modulus.",
+        "input": "One integer N.",
+        "output": "Print the number of ways as an integer.",
+        "hint": "Let dp[i] count ways to reach stair i. Begin with dp[0] = 1 and evaluate increasing i.",
+        "explanation": "Let dp[i] count sequences reaching i exactly, with the single empty sequence giving dp[0]=1. Partition by the final move: one from i-1 or two from i-2. The classes are disjoint and exhaustive. Evaluate increasing i; at i=1 use only the first class, avoiding negative indexing. For N=0 no loop runs and the answer remains one. There are O(N) additions and stored integers. The task asks for the exact result without a modulus.",
+        "objectives": [
+          "Define precise states and base cases",
+          "Derive disjoint, exhaustive transitions",
+          "Check with induction and small enumeration"
+        ],
+        "checkpoints": [
+          {
+            "question": "Why is dp[0] one?",
+            "answer": "There is exactly one empty sequence; it seeds later constructions."
+          },
+          {
+            "question": "What changes if consecutive two-step moves are forbidden?",
+            "answer": "The state must also retain whether the previous move used two steps."
+          }
+        ]
+      },
+      "ja": {
+        "title": "動的計画法の状態と遷移",
+        "summary": "重なる小問題から数え上げ DP を導く。",
+        "sections": [
+          {
+            "title": "同じ小問題の繰り返しに気づく",
+            "body": "一段または二段ずつ上るすべての順序を列挙すると、N が大きくなるにつれて分岐が急増します。しかし、あと三段残っている状態では、そこまでどの道で来たかによらず、残りの合法な上り方は同じです。同じ残りの問題を各接頭辞から解き直すのは無駄になります。動的計画法は、小問題に明確な名前を付けて答えを保存し、後の計算で利用する方法です。再帰に配列を足すだけでも、固定の公式を使うだけでもありません。同じ状態へまとめた履歴が、今後の選択について同じ情報を持つよう、必要な状態を残すことが重要です。本課では余分な制約のない数え上げを使い、状態、初期値、遷移、計算順序、答えの位置という五つを別々に導きます。"
+          },
+          {
+            "title": "状態の意味を一文にする",
+            "body": "dp[i] を「ちょうど i 段目に到達する、異なる移動順序の個数」と定義します。ちょうど、順序、個数という語にはそれぞれ意味があります。i 以下まで到達する数、順序を区別しない組合せ、最少移動回数は別の状態または別の問題です。零段目を含むので配列長は N+1 です。dp[0]=1 は何もしない空の手順が一通りあることを表し、一回移動したという意味ではありません。他の値はまだ合法な方法を加えていないので零にします。直感で全部一にすると、存在しない方法を数える原因になります。また、二段移動の連続を禁止するなら、位置だけでは今後の選択が決まらず、前の移動の種類も必要です。状態は制限から決めるもので、好きな配列の形から決めるものではありません。"
+          },
+          {
+            "title": "最後の一歩で重ならずに分ける",
+            "body": "i 段目に到達する手順の最後の移動は、一段か二段のどちらかです。一段で終わる手順から最後を取り除けば i-1 段目への手順になり、逆にそこへの任意の手順に一段を付ければ元の種類を作れます。一対一に対応するので、この種類は dp[i-1] 個です。二段で終わる種類も同様に dp[i-2] 個です。最後の移動が異なるため二種類は重ならず、許された移動をすべて含むので足し合わせられます。i=1 のときは負の段から来る方法はなく、最初の項だけを使います。Python の dp[-1] は存在しない状態ではなく配列末尾を参照するため、i>=2 の確認を省けません。この分類は 1,2 と 2,1 を区別しており、一と二の個数だけを選ぶ組合せ問題ではないことも分かります。"
+          },
+          {
+            "title": "表全体を追ってから実装する",
+            "body": "N=4 を手で計算すると表は 1,1,2,3,5 です。五つの手順は 1111、112、121、211、22 なので、別の方法でも確認できます。小さい添字から進めれば、参照する二つの前状態は計算済みです。最初から二変数に圧縮せず、全体の表を使って状態の意味と依存関係を見えるようにしましょう。プログラムでは前の値をコピーし、i>=2 の場合にだけ二つ前を加えると、導いた二種類にそのまま対応します。N=0 ならループが一度も動かず、初期値一が答えになるため、特別な修正は不要です。途中の表を手計算と比べれば、最初に間違う位置を探せます。ただし提出するときは dp[N] だけを出力します。圧縮は正しさを理解してから取り組む別の改善です。",
+            "code": "n = int(input())\ndp = [0] * (n + 1)\ndp[0] = 1\nfor i in range(1, n + 1):\n    dp[i] = dp[i - 1]\n    if i >= 2:\n        dp[i] += dp[i - 2]\nprint(dp[n])\n",
+            "exampleInput": "4\n",
+            "output": "5\n"
+          },
+          {
+            "title": "帰納法と数の大きさ",
+            "body": "正しさは段数についての帰納法で説明できます。零段目の空手順という初期値は正しいとします。より小さい状態が正しいなら、最後の一歩による重複も漏れもない分類に従って加えることで、次の値も正しくなります。添字の昇順という計算順序が、参照値が準備済みであることを保証します。各位置で定数回の加算なので、整数演算の回数は O(N)、保存する整数の個数も O(N) です。N≤60 では三十二ビットの範囲を超える結果がありますが、Python の整数は正確に保持できます。問題が要求しない剰余を勝手に取ってはいけません。非常に大きな N を厳密に扱えば桁数による加算コストも必要ですが、本課の範囲では、用いている計算モデルを明らかにして基本の評価を理解します。"
+          },
+          {
+            "title": "状態と初期値の誤りを切り分ける",
+            "body": "すべての答えが零なら、まず dp[0]=1 を忘れていないかを見ます。有効な出発点がなければ、正しい足し算でも零しか生まれません。N=0 や一で失敗する場合は、配列長、ループの端、負の添字を調べます。Python で大きい値だけ違うなら、すぐに桁あふれを疑うのではなく、不要な剰余や遷移の変更を確認してください。また、手順をすべて保存することと、その個数だけを保存することは違います。DP は個数を残すため、列挙木と同じだけの領域を使いません。N≤8 程度では独立した全列挙と比較すると有効です。最終入力には遅い方法でも、小さい入力の検算には使えます。零、一、二、四、上限を試し、空手順、前状態一つ、前状態二つ、手計算できる値、大きい整数をそれぞれ確認します。"
+          },
+          {
+            "title": "DP を設計する五つの問い",
+            "body": "新しい問題では、状態の意味、まとめてよい履歴、確定している初期状態、重複と漏れのない選択の分類、依存関係に従う計算順序を順に考えます。最後に答えがどこにあるかも確認します。数え上げなら足し算、最小化なら min、最大化なら max を使うことが多いですが、演算子だけで算法は決まりません。次のナップサックでは、どの品物まで検討したかという情報も必要で、無視すると一個だけ使える物を何度も使ってしまいます。階段の式を使うために問題を変えてはいけません。小例で依存関係を描き、状態の一文と初期値を決めてからループにします。新しい制約によってなぜ追加の状態が要るかを説明できることが、式を多く暗記する以上に自力で解く力になります。"
+          }
+        ],
+        "exerciseTitle": "階段の上り方",
+        "task": "N 段の階段があります。1 回に 1 段または 2 段上れます。順序が異なる移動は別の行き方とし、例えば 1,2 と 2,1 は区別します。ちょうど N 段目に到達する行き方の数を求めてください。N = 0 の答えは 1 とします。0 ≤ N ≤ 60 です。剰余は取りません。",
+        "input": "整数 N が 1 個与えられます。",
+        "output": "行き方の数を整数で出力してください。",
+        "hint": "dp[i] を i 段目への行き方の数とし、dp[0] = 1 から i の昇順に計算します。",
+        "explanation": "dp[i] をちょうど i に到達する手順数とし、空手順により dp[0]=1 とします。最後の移動で i-1 から一段、i-2 から二段の二種類に分けると重複も漏れもありません。昇順に計算し、一段目では前者だけを使って負の添字を避けます。N=0 ではループせず一を返します。加算回数と保存する整数数は O(N) で、答えは剰余を取らず正確に出力します。",
+        "objectives": [
+          "状態と初期値を正確に定義する",
+          "重複と漏れのない遷移を導く",
+          "帰納法と小規模列挙で確認する"
+        ],
+        "checkpoints": [
+          {
+            "question": "dp[0] が一である理由は。",
+            "answer": "何も動かない空の手順が一つあり、後の構成の出発点になるためです。"
+          },
+          {
+            "question": "二段移動の連続を禁止すると何が必要ですか。",
+            "answer": "前の移動が二段かどうかを状態に保存する必要があります。"
+          }
+        ]
+      }
+    },
+    "starter": "n = int(input())\n# TODO\n",
+    "solution": "n = int(input())\ndp = [0] * (n + 1)\ndp[0] = 1\nfor i in range(1, n + 1):\n    dp[i] = dp[i - 1]\n    if i >= 2:\n        dp[i] += dp[i - 2]\nprint(dp[n])\n",
+    "tests": [
+      {
+        "input": "0\n",
+        "expected": "1\n"
+      },
+      {
+        "input": "1\n",
+        "expected": "1\n"
+      },
+      {
+        "input": "4\n",
+        "expected": "5\n"
+      },
+      {
+        "input": "60\n",
+        "expected": "2504730781961\n"
+      }
+    ]
+  },
+  {
+    "id": "knapsack",
+    "content": {
+      "zh": {
+        "title": "0/1 背包与状态压缩",
+        "summary": "推导选与不选，并解释倒序更新为什么只能使用一次。",
+        "objectives": [
+          "定义物品数与容量状态",
+          "推导倒序更新的依赖关系",
+          "用子集枚举核对小规模结果"
+        ],
+        "sections": [
+          {
+            "title": "为何选择性问题不能只看单件物品",
+            "body": "背包有容量限制，每件物品有重量和价值，并且最多选一次。目标不是选最多件，而是在总重量不超容量时使总价值最大。直觉可能建议先选价值最高、重量最轻或价值重量比最高的物品，但这些局部标准都可能错过更好的组合。一个明确的比值反例是容量四，物品为 (重量三,价值五)、(重量二,价值三)、(重量二,价值三)：先取比值最高的第一件只能得到五，后两件却可以一起放入，价值六。选择第一件之后，剩余空间不足以容纳另一个物品，无法通过继续贪心弥补。这里每件不能切开，所以不能把剩余空间换算成部分物品的价值。组合之间会互相挤占容量，我们需要系统比较每件物品“选或不选”的两种可能，并保留不同容量下真正需要的信息。"
+          },
+          {
+            "title": "先理解二维状态，不直接背倒序",
+            "body": "先定义 D[i][c] 为“只考虑前 i 件物品，在总重量不超过 c 时的最大价值”。i 记录哪些物品已经使用过决策机会，c 记录可用容量，这两种信息都不能遗漏。考虑第 i 件，若不选，价值仍是 D[i-1][c]；若重量 w≤c 且选择它，之前只能使用前 i-1 件且容量剩 c-w，价值是 D[i-1][c-w]+v，取两者最大值。初始没有物品，无论容量多大，最大价值都是零。注意这里表示不超过容量，不是恰好装满，因此全部初始化零是正确的；若状态改成恰好重量，可达性就需要负无穷等标记，不能照搬初值。先把含义写清楚，再讨论为什么可以只保留一行。"
+          },
+          {
+            "title": "用一行数组时为什么必须倒序",
+            "body": "二维转移只读取上一行，所以可以把数组压成 dp[c]，但必须保证读取的 dp[c-w] 仍代表上一轮物品。按 c 从大到小更新时，c-w 小于 c，尚未被当前物品更新，因此满足要求。反过来按小到大更新，就可能读取本轮刚更新的值，相当于同一件再次加入。例如只有一件重量二价值三，容量四：正序先令 dp[2]=3，随后 dp[4] 读取这个三又加三，错误得到六；倒序先计算 dp[4] 时 dp[2] 还为零，所以结果三，符合只能用一次。倒序不是神秘的背包口诀，而是保护“上一行”依赖的办法。本课保证重量至少一，确保依赖位置严格更小；不要在未分析前把这个证明推广到零重量或别的转移。"
+          },
+          {
+            "title": "逐件跟踪容量表",
+            "body": "容量五，先放入候选物品 (二,三)。处理后，容量零与一的最优值仍为零，容量二到五都可以只选这一件，值为三，得到 [0,0,3,3,3,3]。再考虑 (三,四)，容量五可以把前一轮容量二的三与当前价值四相加，得到七；容量四只能选择第二件得到四，不能凭空复制第一件；容量三也变四，容量二保持三。最终为 [0,0,3,4,4,7]。请按照倒序逐项写出“旧值、不选值、选择值”，看清哪些格子已更新、哪些仍代表前一轮。数组中的每个容量都是独立的最优值，不是某一个实际背包沿途剩余容量的记录；不要在选一件后全局减少 capacity，这会错误地只保留一条选择路径。",
+            "code": "dp = [0] * 6\nfor weight, value in [(2, 3), (3, 4)]:\n    for c in range(5, weight - 1, -1):\n        dp[c] = max(dp[c], dp[c - weight] + value)\n    print(dp)\n",
+            "output": "[0, 0, 3, 3, 3, 3]\n[0, 0, 3, 4, 4, 7]\n"
+          },
+          {
+            "title": "完整实现与输入规模评估",
+            "body": "完整程序读取一件物品就处理一轮，不必保存所有物品。range(capacity, weight-1, -1) 包含恰好容量等于重量的最后一格，因为 Python 的结束端点不包含在循环里。若物品重于总容量，范围自然为空，相当于不能选它。最终 dp[capacity] 已表示重量不超过总容量的最佳价值，不需要强制装满，也不必输出选择明细。N≤100、容量≤10000，最多约一百万次状态更新，适合这个伪多项式方法。时间 O(NW)，空间 O(W)。这里 W 是容量的数值而非输入字符串位数，如果容量改成十的十八次方，数组就不可行，必须重新设计状态或方法。读到大上限后不能只看到 N 小就机械套背包。",
+            "code": "n, capacity = map(int, input().split())\ndp = [0] * (capacity + 1)\nfor _ in range(n):\n    weight, value = map(int, input().split())\n    for c in range(capacity, weight - 1, -1):\n        dp[c] = max(dp[c], dp[c - weight] + value)\nprint(dp[capacity])\n",
+            "exampleInput": "3 4\n3 5\n2 3\n2 3\n",
+            "output": "6\n"
+          },
+          {
+            "title": "正确性来自选与不选的穷尽",
+            "body": "对考虑的物品数归纳。零件物品时，容量以下选择空集获得零，是正确初值。假设上一轮所有容量最优值正确，当前最优方案要么不含新物品，要么含它一次；前者由旧 dp[c] 覆盖，后者删去新物品后必须是容量 c-w 内的旧物品方案，其最好价值由旧 dp[c-w] 给出。两种候选取最大就得到新最优值。倒序更新保证读取的确实是旧状态，因此压缩不破坏这个证明。若改成每件可无限使用，依赖含义会变化，正序更新反而可能成为所需算法；如果每件数量有限但不止一，也要另外处理数量限制。循环方向必须从“此刻读取哪一轮”的语义推导，不能只根据题目出现背包两个字来决定。"
+          },
+          {
+            "title": "用反例检查一次性约束",
+            "body": "最关键的回归例是“只有一件物品，但容量足够装两件”：正确答案只能取一次价值，它能直接识别错误的正序更新。还要测试容量为零、没有物品、所有物品过重、恰好装满、价值为零、两件参数相同但确实是不同物品。相同参数不代表同一件，不能擅自去重，否则会少算可用数量。小 N 时枚举所有子集，把总重量不超容量的最大价值与 DP 比较，能够独立验证转移。完成后问自己：初值表示什么，为什么不是负无穷，为什么答案可能不把容量用完，为什么同样的比值贪心在允许物品可切分时又可能正确？这些区别决定算法能否迁移。背包课的重点是学会保护状态所表达的使用次数，而不只是把 for 写成倒着走。"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "只有重量二价值三的一件，容量四，为什么正序会错？",
+            "answer": "它会读取本轮 dp[2]=3，再算出 dp[4]=6，相当于使用两次。"
+          },
+          {
+            "question": "本课全部初值为零代表什么？",
+            "answer": "容量是上限，可以不装任何物品，空集价值零合法。"
+          }
+        ],
+        "exerciseTitle": "容量内最大价值",
+        "task": "有 N 件物品，第 i 件重量 w_i、价值 v_i，每件最多选择一次。总重量不能超过 W，求最大总价值，允许不选任何物品。0≤N≤100，0≤W≤10000，1≤w_i≤10000，0≤v_i≤10^9。",
+        "input": "第一行 N W，之后 N 行每行重量和价值。",
+        "output": "输出最大总价值。",
+        "hint": "先想前 i 件与容量 c 的二维状态，再用容量倒序压缩一行。",
+        "explanation": "dp[c] 记录已读物品在容量 c 以下的最大价值。每件物品从大容量往小容量更新，候选为不选的 dp[c] 与选择的旧 dp[c-w]+v。因为 c-w 尚未在本轮更新，同一件不会重复使用。重量超过容量时循环为空。允许空集使初值零正确，最后输出总容量位置。时间 O(NW)，空间 O(W)。"
+      },
+      "en": {
+        "title": "0/1 knapsack and state compression",
+        "summary": "Derive take-or-skip transitions and preserve single use with descending updates.",
+        "objectives": [
+          "Define item-prefix and capacity states",
+          "Derive backward update dependencies",
+          "Check small instances by subset enumeration"
+        ],
+        "sections": [
+          {
+            "title": "Why local item rankings can fail",
+            "body": "A knapsack has limited capacity, and each item has a weight and value and may be selected at most once. The goal is maximum total value, not maximum item count. Ranking items by value, weight, or value-to-weight ratio is not generally sufficient. With capacity four and items (3,5), (2,3), and (2,3), the highest ratio belongs to the first item. Taking it yields five because nothing else fits, while the two remaining items yield six. Check counterexamples numerically rather than trusting a plausible story. Capacity creates interactions between choices, so systematically compare selecting and skipping each item."
+          },
+          {
+            "title": "Understand the two-dimensional state first",
+            "body": "First define D[i][c] as the maximum value using only the first i items with total weight at most c. The item index records which decisions have already been made; capacity records the remaining resource constraint. Skipping the current item gives D[i-1][c]. Selecting an item of weight w and value v gives D[i-1][c-w]+v when it fits. Take the maximum. With no items, every capacity has value zero. This state means at most a capacity, not exactly a weight. An exact-weight state would need unreachable markers rather than zero everywhere. Explain the state before compressing its storage."
+          },
+          {
+            "title": "Why one-row updates run backward",
+            "body": "The transition reads only the previous item row, so storage can be compressed to dp[c]. However, dp[c-w] must still represent that previous row. Updating capacities downward guarantees this because c-w is smaller and has not yet been updated for the current item. Updating upward can reuse a newly written value and select the same item twice. For one item of weight two and value three with capacity four, ascending updates produce dp[2]=3 and then an incorrect dp[4]=6. Descending updates give three. The direction preserves dependencies; it is not an arbitrary mnemonic. Positive item weights make the predecessor strictly smaller."
+          },
+          {
+            "title": "Trace the capacity row item by item",
+            "body": "With capacity five, process item (2,3). Capacities zero and one remain zero, while capacities two through five can take that item, giving [0,0,3,3,3,3]. Next process (3,4). Capacity five combines the previous capacity-two value with four, reaching seven. Capacity four can take the second item alone for four; capacity three also becomes four, and capacity two remains three. The row becomes [0,0,3,4,4,7]. Trace skip and take candidates in descending order. Each capacity stores its own optimum, not the remaining capacity of one chosen bag. Do not globally subtract weight after a selection.",
+            "code": "dp = [0] * 6\nfor weight, value in [(2, 3), (3, 4)]:\n    for c in range(5, weight - 1, -1):\n        dp[c] = max(dp[c], dp[c - weight] + value)\n    print(dp)\n",
+            "output": "[0, 0, 3, 3, 3, 3]\n[0, 0, 3, 4, 4, 7]\n"
+          },
+          {
+            "title": "Implement and check the size limits",
+            "body": "The implementation can process each item as it is read. The descending range ends at weight minus one because Python excludes the endpoint, thereby including capacity exactly equal to weight. An overweight item produces an empty range and is automatically skipped. dp[capacity] already represents weight at most the limit; filling the bag exactly is unnecessary. With at most one hundred items and capacity ten thousand, there are roughly one million updates. Time is O(NW), space O(W). W is the numeric capacity, not the number of digits used to write it. A capacity of ten to the eighteenth would require a different formulation.",
+            "code": "n, capacity = map(int, input().split())\ndp = [0] * (capacity + 1)\nfor _ in range(n):\n    weight, value = map(int, input().split())\n    for c in range(capacity, weight - 1, -1):\n        dp[c] = max(dp[c], dp[c - weight] + value)\nprint(dp[capacity])\n",
+            "exampleInput": "3 4\n3 5\n2 3\n2 3\n",
+            "output": "6\n"
+          },
+          {
+            "title": "Correctness comes from exhaustive alternatives",
+            "body": "Induct on the number of considered items. With none, the empty set gives value zero. Suppose all previous capacities are optimal. An optimal new solution either omits the new item or includes it once. Omission is covered by the old dp[c]. For inclusion, remove that item: the remainder is a previous-item solution within c-w, whose best value is the old dp[c-w]. Taking the larger candidate is therefore optimal. Descending updates preserve those old values. Unlimited reuse changes the dependency meaning and may require ascending updates; bounded quantities require another treatment. Derive direction from state semantics, not the word knapsack alone."
+          },
+          {
+            "title": "Test the at-most-once restriction",
+            "body": "The most revealing regression has one item and enough capacity for two copies: the answer must still use its value only once. Also test zero capacity, no items, all items overweight, exact filling, zero values, and separate items with identical parameters. Identical parameters do not make items duplicates that can be discarded. For small N, enumerate every subset and compare its best feasible value with DP as an independent oracle. Explain why initialization is zero, why unused capacity is allowed, and why divisible items would change the problem. Protecting the meaning of item usage is the lesson, not merely writing a backward loop."
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "Why does ascending order fail for one item (2,3) and capacity four?",
+            "answer": "It reuses the new dp[2]=3 to produce six, selecting the item twice."
+          },
+          {
+            "question": "Why may every initial capacity contain zero?",
+            "answer": "Capacity is an upper bound and selecting the empty set is feasible."
+          }
+        ],
+        "exerciseTitle": "Maximum value within capacity",
+        "task": "There are N items, each with weight w_i and value v_i. Select each at most once with total weight at most W; selecting none is allowed. Maximize total value. 0≤N≤100, 0≤W≤10000, 1≤w_i≤10000, 0≤v_i≤10^9.",
+        "input": "N W, followed by N lines of weight and value.",
+        "output": "Print the maximum total value.",
+        "hint": "Start with an item-prefix/capacity DP, then compress with descending capacities.",
+        "explanation": "dp[c] stores the best value from processed items within capacity c. For each item, descend through capacities and compare skipping with the old dp[c-w]+v. The smaller predecessor has not been updated in this round, preventing reuse. An overweight item yields no updates. The empty set justifies zero initialization; return the full-capacity entry. Time O(NW), space O(W)."
+      },
+      "ja": {
+        "title": "0/1 ナップサックと状態圧縮",
+        "summary": "選ぶ・選ばないを導き、逆順更新で一回使用を守る。",
+        "objectives": [
+          "品物の接頭辞と容量で状態を定義する",
+          "逆順更新の依存関係を導く",
+          "小例を部分集合列挙で確認する"
+        ],
+        "sections": [
+          {
+            "title": "品物ごとの順位だけでは決まらない",
+            "body": "容量に上限がある袋へ、重さと価値を持つ品物を各一個まで入れます。目的は品物の個数ではなく、総重量が容量以下という条件で価値の合計を最大にすることです。価値が最大、最も軽い、価値を重さで割った比率が最大、といった順序だけでは一般に正しく選べません。容量四で、品物が (重さ三,価値五)、(二,三)、(二,三) なら、比率が最大の最初の品物を選ぶと五にしかなりませんが、後ろの二つを選べば六になります。もっともらしい説明だけでなく、反例は実際に合計を計算して確かめます。各選択が残り容量を奪い合うので、品物ごとの単純な順位ではなく、選ぶ場合と選ばない場合を系統的に比較する必要があります。"
+          },
+          {
+            "title": "まず二次元の状態を理解する",
+            "body": "最初は D[i][c] を「前から i 個の品物だけを考え、重量合計が c 以下のときの最大価値」と定義します。i はどの品物の決定を終えたか、c は容量の制限を表し、両方に役割があります。現在の品物を選ばないなら D[i-1][c] のままです。重さ w が入る場合に選ぶなら、残りは前の品物だけで容量 c-w を使い、D[i-1][c-w]+v になります。この二つの最大を取ります。品物がなければ、どの容量でも最大価値は零です。ここは容量以下という状態であり、ちょうどその重量を作る状態ではありません。後者なら到達不能の印が必要で、全て零という初期値は使えません。まず意味を明確にし、それから一行に圧縮できる理由を考えます。"
+          },
+          {
+            "title": "一行に圧縮すると逆順が必要な理由",
+            "body": "遷移は前の品物までの行だけを読むので、dp[c] の一行へ圧縮できます。ただし dp[c-w] はまだ前の行の意味を持っていなければなりません。c を大きい方から更新すれば c-w は小さい側にあり、現在の品物では未更新なので条件を守れます。小さい方から更新すると、今回書いた値を再利用し、同じ品物を二回選ぶことがあります。重さ二、価値三の品物が一個だけで容量四なら、昇順では dp[2]=3 の後に dp[4]=6 となって誤りです。降順なら dp[4] を計算する時点で dp[2] は零なので三になります。逆順は暗記する呪文ではなく、前の行への依存を保つための手段です。本課の重さは正なので参照位置は必ず小さくなります。"
+          },
+          {
+            "title": "品物ごとに容量の表を追う",
+            "body": "容量五で最初に (重さ二,価値三) を考えると、容量零と一は零、二から五はその一個を選べるので三となり、[0,0,3,3,3,3] です。次に (三,四) を考えると、容量五では前の容量二の三に四を加えて七になります。容量四は第二の品物だけで四、容量三も四、容量二は三のままなので、[0,0,3,4,4,7] となります。降順で各場所について、選ばない候補と選ぶ候補、どちらの値が前の行なのかを書き出してください。配列の各容量はそれぞれ独立した最適値であり、一つの袋の残り容量を順に記録したものではありません。一個選んだつもりで capacity 全体から重さを引くと、一通りの経路しか残らず DP の意味が壊れます。",
+            "code": "dp = [0] * 6\nfor weight, value in [(2, 3), (3, 4)]:\n    for c in range(5, weight - 1, -1):\n        dp[c] = max(dp[c], dp[c - weight] + value)\n    print(dp)\n",
+            "output": "[0, 0, 3, 3, 3, 3]\n[0, 0, 3, 4, 4, 7]\n"
+          },
+          {
+            "title": "実装と制約の見積もり",
+            "body": "完成版は品物を一個読むたび一行を更新でき、全品物を保存する必要はありません。range(capacity, weight-1, -1) の終点は含まれないため、容量と重さがちょうど等しい場所まで処理できます。品物が全容量より重ければ範囲は空で、自然に選ばないことになります。dp[capacity] は容量以下の最大値なので、ぴったり詰める必要も、選択内容を出力する必要もありません。N≤100、容量≤10000 なら更新はおよそ百万回までで、O(NW) 時間、O(W) 領域です。この W は入力表記の桁数ではなく容量の数値です。容量が十の十八乗なら配列は作れず、別の状態や方法を考え直します。N が小さいという理由だけで、容量の大きさを読まずに適用してはいけません。",
+            "code": "n, capacity = map(int, input().split())\ndp = [0] * (capacity + 1)\nfor _ in range(n):\n    weight, value = map(int, input().split())\n    for c in range(capacity, weight - 1, -1):\n        dp[c] = max(dp[c], dp[c - weight] + value)\nprint(dp[capacity])\n",
+            "exampleInput": "3 4\n3 5\n2 3\n2 3\n",
+            "output": "6\n"
+          },
+          {
+            "title": "選ぶ・選ばないの尽くし方で証明する",
+            "body": "検討した品物の個数について帰納します。品物が零個なら空集合で価値零が最適です。前の行の各容量が正しいと仮定すると、新しい最適解は新しい品物を含まないか、一個含むかのどちらかです。含まない場合は旧 dp[c] にあり、含む場合はそれを取り除くと容量 c-w 内の旧品物の解になり、その最良値は旧 dp[c-w] です。二候補の大きい方を取れば最適になります。降順更新は参照する値を旧状態に保つため、圧縮してもこの証明が成り立ちます。無制限に使える問題なら依存の意味が変わり、昇順が必要になることがあります。個数制限が一以外なら別の処理が必要です。背包という言葉だけで方向を覚えず、今読んでいる値が何巡目の状態なのかから導いてください。"
+          },
+          {
+            "title": "一回だけという制約をテストする",
+            "body": "最も重要な検査例は、品物が一個だけなのに容量は二個分ある場合です。価値は一回分しか得られず、誤った昇順更新を直接見つけられます。容量零、品物なし、全部重すぎる、ちょうど入る、価値零、重さと価値が同じ別々の二個も試します。同じ数値でも別の品物なので、勝手に重複除去すると使える個数が減ってしまいます。小さい N では全部の部分集合を列挙し、容量以内の最大値を独立に求めて DP と比較できます。初期値がなぜ零か、なぜ負の無限大ではないか、容量を余らせてもよい理由、品物を切り分けられると何が変わるかを説明してください。大切なのは逆向きループそのものではなく、状態が表す使用回数の制約を守ることです。"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "重さ二価値三が一個、容量四で昇順が誤る理由は。",
+            "answer": "今回更新した dp[2]=3 を使って六を作り、二回選んでしまいます。"
+          },
+          {
+            "question": "初期値を全て零にできる理由は。",
+            "answer": "容量は上限であり、何も選ばない空集合が常に合法だからです。"
+          }
+        ],
+        "exerciseTitle": "容量内の最大価値",
+        "task": "N 個の品物に重さ w_i と価値 v_i があり、各品物は一回まで選べます。総重量を W 以下にして価値合計を最大化してください。何も選ばなくても構いません。0≤N≤100、0≤W≤10000、1≤w_i≤10000、0≤v_i≤10^9 です。",
+        "input": "N W、その後 N 行に重さと価値。",
+        "output": "最大価値を出力してください。",
+        "hint": "前 i 個と容量 c の表から考え、容量を降順にして一行へ圧縮します。",
+        "explanation": "dp[c] は処理済み品物で重量 c 以下の最大価値です。各品物について容量を降順にし、選ばない値と旧 dp[c-w]+v を比較します。小さい参照先は今の巡回で未更新なので同じ品物を再利用しません。重すぎる品物の更新範囲は空です。空集合が使えるため初期値は零で、最後に全容量の位置を出力します。時間 O(NW)、領域 O(W) です。"
+      }
+    },
+    "order": 22,
+    "stage": "synthesis",
+    "minutes": 60,
+    "prerequisiteIds": [
+      "dynamic-programming"
+    ],
+    "relatedProblems": [
+      "ABC286D",
+      "ABC219D",
+      "ABC281D"
+    ],
+    "solution": "n, capacity = map(int, input().split())\ndp = [0] * (capacity + 1)\nfor _ in range(n):\n    weight, value = map(int, input().split())\n    for c in range(capacity, weight - 1, -1):\n        dp[c] = max(dp[c], dp[c - weight] + value)\nprint(dp[capacity])\n",
+    "starter": "n, capacity = map(int, input().split())\n# TODO: process each item once.\n",
+    "tests": [
+      {
+        "input": "0 8\n",
+        "expected": "0\n"
+      },
+      {
+        "input": "2 0\n1 5\n2 8\n",
+        "expected": "0\n"
+      },
+      {
+        "input": "1 4\n2 3\n",
+        "expected": "3\n"
+      },
+      {
+        "input": "3 4\n3 5\n2 3\n2 3\n",
+        "expected": "6\n"
+      },
+      {
+        "input": "2 3\n4 9\n5 20\n",
+        "expected": "0\n"
+      },
+      {
+        "input": "3 5\n2 3\n3 4\n5 0\n",
+        "expected": "7\n"
+      }
+    ]
+  },
+  {
+    "id": "greedy",
+    "content": {
+      "zh": {
+        "title": "贪心选择、反例与交换证明",
+        "summary": "先检验局部规则，再证明它不会损失最优解。",
+        "objectives": [
+          "构造反驳错误规则的小例子",
+          "用交换论证证明最早结束选择",
+          "实现端点兼容的排序扫描"
+        ],
+        "sections": [
+          {
+            "title": "贪心不是“看起来最好就选”",
+            "body": "贪心算法每次做一个局部决定，并且之后不撤销它。这样通常比保存很多状态的 DP 简洁，但代价是必须证明这次不可撤销的选择不会损失最优解。不能因为样例通过就断言正确，也不能把“优先某个最大值或最小值”当成普遍规则。本课的会议安排问题有一个可靠选择：在当前能参加的会议中，先选结束最早的一场。它的依据不是这场持续最短，而是结束得早为后面留下的可用时间不少于其他选择。我们会先找出其他直觉规则的反例，再用交换论证说明这个规则为何成立。学习贪心时，反例搜索与证明同样重要；找到一个小反例，就足以否定一个无论运行多快的错误规则。"
+          },
+          {
+            "title": "把不重叠的含义写进状态",
+            "body": "每场会议用开始 s 与结束 t 表示，保证 s<t。若上一场在时间 e 结束，下一场只需 s≥e 就可参加，也就是说结束点与下一场开始点相同是允许的。可以理解为会议占用半开区间 [s,t)，不要把相邻端点误判为冲突。选择过程只需保存上一场已选会议的结束时间 last_end，以及已选数量；历史中的更早会议不会额外限制未来，因为它们都在 last_end 之前结束。先按结束时间排序，依次扫描就能在每个阶段首先遇到最早结束的可行候选。排序相同结束时间的会议时不需要特殊偏好，任何可行者留下的未来起点相同。初始 last_end=-1 是因为本题所有开始时间非负，不是任何区间题都可以随意采用这个哨兵。"
+          },
+          {
+            "title": "先否定两个常见直觉",
+            "body": "“开始最早优先”会在会议 (0,10)、(1,2)、(2,3) 上失败：先选第一场只能参加一场，后两场却可连续参加两场。“持续时间最短优先”也不可靠：会议 (0,3)、(3,6)、(2,4) 中，最短的是第三场，选它会同时挡住前两场，而前两场本来能组成两场安排。这些反例都很小，可以在纸上画时间轴检查，不需要写随机程序才能发现。注意反例必须符合正在讨论的规则和输入约束，还要明确比较的目标是会议数量；如果目标改成总收益，上述数量比较不能直接证明收益规则错误。对新贪心思路，先主动寻找“局部便宜但阻挡了两个选择”的结构，比只生成很多互不冲突的随机数据更容易暴露问题。"
+          },
+          {
+            "title": "交换论证如何保护最优解",
+            "body": "设当前可参加会议中结束最早的是 g，任取一个最优安排，它的第一场为 o。因为 g 的结束时间不晚于 o，把最优安排的第一场换成 g 后，原来在 o 之后的所有会议仍然能参加：它们开始时间至少为 o 的结束，也就至少为 g 的结束。场次数量没有减少，因此存在一个以 g 开头的最优安排。这证明做出贪心选择是安全的，而不是声称所有最优安排都必须以 g 开头。选完 g 后，对开始不早于 g 结束的剩余会议，面对的是同样形式的子问题，重复论证即可。若会议有不同价值，替换第一场可能改变总价值，这个证明就失效；这也是使用贪心前必须检查目标函数的原因。"
+          },
+          {
+            "title": "从证明得到排序扫描代码",
+            "body": "按结束时间排序后，扫描每个区间。如果开始时间小于 last_end，就与已经选定的最后一场冲突，跳过；否则选择它，将计数加一并更新 last_end。无需把不相容会议从列表中删除，也无需每轮重新排序，整体顺序一次确定就够了。例如 (0,3)、(1,2)、(2,4)、(3,5)、(4,6) 排序后，依次可选 (1,2)、(2,4)、(4,6)，结果三。代码里使用 sort(key=lambda interval: interval[1])，明确按第二项排序，不要误用默认按开始时间优先的元组排序。最后输出计数，输入为零场会议时循环为空，自然输出零。保持选择规则与证明中的结束时间一致，是实现正确的关键。\n\n这里把每个区间保存为元组，例如 (2, 4)。元组和列表一样可以用下标访问，interval[0] 是开始时间，interval[1] 是结束时间；区别是元组建好后不能替换其中的元素，适合保存本题中不会修改的一对值。tuple(map(int, input().split())) 先把一行拆成文本片段，再逐个转为整数，最后用 tuple 把两个整数收集成一个元组。最外层的列表推导式只是将这个读入过程重复 N 次，得到区间列表。\n\n排序键也可以先用已学过的 def 写清楚：定义函数时，函数头是 def end_time(interval):，缩进的函数体是 return interval[1]，随后调用 intervals.sort(key=end_time)。key 接收的是函数本身，所以这里写 end_time，不写 end_time()；排序会把每个区间交给该函数，比较函数返回的结束时间，原列表中保存的仍是完整区间。lambda interval: interval[1] 是这个简单函数的简写：冒号前的 interval 是参数，冒号后的 interval[1] 是自动返回的表达式。它没有改变排序规则，也不表示比较下标本身。",
+            "code": "n = int(input())\nintervals = [tuple(map(int, input().split())) for _ in range(n)]\nintervals.sort(key=lambda interval: interval[1])\nlast_end = -1\nanswer = 0\nfor start, end in intervals:\n    if start >= last_end:\n        answer += 1\n        last_end = end\nprint(answer)\n",
+            "exampleInput": "5\n0 3\n1 2\n2 4\n3 5\n4 6\n",
+            "output": "3\n"
+          },
+          {
+            "title": "端点、相同区间与复杂度",
+            "body": "测试两场 (0,1)、(1,2)，正确应选两场，能发现把 >= 写成 > 的错误。所有会议互相重叠时只能选一场；完全相同的区间即使作为不同会议重复出现，也不能同时选择，因为它们有正长度并占同一段时间。多个会议结束时刻相同，排序稳定性不会影响最大数量。没有会议与只有一场分别检查初值和第一轮更新。排序耗时 O(N log N)，扫描 O(N)，存储区间需要 O(N) 空间；不能只看到一次 for 就写成线性时间。若时间坐标很大，也不需要建立覆盖每个时间单位的数组，因为算法只比较端点，复杂度由会议数量而不是最大时间值决定。代码中的整数运算可以直接处理本题十亿级端点。"
+          },
+          {
+            "title": "如何判断下一道题能否贪心",
+            "body": "独立解题时先提出候选规则，再执行两个检查：寻找小反例；尝试把任意最优解的第一步交换成你的选择而不变差。如果不能解释交换后为何仍然合法或目标值为何不下降，就还没有完成证明。必要时退回 DP、搜索或其他结构，不必强求所有题都能贪心。小规模可以枚举所有会议子集，检查不重叠并求最大个数，与贪心结果比较；这能发现实现问题，但有限测试仍不能替代一般证明。请把本课与背包比较：区间调度的最早结束能保护所有后续选择，0/1背包的最高比值却没有这种交换保证。两个题都在“选择一些对象”，不代表可以共享同一个优先规则。真正可迁移的是证明局部选择安全的思考方式。"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "为什么最早结束优于最早开始作为本题规则？",
+            "answer": "结束更早不会减少可接在后面的会议，最早开始却可能占据很长时间。"
+          },
+          {
+            "question": "会议带不同收益时这个证明还成立吗？",
+            "answer": "不一定，交换第一场可能降低收益，需重新设计算法。"
+          }
+        ],
+        "exerciseTitle": "最多参加几场会议",
+        "task": "给定 N 场会议，每场开始 s、结束 t，0≤s<t≤10^9。选择最多场互不重叠会议；一场结束时可立即开始下一场，即相邻端点相等允许。0≤N≤200000。每场收益都按一场计。",
+        "input": "第一行 N，之后 N 行每行 s t。",
+        "output": "输出最多可参加场数。",
+        "hint": "按结束时间排序，只选择开始时间不早于已选最后结束时间的会议。",
+        "explanation": "结束最早的可行会议可以替换任意最优安排的第一场，而不影响其余会议可行性，所以总存在包含它的最优解。依次重复该选择，用结束排序后的一次扫描实现。开始等于 last_end 时允许加入。时间 O(N log N)，额外保存区间 O(N)；本结论依赖目标是场次数量、会议收益相同。"
+      },
+      "en": {
+        "title": "Greedy choices, counterexamples, and exchange",
+        "summary": "Challenge a local rule, then prove it preserves an optimum.",
+        "objectives": [
+          "Construct small counterexamples",
+          "Prove earliest finish by exchange",
+          "Implement sorting with compatible endpoints"
+        ],
+        "sections": [
+          {
+            "title": "Greedy needs more than a plausible choice",
+            "body": "A greedy algorithm makes a local decision and does not undo it later. This can be simpler than retaining many DP states, but you must show that committing to the choice does not lose an optimum. Passing samples is not a proof, and choosing a largest or smallest quantity is not a universal rule. For interval scheduling, a reliable choice is the currently compatible meeting that finishes earliest. The reason concerns remaining availability, not shortest duration. We will refute tempting alternatives with small examples and justify the valid choice by an exchange argument. One counterexample is enough to reject an otherwise fast rule."
+          },
+          {
+            "title": "Encode the meaning of compatibility",
+            "body": "Represent a meeting by start s and finish t, with s less than t. A meeting is compatible after the last selected finish e when s is at least e. Equal endpoints are allowed: think of occupied time as the half-open interval [s,t). Store only the latest selected finish and the count; earlier selected meetings impose no additional future restriction. Sorting by finish makes the first compatible candidate the earliest finishing one. Equal finishes require no special preference among feasible candidates. The initial sentinel minus one is valid because this task guarantees nonnegative start times; it is not a universal sentinel for every interval problem."
+          },
+          {
+            "title": "Refute two tempting rules first",
+            "body": "Earliest start fails on meetings (0,10), (1,2), and (2,3): it chooses one instead of the last two. Shortest duration fails on (0,3), (3,6), and (2,4): the shortest meeting blocks both of the others, although those two are compatible. Draw these examples on a time line. A counterexample must obey the proposed rule, input constraints, and actual optimization objective. If meetings had different rewards, a count comparison would not establish a reward comparison. When testing a new greedy idea, deliberately seek a locally attractive choice that blocks two useful alternatives instead of generating only easy nonoverlapping examples."
+          },
+          {
+            "title": "Use an exchange argument",
+            "body": "Let g be the earliest-finishing feasible meeting, and take any optimal schedule whose first meeting is o. Replace o with g. Since g finishes no later, every meeting that could follow o can still follow g. The number of selected meetings does not decrease, so there exists an optimal schedule beginning with g. This does not claim that every optimum starts with g. After committing to g, the remaining compatible meetings form the same kind of subproblem, allowing the argument to repeat. With unequal rewards, replacing o could change total value, so the proof would no longer support the new objective."
+          },
+          {
+            "title": "Translate the proof into a scan",
+            "body": "Sort once by finish time. During the scan, skip an interval whose start is smaller than last_end; otherwise select it, increment the count, and replace last_end. There is no need to delete incompatible intervals or sort again after each selection. For (0,3), (1,2), (2,4), (3,5), and (4,6), the selected sequence is (1,2), (2,4), (4,6). Use a key selecting the second tuple entry. Default tuple ordering would prioritize starts and implement the wrong rule. With zero meetings, the loop is empty and the count remains zero. Keep the code’s ordering aligned with the quantity used in the proof.\n\nEach interval is stored as a tuple, such as (2, 4). Like a list, a tuple supports indexing: interval[0] is the start and interval[1] is the finish. Unlike a list, its entries cannot be replaced after creation, which suits a pair of values that this algorithm never changes. In tuple(map(int, input().split())), split first separates one input line into text tokens, map converts each token to an integer, and tuple collects the two integers into a tuple. The outer list comprehension repeats this reading step N times to build the interval list.\n\nYou can write the sorting key with the def syntax already studied. Use the function header def end_time(interval): and an indented body containing return interval[1], then call intervals.sort(key=end_time). The key argument receives the function itself, so write end_time, not end_time(). Sorting passes each interval to this function and compares its returned finish time; the list still contains complete intervals. The expression lambda interval: interval[1] is a short form of this simple function. Before the colon, interval names the parameter; after it, interval[1] is the expression whose value is returned automatically. This abbreviation does not change the ordering rule, and it does not sort by the index number itself.",
+            "code": "n = int(input())\nintervals = [tuple(map(int, input().split())) for _ in range(n)]\nintervals.sort(key=lambda interval: interval[1])\nlast_end = -1\nanswer = 0\nfor start, end in intervals:\n    if start >= last_end:\n        answer += 1\n        last_end = end\nprint(answer)\n",
+            "exampleInput": "5\n0 3\n1 2\n2 4\n3 5\n4 6\n",
+            "output": "3\n"
+          },
+          {
+            "title": "Endpoints, ties, and complexity",
+            "body": "Meetings (0,1) and (1,2) should both be selected, catching a mistaken strict comparison. If every meeting overlaps every other, choose one. Identical positive-length intervals may represent distinct meetings but cannot both be attended. Equal finish times do not require stable sorting for the maximum count. Test no meetings and one meeting to inspect initialization. Sorting costs O(N log N), scanning O(N), and storing intervals O(N) space. Do not report linear total time merely because the final scan has one loop. Large time coordinates need no per-time-unit array because only endpoint comparisons matter."
+          },
+          {
+            "title": "Decide whether a new greedy rule is justified",
+            "body": "For a new rule, perform two checks: search for a small counterexample, then try to transform an arbitrary optimum so it begins with your choice without worsening the objective. If legality or value after the exchange is unclear, the proof is incomplete. Use DP, search, or another structure when needed rather than forcing greediness. Exhaustively enumerating small subsets can catch implementation mistakes, but finite tests do not replace a general argument. Compare this problem with 0/1 knapsack: earliest finish preserves all later opportunities, while highest value-to-weight ratio lacks that guarantee. The transferable skill is proving a safe choice, not reusing one ranking everywhere."
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "Why use earliest finish rather than earliest start?",
+            "answer": "An earlier finish preserves later opportunities; an early start may occupy a long interval."
+          },
+          {
+            "question": "Does the same proof handle unequal rewards?",
+            "answer": "Not necessarily: exchanging the first meeting may reduce reward."
+          }
+        ],
+        "exerciseTitle": "Attend the most meetings",
+        "task": "Given N meetings with 0≤s<t≤10^9, select the maximum number of nonoverlapping meetings. A meeting may start exactly when the previous one finishes. Every meeting counts equally. 0≤N≤200000.",
+        "input": "N, followed by N lines s t.",
+        "output": "Print the maximum meeting count.",
+        "hint": "Sort by finish and accept a start at least the last selected finish.",
+        "explanation": "The earliest-finishing feasible meeting can replace the first meeting of an optimum without making any later meeting infeasible. Thus an optimum containing the greedy choice always exists. Repeat this choice using a single finish-sorted scan. Equality with last_end is compatible. Time O(N log N), interval storage O(N). The conclusion relies on maximizing count with equal reward per meeting."
+      },
+      "ja": {
+        "title": "貪欲選択・反例・交換論証",
+        "summary": "局所規則を疑い、最適解を保つことを証明する。",
+        "objectives": [
+          "誤った規則の小反例を作る",
+          "最早終了を交換論証で示す",
+          "端点が接する場合も正しく走査する"
+        ],
+        "sections": [
+          {
+            "title": "貪欲法は直感だけで選ばない",
+            "body": "貪欲法は局所的な選択を一つ行い、後から取り消さずに進みます。多くの状態を保存する DP より簡潔になることがありますが、その選択で最適解を失わないと証明する必要があります。サンプルを通っただけでは証明にならず、最大や最小を優先するというだけの普遍的な規則もありません。本課の会議選択では、今参加可能な中で終了が最も早い会議を選ぶ規則が成立します。理由は会議時間の短さではなく、後に残る利用可能時間が他の選択より悪くならないことです。まず他の直感的な規則の反例を作り、その後で正しい規則を交換論証により確かめます。貪欲法では反例を探すことも証明することも重要です。どれだけ速いコードでも、小さな反例一つで規則が誤りだと分かります。"
+          },
+          {
+            "title": "重ならない条件を状態にする",
+            "body": "会議は開始 s と終了 t で表し、s<t とします。直前の選択が e に終わるなら、次は s≥e で参加できます。終了と次の開始が等しい場合も許され、占有時間を半開区間 [s,t) と考えると理解できます。接する端点を誤って重なりとしないでください。保持する状態は、最後に選んだ終了時刻 last_end と選択数だけです。以前の会議はすべてその時刻までに終わっており、未来に追加の制約を与えません。終了時刻で並べると、各段階で最も早く終わる実行可能な候補から検討できます。同じ終了の候補は、参加できるものなら未来に残す条件も同じです。初期値 -1 は開始が非負という本課の保証によるもので、すべての区間問題で使える値ではありません。"
+          },
+          {
+            "title": "よくある二つの直感を反証する",
+            "body": "開始が最も早いものを優先する規則は、(0,10)、(1,2)、(2,3) で失敗します。最初を選ぶと一場だけですが、後ろの二つは連続して参加できます。所要時間が最短という規則も、(0,3)、(3,6)、(2,4) で失敗します。最短の三番目を選ぶと他の二つを妨げますが、最初の二つは両方参加できます。小さい例なので時間軸に描いて確認できます。反例は規則と入力条件に従い、何を最大化するかも一致していなければなりません。報酬が異なる場合に、個数だけの比較をそのまま利益の比較へ使うことはできません。新しい規則を考えたら、局所的に魅力的な一つが二つの有用な選択を阻む形を探すと、衝突のない簡単な乱数例より問題を見つけやすくなります。"
+          },
+          {
+            "title": "交換論証で最適解を保つ",
+            "body": "今参加できる中で最も早く終わる会議を g、任意の最適な予定の最初の会議を o とします。o を g に交換しても、g は o より遅く終わらないため、その後の会議はすべて参加可能です。元の後続会議は o の終了以降に始まるので、g の終了以降にも始まります。選択数は減らず、g から始まる最適解が少なくとも一つ存在すると分かります。すべての最適解が必ず g から始まる、という主張ではありません。g を決めた後は、その終了以降に始まる会議について同じ形の問題が残るため、同じ論証を繰り返せます。報酬が異なる場合には最初の交換で総利益が変わり得るので、この証明は使えません。目的関数を読み直すことが必要な理由です。"
+          },
+          {
+            "title": "証明をソートと走査へ移す",
+            "body": "終了時刻で一度だけ並べ、各区間を順に見ます。開始が last_end より小さければ直前に選んだ会議と衝突するので飛ばし、そうでなければ選択数を増やして last_end を更新します。不適合な区間をリストから消したり、選ぶたびに並べ直したりする必要はありません。(0,3)、(1,2)、(2,4)、(3,5)、(4,6) なら、選ぶ順序は (1,2)、(2,4)、(4,6) で3 件です。sort の key でタプルの第二要素を明示してください。通常のタプル順では開始時刻が優先され、別の誤った規則になります。0 件ならループが空で自然に零を返します。証明で使った終了時刻と、実装が比較する値を一致させることが大切です。\n\n各区間は (2, 4) のようなタプルに保存します。タプルもリストと同様に添字で参照でき、interval[0] が開始、interval[1] が終了時刻です。ただしリストと異なり、作成後に要素を別の値へ置き換えることはできません。本問のように変更しない二つの値を組にする用途に適しています。tuple(map(int, input().split())) は、一行を split で文字列へ分割し、map でそれぞれを整数に変え、tuple で二つの整数をタプルにまとめます。外側のリスト内包表記はこの読み取りを N 回繰り返し、区間のリストを作っています。\n\nソートのキーは、既習の def で先に書くこともできます。関数の先頭を def end_time(interval): とし、インデントした本体に return interval[1] を書いてから、intervals.sort(key=end_time) と呼び出します。key に渡すのは関数そのものなので、end_time() ではなく end_time と書きます。ソートは各区間をこの関数へ渡し、返された終了時刻を比較します。リストに残るのは終了時刻だけではなく区間全体です。lambda interval: interval[1] は、この単純な関数の短い書き方です。コロンの前の interval が引数名で、後ろの interval[1] が自動的に返される式になります。短縮しても並べ方は変わらず、添字の数値そのものを比較するわけではありません。",
+            "code": "n = int(input())\nintervals = [tuple(map(int, input().split())) for _ in range(n)]\nintervals.sort(key=lambda interval: interval[1])\nlast_end = -1\nanswer = 0\nfor start, end in intervals:\n    if start >= last_end:\n        answer += 1\n        last_end = end\nprint(answer)\n",
+            "exampleInput": "5\n0 3\n1 2\n2 4\n3 5\n4 6\n",
+            "output": "3\n"
+          },
+          {
+            "title": "端点・同値・計算量を確認する",
+            "body": "(0,1) と (1,2) は両方参加できるので、>= を > にした誤りを見つけられます。全会議が互いに重なるなら一場だけです。同じ区間が別々の会議として現れても、正の長さで同じ時間を使うため両方は選べません。終了が同じ場合の並びの安定性は最大個数に影響しません。会議なしと一場だけで初期値と最初の更新を確認します。ソートは O(N log N)、走査は O(N)、区間保存は O(N) 領域です。最後に一つの for しか見えなくても、全体を線形時間としてはいけません。時刻が大きくても各時刻単位を表す配列は不要で、端点の比較だけを行います。計算量は最大時刻ではなく会議数に依存し、本課の十億程度の端点も整数のまま扱えます。"
+          },
+          {
+            "title": "次の問題で使えるかを判断する",
+            "body": "新しい規則を考えたら、小さな反例を探し、さらに任意の最適解の最初を自分の選択へ交換しても悪化しないかを確認します。交換後も合法な理由や目的値が減らない理由を説明できなければ、証明は未完成です。必要なら DP、探索、別の構造へ戻り、すべてを貪欲法で解こうとしないでください。小規模の全部分集合を列挙して不重複と最大個数を調べ、結果を比較する方法は実装ミスの発見に役立ちます。ただし有限個の検査は一般の証明の代わりではありません。区間選択では最早終了が後続の可能性を保ちますが、0/1 背包の最高比率には同じ保証がありません。どちらも物を選ぶ問題という見た目ではなく、局所選択の安全性を証明する考え方を移してください。"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "開始順でなく終了順を使う理由は。",
+            "answer": "早い終了は後続の可能性を減らさず、早い開始は長時間を占めることがあるためです。"
+          },
+          {
+            "question": "報酬が異なっても同じ証明でよいですか。",
+            "answer": "最初の交換で利益が減る可能性があり、再検討が必要です。"
+          }
+        ],
+        "exerciseTitle": "最大何場に参加できるか",
+        "task": "N 件の会議があり、0≤s<t≤10^9 の開始 s と終了 t を持ちます。重ならない会議を最大何件選べるか求めてください。前の終了と次の開始が等しくても構いません。各会議は同じ 1 件分です。0≤N≤200000。",
+        "input": "N、その後 N 行に s t。",
+        "output": "選べる会議の最大件数を出力してください。",
+        "hint": "終了順に並べ、開始が直前の終了以上なら選びます。",
+        "explanation": "参加可能な最早終了の会議は、最適予定の最初と交換しても後続を不可能にしません。その選択を含む最適解が存在するため、同じ選択を繰り返せます。終了順の一回の走査で実装し、開始と last_end の等号も許します。時間 O(N log N)、保存領域 O(N) です。各会議が同じ一場分という目的に依存する結論です。"
+      }
+    },
+    "order": 23,
+    "stage": "synthesis",
+    "minutes": 55,
+    "prerequisiteIds": [
+      "knapsack"
+    ],
+    "relatedProblems": [
+      "ABC203C",
+      "ABC229C",
+      "ABC185D"
+    ],
+    "solution": "n = int(input())\nintervals = [tuple(map(int, input().split())) for _ in range(n)]\nintervals.sort(key=lambda interval: interval[1])\nlast_end = -1\nanswer = 0\nfor start, end in intervals:\n    if start >= last_end:\n        answer += 1\n        last_end = end\nprint(answer)\n",
+    "starter": "n = int(input())\nintervals = [tuple(map(int, input().split())) for _ in range(n)]\n# TODO\n",
+    "tests": [
+      {
+        "input": "0\n",
+        "expected": "0\n"
+      },
+      {
+        "input": "1\n0 1\n",
+        "expected": "1\n"
+      },
+      {
+        "input": "2\n0 1\n1 2\n",
+        "expected": "2\n"
+      },
+      {
+        "input": "3\n0 10\n1 2\n2 3\n",
+        "expected": "2\n"
+      },
+      {
+        "input": "3\n0 3\n3 6\n2 4\n",
+        "expected": "2\n"
+      },
+      {
+        "input": "4\n1 5\n1 5\n2 5\n5 8\n",
+        "expected": "2\n"
+      }
+    ]
+  },
+  {
+    "id": "exam-workflow",
+    "content": {
+      "zh": {
+        "title": "综合实战：从读题到验证",
+        "summary": "把贪心、排序、前缀和与二分连接成一个有证明的方案。",
+        "objectives": [
+          "从限制选择可承受的复杂度",
+          "证明最短前缀与原问题等价",
+          "用慢解和边界独立核对优化实现"
+        ],
+        "sections": [
+          {
+            "title": "先把故事改写成可检验的任务",
+            "body": "综合练习给出一组互相独立的任务，每项只需完成一次，有正整数耗时；每个询问给出一个时间预算，要求最多完成多少项。不同询问彼此独立，可以重新选择任务，不会共享已消耗时间。没有先修关系、固定执行顺序、不同收益，也没有切分任务后获得部分分数。这些条件比“任务安排”这个故事名称更重要，因为它们决定能否优先选耗时短的项目。阅读时把输入、输出、选择权限和限制写成四句话，再用一个两任务小例子确认自己理解。此处题目是算法训练模型，并不是现实考试中题目耗时已知或每题收益相同的保证；不能把算法结论机械地当成考试策略，更不能据此承诺取得某个分数。"
+          },
+          {
+            "title": "从约束排除明显过慢的方案",
+            "body": "N 与 Q 都最多二十万。如果每个预算重新扫描所有任务，即使每次只做简单加法，最坏也要四百亿次操作，不适合直接实现。如果枚举每个任务选或不选，则有 2^N 种组合，更不可能。注意所有询问共享同一组耗时，只有预算改变，因此可以把与预算无关的部分预处理一次。先把任务从短到长排序，再计算前 k 项总耗时，就能把“组合选择”压缩成“找最长可行前缀”。排序 O(N log N)，前缀和 O(N)，每个询问二分 O(log N)，总共 O(N log N+Q log N)。这里预算可达十的十八次方，不适合建立以预算为下标的 DP；数组规模应由 N 决定，而不是由最大预算决定。"
+          },
+          {
+            "title": "证明短任务前缀已经覆盖最优数量",
+            "body": "把耗时排序为 a[0]≤a[1]≤…≤a[N-1]。对任何恰好选择 k 项的集合，若包含一个较长任务却没有包含某个更短任务，可以交换二者，数量保持 k，总耗时不增加。反复交换后得到最短的 k 项，所以前 k 项总耗时是完成 k 项所需的最小时间。因此若这个前缀都超过预算，任何其他 k 项选择也不可能；若前缀没超预算，就确实存在可行选择。这样将原来的最优化问题转成一个等价判定，而不是只给出看起来不错的方案。这个证明依赖每项价值都按一项计、任务可以自由选择；若存在前置任务或不同价值，交换可能违法或损失目标值，应回到模型重新分析，不能继续使用这个前缀结论。"
+          },
+          {
+            "title": "前缀和怎样变成二分条件",
+            "body": "令 prefix[0]=0，prefix[k] 表示最短 k 项的总耗时，长度必须是 N+1。所有耗时为正，所以前缀和严格递增；即使题目允许零耗时，也至少不递减，但边界处理需继续使用正确的插入方向。预算 T 下，要找最大的 k 满足 prefix[k]≤T。bisect_right(prefix,T) 返回第一个大于 T 的位置，减一正好是最后一个不大于 T 的下标，也就是任务数量。这里输出下标而不是该位置的和值。若恰好相等，应保留那 k 项，所以不能用 bisect_left 再机械减一。prefix[0]=0 保证预算为零时至少存在零项方案，预算超过全部总和时返回 N，两个边界都可以由同一个表达式处理。",
+            "code": "from bisect import bisect_right\nprefix = [0, 2, 4, 8, 13]\nfor budget in [0, 2, 4, 7, 8, 13, 100]:\n    print(budget, bisect_right(prefix, budget) - 1)\n",
+            "output": "0 0\n2 1\n4 2\n7 2\n8 3\n13 4\n100 4\n"
+          },
+          {
+            "title": "用完整输入走通一次程序",
+            "body": "例如四项耗时按输入顺序为 5、2、4、2，排序后是 2、2、4、5，前缀表为 0、2、4、8、13。预算七时，最多两项，因为三项最少也需八；预算八时可以三项；预算十三时可以全部四项。输入顺序不影响可选集合，但它能帮助检测是否忘记排序。完整实现先读取 N、Q，再读 N 个耗时，构造前缀后逐条处理 Q 行预算，每次输出一个整数。请严格区分 N 项数据与 Q 个询问，不要把 Q 当成数组长度。所有查询使用同一份只读 prefix，不能因为前一个预算用掉了某些任务而删除数组元素。本题询问独立，这一输入契约已经决定了状态不应在查询之间被消耗。",
+            "code": "from bisect import bisect_right\n\nn, q = map(int, input().split())\ndurations = sorted(map(int, input().split()))\nprefix = [0]\nfor duration in durations:\n    prefix.append(prefix[-1] + duration)\nfor _ in range(q):\n    budget = int(input())\n    print(bisect_right(prefix, budget) - 1)\n",
+            "exampleInput": "4 7\n5 2 4 2\n0\n2\n4\n7\n8\n13\n100\n",
+            "output": "0\n1\n2\n2\n3\n4\n4\n"
+          },
+          {
+            "title": "像审核者一样设计边界测试",
+            "body": "不要只复制给出的样例。针对每个容易错的决策设计一个小测试：预算零检验空前缀；预算恰好等于某个前缀检验等号；预算比该前缀小一检验二分边界；重复耗时检验是否错误去重；原数据逆序检验排序；预算大于总和检验最后位置；十亿级耗时与巨大预算检验是否错误按预算建表。小规模还可枚举全部子集，对每个预算计算最多可选件数，再与优化解对比，这个慢解不依赖排序结论，是更独立的验证。若出现差异，依次检查读入值、排序结果、prefix、二分返回位置，不要直接修改最后的减一。把第一次产生不一致的中间状态找到，通常能比反复尝试 >= 与 > 更快定位根因。"
+          },
+          {
+            "title": "把一次解题整理为可重复的流程",
+            "body": "完成这道综合题后，把解题过程压缩成可复用的七步：用自己的话复述任务；从约束估算可承受的运算量；先想正确的慢方法；找到可以预处理或合并的信息；证明优化保留答案；实现并用针对性边界测试；最后核对输入输出与复杂度。考试中遇到陌生题，先完成其中最确定的部分，不要在未理解状态时长时间盲写。保留一个能运行的小版本，比同时修改读入、算法和输出更容易检查。事后复盘应记录实际误解与反例，例如“把独立询问当成连续操作”，而不是只抄下“使用二分”这样的标签。课程提供的是从概念到实现与自证的训练路径；是否真正掌握，需要在不同题目中独立重建推理，并持续检验结果，而不是依赖完成课数或某个训练分。"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "为什么用 bisect_right 而不是 bisect_left？",
+            "answer": "预算恰好等于某个前缀时该方案合法，需要找到第一个严格大于预算的位置后减一。"
+          },
+          {
+            "question": "若任务有先修关系，最短前缀一定仍最优吗？",
+            "answer": "不一定，交换为更短任务可能违反依赖，原证明的自由选择条件被破坏。"
+          }
+        ],
+        "exerciseTitle": "多个预算下最多完成多少任务",
+        "task": "有 N 个独立任务，耗时为正整数 a_i。每项最多做一次，所有任务都按完成一项计，顺序不限，无先修关系。给出 Q 个彼此独立的预算 T；对每个预算，输出总耗时不超过 T 时最多能完成的任务数。每次询问可重新选择全部任务。1≤N,Q≤200000，1≤a_i≤10^9，0≤T≤10^18。",
+        "input": "第一行 N Q；第二行 N 个耗时；接下来 Q 行每行一个预算 T。",
+        "output": "对每个预算输出一行最大任务数。",
+        "hint": "最短 k 项是完成 k 项的最小耗时；排序前缀和后寻找最后一个不超过预算的位置。",
+        "explanation": "排序后前 k 项通过交换论证具有所有 k 项选择中的最小总耗时。构造含零项的 prefix 表，单调递增。每个独立预算使用 bisect_right 找第一个超预算的位置，再减一得到可行的最大任务数。排序与预处理只做一次，询问不修改表。总时间 O(N log N+Q log N)，空间 O(N)；这不是对真实考试得分的预测。"
+      },
+      "en": {
+        "title": "Integrated practice: from statement to verification",
+        "summary": "Connect greedy reasoning, sorting, prefix sums, and binary search into a proved solution.",
+        "objectives": [
+          "Choose feasible complexity from constraints",
+          "Prove equivalence to shortest prefixes",
+          "Check the optimized solution with boundaries and a slow oracle"
+        ],
+        "sections": [
+          {
+            "title": "Translate the story into a precise contract",
+            "body": "The integrated exercise gives independent tasks with positive integer durations. Each can be completed once, and each query asks for the largest number finishable within its own time budget. Queries are independent: they do not share consumed time or completed tasks. There are no prerequisites, fixed order, unequal rewards, or partial completion. These conditions matter more than the scheduling story because they determine whether shortest tasks can be preferred. Write down inputs, outputs, selection freedom, and restrictions before coding. This is an algorithmic model, not a claim that real exam problems have known durations or equal value, and it cannot promise an exam score."
+          },
+          {
+            "title": "Let constraints eliminate slow approaches",
+            "body": "Both N and Q can reach two hundred thousand. Scanning every task for every query can require forty billion operations, while subset enumeration is exponentially worse. All queries share the same durations, so preprocess the budget-independent work once. Sort durations and compute the total time of the first k tasks, reducing selection to finding the longest feasible prefix. Sorting costs O(N log N), prefix construction O(N), and each binary search O(log N). Budgets may be as large as ten to the eighteenth, ruling out a table indexed by budget. The data structure should scale with the task count, not with the largest numeric time value."
+          },
+          {
+            "title": "Prove that shortest prefixes are sufficient",
+            "body": "Sort durations in nondecreasing order. For any set of k tasks, if it contains a longer task while excluding a shorter one, exchange them. The count remains k and total time cannot increase. Repeating exchanges produces the shortest k tasks, so their prefix sum is the minimum time needed for k completions. If that minimum exceeds the budget, no other k-task selection can work; if it fits, a feasible selection exists. This proves equivalence, not merely a reasonable heuristic. Prerequisites or unequal rewards would invalidate the exchange because replacement could become illegal or worsen the actual objective."
+          },
+          {
+            "title": "Connect prefix sums to binary search",
+            "body": "Set prefix[0] to zero and let prefix[k] be the total duration of the shortest k tasks. There are N plus one entries. Positive durations make the sequence strictly increasing. For budget T, find the largest index k with prefix[k] at most T. bisect_right returns the first position whose value is greater than T, so subtracting one yields the desired index. Return that index, not the sum stored there. Equality must count as feasible, making bisect_left minus one incorrect. The zero prefix handles a zero budget, and a budget beyond the total yields N using the same expression.",
+            "code": "from bisect import bisect_right\nprefix = [0, 2, 4, 8, 13]\nfor budget in [0, 2, 4, 7, 8, 13, 100]:\n    print(budget, bisect_right(prefix, budget) - 1)\n",
+            "output": "0 0\n2 1\n4 2\n7 2\n8 3\n13 4\n100 4\n"
+          },
+          {
+            "title": "Walk through one complete input",
+            "body": "For input durations 5,2,4,2, sorting gives 2,2,4,5 and prefixes 0,2,4,8,13. Budget seven allows two tasks because even the cheapest three need eight; budget eight allows three; thirteen allows all four. Unsorted input catches a missing sort. Read N and Q, then N durations, build the prefixes once, and process Q budget lines with one integer output each. Do not confuse task count with query count. Every query uses the same read-only prefix table. Removing tasks after a query would incorrectly share state between independent scenarios, contradicting the input contract established before coding.",
+            "code": "from bisect import bisect_right\n\nn, q = map(int, input().split())\ndurations = sorted(map(int, input().split()))\nprefix = [0]\nfor duration in durations:\n    prefix.append(prefix[-1] + duration)\nfor _ in range(q):\n    budget = int(input())\n    print(bisect_right(prefix, budget) - 1)\n",
+            "exampleInput": "4 7\n5 2 4 2\n0\n2\n4\n7\n8\n13\n100\n",
+            "output": "0\n1\n2\n2\n3\n4\n4\n"
+          },
+          {
+            "title": "Design tests as a reviewer would",
+            "body": "Build tests around decisions, not just around the published sample. Zero budget checks the empty prefix. Exact equality checks the comparison. One less than a prefix tests the binary-search boundary. Duplicate durations catch accidental deduplication; reversed input catches missing sorting; an oversized budget checks the final index. Large numeric values expose attempts to allocate by budget. For small N, enumerate all subsets and independently maximize feasible count for each budget. If results differ, inspect parsed input, sorted durations, prefix sums, and the insertion index in that order. Find the first inconsistent intermediate state rather than randomly changing comparison operators."
+          },
+          {
+            "title": "Turn one solution into a repeatable workflow",
+            "body": "Summarize the process into a repeatable sequence: restate the task, estimate feasible work from constraints, invent a correct slow approach, identify reusable information, prove the optimization, implement with targeted tests, and verify formatting and complexity. For an unfamiliar problem, finish the parts you understand rather than writing blindly before the state is clear. A small runnable version is easier to inspect than simultaneous changes to parsing, algorithm, and output. In review notes, record the actual misconception and counterexample, such as treating independent queries as cumulative actions, rather than only a technique label. Mastery requires rebuilding the reasoning on new problems, not accumulating lesson counts or training points."
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "Why use bisect_right instead of bisect_left?",
+            "answer": "Equality is feasible, so search for the first strictly greater prefix and subtract one."
+          },
+          {
+            "question": "Do shortest prefixes remain valid with prerequisites?",
+            "answer": "Not necessarily. Exchanging tasks may violate dependencies and invalidate the proof."
+          }
+        ],
+        "exerciseTitle": "Maximum tasks for many budgets",
+        "task": "There are N independent tasks with positive durations a_i. Each may be completed once, all count equally, and order is unrestricted with no prerequisites. For each of Q independent budgets T, find the maximum number whose total duration is at most T. All tasks are available anew in every query. 1≤N,Q≤200000, 1≤a_i≤10^9, 0≤T≤10^18.",
+        "input": "N Q; then N durations on one line; then Q lines each containing T.",
+        "output": "Print the maximum task count for each budget on its own line.",
+        "hint": "The shortest k tasks minimize the time for k completions. Search their prefix sums for the last value within budget.",
+        "explanation": "An exchange argument shows that the shortest k tasks have minimum total duration among all k-task sets. Build increasing prefix sums including zero tasks. For each independent budget, bisect_right finds the first sum exceeding it; subtract one to obtain the largest feasible count. Preprocess once and do not modify the table between queries. Time O(N log N+Q log N), space O(N). This model does not predict real examination scores."
+      },
+      "ja": {
+        "title": "総合演習：読解から検証まで",
+        "summary": "貪欲の根拠・ソート・累積和・二分を証明つきの解法へ結ぶ。",
+        "objectives": [
+          "制約から可能な計算量を選ぶ",
+          "最短接頭辞との同値性を示す",
+          "境界と遅い解法で独立に検証する"
+        ],
+        "sections": [
+          {
+            "title": "文章を検査できる仕様にする",
+            "body": "総合演習では、互いに独立した仕事に正の整数の所要時間があり、各仕事は一回だけ完了できます。各問い合わせは独立した時間予算を与え、その範囲で最大何個できるかを尋ねます。別の問い合わせでは最初から選び直し、消費時間や完了済みの仕事を共有しません。先行条件、固定順序、異なる報酬、途中までの完了による得点はありません。この条件こそが、短い仕事を先に選んでよいかを決めます。物語の題名だけで判断せず、入力、出力、選択の自由、制限を四つの文で書きます。これは算法の練習モデルであり、現実の試験の所要時間が既知で配点も同じという保証ではありません。結論を試験戦略へ無条件に移したり、特定の得点を約束したりしないでください。"
+          },
+          {
+            "title": "制約から遅すぎる方法を除く",
+            "body": "N と Q はどちらも最大二十万です。問い合わせごとに全仕事を走査すると、単純な加算だけでも最悪四百億回になり、直接実装する方法には向きません。各仕事を選ぶかどうか全列挙すれば 2^N 通りで、さらに不可能です。全問い合わせは同じ所要時間を共有し、違うのは予算だけなので、予算に依存しない計算を一度だけ行います。短い順に並べて先頭 k 個の合計を作れば、組合せ選択を最長の実行可能な接頭辞へ変換できます。ソート O(N log N)、前計算 O(N)、各検索 O(log N) です。予算は十の十八乗まであるため、予算を添字とする DP 表は作れません。配列の大きさは最大時間でなく仕事数に依存させるべきです。"
+          },
+          {
+            "title": "短い仕事の接頭辞で十分と証明する",
+            "body": "所要時間を小さい順に a[0]≤a[1]≤…≤a[N-1] と並べます。任意の k 個の選択に、選ばれていない短い仕事より長い仕事が含まれるなら交換します。個数は k のままで合計時間は増えません。交換を繰り返すと最短の k 個になり、その接頭辞和が k 個完了するための最小時間だと分かります。この最小値さえ予算を超えれば他のどの k 個も不可能で、超えなければ実際にその選択が使えます。単に良さそうな案ではなく、元の最適化と同値な判定へ変えたことになります。各仕事が一個分という同じ価値を持ち、自由に選べることが前提です。先行条件や異なる価値があれば交換が違法になったり目的値を減らしたりするため、モデルから考え直します。"
+          },
+          {
+            "title": "累積和から二分探索の条件を作る",
+            "body": "prefix[0]=0 とし、prefix[k] を最短 k 個の時間合計にします。長さは N+1 です。所要時間が正なので累積和は厳密に増加します。もし零時間を許す別問題でも非減少にはなりますが、境界でどちら側へ挿入するかを引き続き正しく選ぶ必要があります。予算 T に対し prefix[k]≤T を満たす最大の k が欲しいので、T より大きい最初の位置を返す bisect_right から一を引きます。その添字が仕事数であり、保存されている合計値を答えるのではありません。ちょうど等しいときも選べるため、bisect_left から一を引く形は誤りです。零の接頭辞により予算零では零個、全合計を超える予算では N 個となり、一つの式で両端も扱えます。",
+            "code": "from bisect import bisect_right\nprefix = [0, 2, 4, 8, 13]\nfor budget in [0, 2, 4, 7, 8, 13, 100]:\n    print(budget, bisect_right(prefix, budget) - 1)\n",
+            "output": "0 0\n2 1\n4 2\n7 2\n8 3\n13 4\n100 4\n"
+          },
+          {
+            "title": "完全な入力を最後まで処理する",
+            "body": "所要時間が入力順に 5,2,4,2 なら、ソート後は 2,2,4,5、累積和は 0,2,4,8,13 です。予算七では三個に最低八かかるので二個、予算八なら三個、十三なら全部の四個を選べます。順不同の入力はソート忘れを見つけるのにも役立ちます。完成版は N と Q、続いて N 個の時間を読み、累積和を一度だけ作ってから Q 行の予算を処理し、各行に整数一つを出力します。仕事数 N と問い合わせ数 Q を混同して配列長を決めないでください。すべての問い合わせは同じ読み取り専用の prefix を使います。前の問い合わせで使った仕事を消すと、独立な場面の間で状態を共有してしまいます。何を使い回してよいかは、最初に確認した入力の約束から決まります。",
+            "code": "from bisect import bisect_right\n\nn, q = map(int, input().split())\ndurations = sorted(map(int, input().split()))\nprefix = [0]\nfor duration in durations:\n    prefix.append(prefix[-1] + duration)\nfor _ in range(q):\n    budget = int(input())\n    print(bisect_right(prefix, budget) - 1)\n",
+            "exampleInput": "4 7\n5 2 4 2\n0\n2\n4\n7\n8\n13\n100\n",
+            "output": "0\n1\n2\n2\n3\n4\n4\n"
+          },
+          {
+            "title": "検査する側の目で境界例を作る",
+            "body": "提示された例を写すだけでなく、判断ごとに小さな検査を作ります。予算零は空の接頭辞、累積和と同額の予算は等号、一だけ小さい予算は二分の境界、同じ所要時間は誤った重複除去、逆順の入力はソート忘れ、全合計より大きい予算は末尾位置を確認します。十億程度の所要時間と巨大な予算は、予算サイズの配列を作っていないかも確認できます。小さい N なら全部分集合を列挙し、各予算で可能な最大個数を独立に求めて比較します。この遅い解法はソートの結論に依存しない検算です。不一致が出たら、読み取り値、ソート結果、prefix、挿入位置の順に見てください。最後の一を引く操作や不等号を無作為に変えるより、初めて違った中間状態を探す方が原因へ近づきます。"
+          },
+          {
+            "title": "一問の経験を繰り返せる手順にする",
+            "body": "この総合問題の過程を、課題を言い換える、制約から可能な演算量を見積もる、正しい遅い方法を考える、再利用できる情報を探す、最適化で答えが変わらないと証明する、実装して狙った境界を試す、入出力と計算量を確認する、という手順へ整理します。未知の問題では状態が不明なまま長時間書くより、確実に理解した部分を先に完成させます。小さく動く版を保つと、読み取り・算法・出力を同時に変えるより確認しやすくなります。復習には単に二分探索と記すのでなく、独立な質問を連続操作と誤解した、という実際の誤解と反例を残してください。理解の確認は別の問題で推論を自力で組み直すことです。受講数や練習点数だけで身についたと判断しないようにします。"
+          }
+        ],
+        "checkpoints": [
+          {
+            "question": "bisect_left ではなく bisect_right を使う理由は。",
+            "answer": "予算と等しい累積和も合法なので、厳密に大きい最初の位置から一を引きます。"
+          },
+          {
+            "question": "先行条件があっても最短接頭辞でよいですか。",
+            "answer": "交換が依存関係を破る可能性があり、同じ証明は使えません。"
+          }
+        ],
+        "exerciseTitle": "複数予算で完了できる最大仕事数",
+        "task": "N 個の独立した仕事に正の所要時間 a_i があります。各仕事は一回まで、どれも一個分で、順序と先行条件はありません。独立した Q 個の予算 T ごとに、合計時間が T 以下となる最大仕事数を求めます。各問い合わせでは全仕事から選び直せます。1≤N,Q≤200000、1≤a_i≤10^9、0≤T≤10^18 です。",
+        "input": "N Q、次の行に N 個の時間、その後 Q 行に予算 T。",
+        "output": "各予算の最大仕事数を一行ずつ出力してください。",
+        "hint": "最短 k 個が k 個に必要な最小時間です。ソート後の累積和で予算以下の最後の位置を探します。",
+        "explanation": "交換論証により、最短 k 個は k 個の集合の中で合計時間が最小です。零個を含む単調増加の累積和を作り、独立した各予算について bisect_right で超過する最初の位置を探し、一を引いて最大個数にします。前処理は一回で、問い合わせ間で表を変更しません。時間 O(N log N+Q log N)、領域 O(N) です。現実の試験得点を予測するモデルではありません。"
+      }
+    },
+    "order": 24,
+    "stage": "synthesis",
+    "minutes": 60,
+    "prerequisiteIds": [
+      "greedy"
+    ],
+    "relatedProblems": [
+      "ABC312C",
+      "ABC172C",
+      "ABC228C"
+    ],
+    "solution": "from bisect import bisect_right\n\nn, q = map(int, input().split())\ndurations = sorted(map(int, input().split()))\nprefix = [0]\nfor duration in durations:\n    prefix.append(prefix[-1] + duration)\nfor _ in range(q):\n    budget = int(input())\n    print(bisect_right(prefix, budget) - 1)\n",
+    "starter": "from bisect import bisect_right\n\nn, q = map(int, input().split())\ndurations = list(map(int, input().split()))\n# TODO\n",
+    "tests": [
+      {
+        "input": "1 4\n5\n0\n4\n5\n6\n",
+        "expected": "0\n0\n1\n1\n"
+      },
+      {
+        "input": "4 7\n5 2 4 2\n0\n2\n4\n7\n8\n13\n100\n",
+        "expected": "0\n1\n2\n2\n3\n4\n4\n"
+      },
+      {
+        "input": "3 3\n1 1 1\n1\n2\n3\n",
+        "expected": "1\n2\n3\n"
+      },
+      {
+        "input": "2 5\n1000000000 1000000000\n999999999\n1000000000\n1999999999\n2000000000\n1000000000000000000\n",
+        "expected": "0\n1\n1\n2\n2\n"
+      },
+      {
+        "input": "5 4\n9 7 5 3 1\n1\n4\n8\n9\n",
+        "expected": "1\n2\n2\n3\n"
+      }
+    ]
+  }
+]

@@ -5,17 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f5f5f7">
   <meta name="description" content="A focused practice workspace for UTokyo Creative Informatics programming preparation.">
-  <title>CI Practice</title>
+  <title>Plume · CI Programming Practice</title>
+  <link rel="icon" href="assets/plume.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="app"></div>
   <dialog id="commandPalette" class="command-palette" aria-label="Quick search"></dialog>
+  <dialog id="signatureDialog" class="signature-dialog"></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script src="data/problems.js"></script>
   <script src="data/metadata.js"></script>
   <script src="data/statements.js"></script>
+  <script src="data/academy.js"></script>
   <script src="vendor/editor.js" defer></script>
+  <script src="settings.js" defer></script>
+  <script src="academy.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>

@@ -1,4 +1,8 @@
-# Exercise ordering
+# Plume learning sequence
+
+New learners can begin with Foundations before entering the AtCoder library. Its six chapters and 24 lessons move from Python input and execution to debugging, complexity, sequence queries, graph search, dynamic programming, and a complete problem-solving workflow. Each lesson includes detailed explanations, execution traces, runnable examples with input/output, self-check questions, an original exercise, reference implementations, and follow-up problems. All content is available locally in Chinese, English, and Japanese. See [ACADEMY.md](ACADEMY.md) for the lesson outline and content validation.
+
+Course completion records successful checks for the lesson's saved program. It is separate from manual problem completion, official AtCoder acceptance, and mock-exam scores. Learners should use each lesson's linked problems to apply the concept independently; viewing a reference implementation is not itself a completion.
 
 The six levels describe a learning progression, not a prediction of entrance-exam marks. AtCoder letters are contest positions; prerequisites and the required reasoning determine the sequence here.
 

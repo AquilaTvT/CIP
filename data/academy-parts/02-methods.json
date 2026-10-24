@@ -1,0 +1,1681 @@
+[
+  {
+    "relatedProblems": [
+      "APG4bPython EX12",
+      "ABC300A"
+    ],
+    "starter": "n = int(input())\na = list(map(int, input().split()))\n# Repair initialization, equality, and output indexing.\nbest, position = 0, 0\nfor i in range(n):\n    if a[i] >= best:\n        best, position = a[i], i\nprint(position, best)\n",
+    "solution": "n = int(input())\na = list(map(int, input().split()))\nbest, position = a[0], 0\nfor i in range(1, n):\n    if a[i] > best:\n        best, position = a[i], i\nprint(position + 1, best)\n",
+    "tests": [
+      {
+        "input": "1\n-7\n",
+        "expected": "1 -7\n"
+      },
+      {
+        "input": "4\n-4 7 7 2\n",
+        "expected": "2 7\n"
+      },
+      {
+        "input": "3\n0 0 0\n",
+        "expected": "1 0\n"
+      },
+      {
+        "input": "4\n9 5 3 1\n",
+        "expected": "1 9\n"
+      },
+      {
+        "input": "3\n-1000000000 0 1000000000\n",
+        "expected": "3 1000000000\n"
+      }
+    ],
+    "content": {
+      "zh": {
+        "exerciseTitle": "修复最大值位置",
+        "task": "给定N个整数，输出最大值第一次出现的位置（从1开始）及最大值。起始代码故意包含逻辑错误，请修复。1≤N≤200000，−10⁹≤Aᵢ≤10⁹。",
+        "input": "第一行N，第二行N个整数。",
+        "output": "输出位置和最大值，以空格分隔。",
+        "hint": "用第一个元素初始化；相等时保留旧位置；最后转换为从1开始。",
+        "explanation": "先用A[0]建立合法最大值，逐个扫描其余元素。只有严格更大的值才能替换已有最大值与位置，因此并列最大值保留最早下标。循环结束后输出position+1和best。单元素输入不进入循环但初值已是答案。每个元素检查一次，时间O(N)，读取列表空间O(N)，扫描额外空间O(1)。",
+        "title": "调试：把错误变成可解释的证据",
+        "summary": "从最小反例、变量追踪和不变式入手，定位错误而不是猜改。",
+        "sections": [
+          {
+            "title": "先把“错了”改写成一个问题",
+            "body": "程序出错时，先区分三件事：读入的数据是否符合预期，计算的结果是否符合题意，输出是否符合格式。SyntaxError 意味着代码还没有执行；运行时异常表示某一步无法继续；WA 则说明程序正常结束但答案错误。它们需要不同的证据。不要看到 WA 就随便修改比较符号，也不要看到异常就用 try 包住整段代码。先记录一个能复现问题的输入、题目要求的输出、程序实际输出，把这三个对象放在一起。这样“感觉不对”会变成“在第三个元素之后计数多了一次”之类可检查的假设。调试的目标是说明错误为什么出现，而不仅是让眼前一个样例通过。"
+          },
+          {
+            "title": "读报错，而不是跳过报错",
+            "body": "Python 的 traceback 通常应从末尾读起：最后一行给出异常类型和原因，其上方指出发生异常的位置。IndexError 常见于访问 a[n]，因为最后一个合法下标是 n-1；ValueError 常见于把整行“3 4”交给 int；NameError 常见于变量拼写不同或使用前没有赋值。报错行不一定是根因：某个函数提前返回 None，后面参与加法才会报 TypeError。沿着数据来源往前追，确认每个变量的类型和含义。对于循环，尤其检查第一次与最后一次迭代。Python 的 a[-1] 是合法访问，越界方向不同可能不会报错，因此“没有异常”并不能证明下标正确。"
+          },
+          {
+            "title": "构造最小反例",
+            "body": "本课要输出最大值第一次出现的位置。若把当前最大值初始化为 0，正数样例可能全对，但输入 [-7] 就足以证明错误：最大值应该是 -7，程序却可能保留 0。若遇到相等值也更新位置，输入 [5,5] 就会暴露“第一次”被改成“最后一次”的错误。把大输入缩减成这样的两三项，有助于排除无关因素。缩减时必须保持题目的约束，不能用 N=0 来指责一个明确要求 N≥1 的程序。每发现一个错误，就留下对应输入作为回归测试；改完一个条件后重新运行这些输入，防止修正重复值时破坏全负数的情况。"
+          },
+          {
+            "title": "按时间记录变量",
+            "body": "对于 [-4,7,7,2]，先保存 best=-4、position=0。读到下标 1 的 7 时，7>-4 成立，更新为 best=7、position=1。读到下标 2 的 7 时，严格大于不成立，两个变量都保持不变。读到 2 时也不更新，最后把内部下标 1 转换为题目位置 2。跟踪表应写出“处理前状态、当前元素、条件、处理后状态”，而不是只写最终答案。临时打印可以送到标准错误，避免污染正式输出；提交前删掉不必要的诊断。这里使用固定列表，便于你先手算再运行，核对每一行。",
+            "code": "a = [-4, 7, 7, 2]\nbest, position = a[0], 0\nfor i in range(1, len(a)):\n    if a[i] > best:\n        best, position = a[i], i\n    print(i, best, position)\nprint(position + 1, best)",
+            "output": "1 7 1\n2 7 1\n3 7 1\n2 7\n"
+          },
+          {
+            "title": "用不变式说明修复",
+            "body": "不变式是每轮循环都应成立的陈述。本例可以写成：处理完下标 0 到 i 的元素后，best 是这些元素的最大值，position 是这个最大值最早出现的下标。初始化用第一个实际元素，因此陈述在只处理第一项时成立。新元素更大时，它成为唯一的新最大值；新元素相等或更小时，旧最大值和最早位置都仍然有效。每轮都保存了这个性质，所以扫描结束时就得到整段列表的答案。这比“样例都过了”更有说服力，也能直接解释为什么比较必须用 >，为什么不能随意选择 0 当初值。"
+          },
+          {
+            "title": "把测试组织成不同类别",
+            "body": "边界测试不是多输几个随机数。先列出每一种可能改变程序分支的情况：只有一个元素、全部为负、最大值重复、最大值在开头、最大值在末尾、存在 0、数值达到约束端点。一个输入可以覆盖多种情况，但不能让所有输入都具有相同形状。然后准备一个独立的朴素校验器，例如先用 max 找最大值，再用 index 找第一次出现的位置。对短列表比较两个实现，能够发现手写循环的问题；不要让校验器复制被测程序的同一个循环，否则两个版本可能共享同一错误。自动测试提供证据，不取代对题意和不变式的理解。"
+          },
+          {
+            "title": "调试工作坊：一次只检验一个假设",
+            "body": "拿到一个失败程序时，先复制一份原始代码和失败输入，再开始修改。假设你发现输出位置少了1，可以只修改最后输出，验证N=1和最大值在末尾的输入；这一步不应该顺便改初始化或比较规则。接着用全负数测试验证初始值，用重复最大值测试验证更新条件。把修复按原因分开，能够知道是哪条改变带来了效果，也能在新错误出现时撤回最小改动。对于每个测试，先手算答案再运行，而不是看到输出后再解释它。\n\n还可以做变形测试：给所有元素都加上同一个常数，最大值的位置应不变，输出最大值应增加该常数；在末尾追加一个严格小于原最大值的数，最早最大位置不应改变；追加一个与最大值相等的数，位置仍应不变。这些关系无需另写复杂正解器，就能检验程序是否真正遵守题意。不过任意重排并不保持“第一次位置”，所以不能把排序当成这个问题的测试变换。最后阅读自己的修复说明，确保能回答初始状态为何合法、每轮保留了什么、输出为何只转换一次下标。只有这三点都明确，调试才从碰运气变成可以复用的方法。"
+          }
+        ],
+        "objectives": [
+          "根据异常类型选择检查方向",
+          "构造最小反例并追踪变量",
+          "用不变式验证初值与比较符号"
+        ],
+        "checkpoints": [
+          {
+            "question": "为什么最大值不能总从0开始？",
+            "answer": "输入可能全部为负，0甚至不是输入元素。应从第一个实际值开始。"
+          },
+          {
+            "question": "为什么相等时不更新位置？",
+            "answer": "旧位置更早，更新会把第一次出现变成最后一次。"
+          }
+        ]
+      },
+      "en": {
+        "exerciseTitle": "Repair the maximum position",
+        "task": "Given N integers, output the first one-based position of the maximum and the maximum itself. The starter intentionally contains logical errors; repair them. 1≤N≤200000; −10⁹≤Aᵢ≤10⁹.",
+        "input": "N, then a line of N integers.",
+        "output": "Print the position and maximum separated by a space.",
+        "hint": "Initialize from the first element, retain the index on equality, and convert the final index.",
+        "explanation": "Initialize from A[0], then inspect each remaining element. Only a strictly larger value replaces both the maximum and its index, preserving the earliest occurrence among ties. Print position+1 and best after the loop. For one element the loop is empty and initialization already gives the answer. Time is O(N), input storage O(N), and extra scanning space O(1).",
+        "title": "Debugging with evidence",
+        "summary": "Use small counterexamples, state traces, and invariants instead of speculative edits.",
+        "sections": [
+          {
+            "title": "Turn failure into a precise question",
+            "body": "First separate input interpretation, computation, and output formatting. A SyntaxError means the program did not start; a runtime exception identifies an operation that could not continue; a wrong answer means execution finished with the wrong result. These require different evidence. Do not replace comparison signs at random or hide an entire program inside try. Keep a reproducible input, the required output, and the actual output together. Replace “something looks wrong” with a claim such as “the counter increases twice after the third item.” A repair should explain why the failure happened, not merely make one sample pass."
+          },
+          {
+            "title": "Read the exception from the bottom",
+            "body": "Read a Python traceback from its final line: it names the exception and reason, while nearby lines locate the failing operation. IndexError often comes from accessing a[n], ValueError from passing a whole line such as “3 4” to int, and NameError from spelling or initialization mistakes. The failing line need not be the root cause: a function might return None earlier and only fail when its result is added. Follow the value backwards and inspect its type and meaning. Check the first and last loop iterations. Remember that a[-1] is valid Python, so an incorrect negative index may silently return an unrelated element."
+          },
+          {
+            "title": "Shrink a counterexample",
+            "body": "The exercise asks for the first position of the maximum. Initializing the current maximum to zero may pass every positive sample, yet [-7] is enough to disprove it. Updating the position on equality is exposed by [5,5]: the required first occurrence becomes the last. Reduce a large failure to two or three relevant values so unrelated state cannot distract you. Keep the reduced input inside the stated constraints; N=0 is not a valid objection to a task promising N at least one. Preserve each discovered counterexample as a regression test and rerun the collection after every repair."
+          },
+          {
+            "title": "Trace state through time",
+            "body": "For [-4,7,7,2], initialize best=-4 and position=0. At index 1, seven is strictly larger, so both variables change. At index 2, equality leaves the position untouched. The final value two changes nothing. Convert internal index one to output position two only at the end. A useful trace records the previous state, current element, condition, and new state, rather than just the final answer. Send temporary diagnostics to standard error if you need to keep the required output clean. The executable example uses a fixed list so you can predict every line before running it.",
+            "code": "a = [-4, 7, 7, 2]\nbest, position = a[0], 0\nfor i in range(1, len(a)):\n    if a[i] > best:\n        best, position = a[i], i\n    print(i, best, position)\nprint(position + 1, best)",
+            "output": "1 7 1\n2 7 1\n3 7 1\n2 7\n"
+          },
+          {
+            "title": "Explain the repair with an invariant",
+            "body": "After processing positions zero through i, best must be their maximum and position must be its earliest index. Initialization from the first actual element establishes that statement. A strictly larger new element becomes the new maximum, so its index is correct. An equal or smaller element cannot improve the maximum or its earliest occurrence, so the old state remains correct. This preserves the statement at every step and proves the final answer. The argument explains both important choices: use a real element for initialization and a strict greater-than comparison for updates. Passing samples alone cannot provide that explanation."
+          },
+          {
+            "title": "Design categories of tests",
+            "body": "Boundary testing is more deliberate than trying several random numbers. List the situations that change control flow: one element, all negative values, repeated maxima, a maximum at the beginning or end, zero, and values at the constraint limits. One case may cover several categories, but avoid giving every test the same shape. An independent small-input oracle can find max(a) and then a.index(max(a)). Compare that with the handwritten scan on short lists. Do not duplicate the same loop inside the oracle, since both implementations could share the same mistake. Tests supply evidence while the invariant explains why the repair generalizes."
+          },
+          {
+            "title": "Workshop: test one hypothesis at a time",
+            "body": "Keep the original failing code and input before editing. If the printed position appears one too small, change only the final output and test a singleton and a maximum at the end. Do not simultaneously change initialization and the comparison. Next use negative-only inputs to investigate initialization, then repeated maxima to test tie handling. Separating repairs by cause tells you which edit produced the improvement and lets you undo a minimal change if a new failure appears. Predict each test’s answer before running it.\n\nMetamorphic tests add another independent check. Adding the same constant to every element should preserve the maximum position while shifting the maximum value by that constant. Appending a strictly smaller value should preserve the earliest maximum; appending an equal maximum should preserve it too. These relationships need no complicated oracle. Arbitrary reordering does not preserve the first position, so sorting is not an admissible transformation for this task. Finish by explaining why initialization is valid, what every iteration preserves, and why index conversion happens exactly once."
+          }
+        ],
+        "objectives": [
+          "Classify failures before editing",
+          "Shrink counterexamples and trace state",
+          "Justify initialization and comparisons with an invariant"
+        ],
+        "checkpoints": [
+          {
+            "question": "Why is zero an unsafe initial maximum?",
+            "answer": "All values may be negative, and zero may not occur. Initialize from an actual element."
+          },
+          {
+            "question": "Why should equality not update the index?",
+            "answer": "The saved index is earlier; updating would return the last maximum instead."
+          }
+        ]
+      },
+      "ja": {
+        "exerciseTitle": "最大値の位置を修正する",
+        "task": "N個の整数から最大値が最初に現れる位置（1始まり）と最大値を出力してください。初期コードには意図的な論理誤りがあります。1≤N≤200000、−10⁹≤Aᵢ≤10⁹。",
+        "input": "1行目N、2行目N個の整数。",
+        "output": "位置と最大値を空白で区切って出力。",
+        "hint": "先頭要素で初期化し、同値なら位置を保持し、最後に1始まりへ変換。",
+        "explanation": "A[0]で最大値を初期化して残りを走査します。厳密に大きい値のときだけ値と位置を更新するため、同じ最大値の最初の位置を保持します。終了後position+1とbestを出力します。一要素ではループは空ですが初期状態が答えです。時間O(N)、入力領域O(N)、走査の追加領域O(1)です。",
+        "title": "根拠を集めてデバッグする",
+        "summary": "最小の反例、変数の追跡、不変条件から原因を特定します。",
+        "sections": [
+          {
+            "title": "「間違い」を具体的な問いにする",
+            "body": "不具合が起きたら、入力の解釈、計算、出力形式を分けて確認します。SyntaxError では処理が始まっていません。実行時例外では、ある操作を続行できません。WA では正常終了していても結果が違います。この違いによって調べる証拠も変わります。比較記号を無作為に変更したり、処理全体を try で隠したりしないでください。再現できる入力、必要な出力、実際の出力を並べ、最初に食い違う場所を探します。「何となく変だ」を「三番目の要素の後で二回増えている」という検証可能な仮説に直します。一つのサンプルが通っただけでなく、なぜ不具合が起きたかを説明することが修正の目的です。"
+          },
+          {
+            "title": "例外の末尾から読む",
+            "body": "Python の traceback は最後の行から読むと、例外の種類と理由を把握できます。その上に、失敗した操作の位置が示されています。IndexError は a[n] の参照、ValueError は「3 4」という一行をそのまま int に渡すこと、NameError は変数名の相違や未代入によってよく発生します。ただし報告された行が原因の始まりとは限りません。関数が先に None を返し、後の加算で初めて TypeError になることもあります。値がどこから来たかを逆にたどり、型と意味を確認しましょう。ループでは最初と最後の反復を必ず追います。a[-1] は正しい構文なので、誤った負の添字は例外を出さずに末尾を返す点にも注意が必要です。"
+          },
+          {
+            "title": "小さな反例を作る",
+            "body": "本課題では最大値が最初に現れる位置を求めます。暫定最大値を 0 にすると、正の数のサンプルは通っても [-7] だけで誤りを示せます。また同値の場合も位置を更新すると、[5,5] によって「最初」が「最後」に変わることを確認できます。大きな入力を二つか三つの必要な値に縮めると、関係のない状態に惑わされません。縮小後も制約を守る必要があります。N≥1 の問題に N=0 を与えて失敗しても、問題に対する反例にはなりません。見つけた反例は回帰テストとして残します。重複値の修正によって全要素が負の場合を壊していないか、修正のたびに小さなテスト集合全体を再実行して確認します。"
+          },
+          {
+            "title": "変数を時系列で追跡する",
+            "body": "[-4,7,7,2] なら、初期状態は best=-4、position=0 です。添字 1 の値 7 で厳密な大小条件が成立し、両方を更新します。添字 2 の値も 7 ですが、等しいので更新しません。最後の 2 でも状態は変わりません。内部添字 1 を出力するときだけ位置 2 に変換します。追跡表には最終答えだけでなく、処理前の状態、現在の値、条件の判定、処理後の状態を書きます。診断用の出力は標準エラーに送ると正式な出力と区別できますが、提出前には不要なものを取り除きましょう。次の固定リストの例は、各行を手計算してから実行し、状態の変化を一つずつ確認するためのものです。",
+            "code": "a = [-4, 7, 7, 2]\nbest, position = a[0], 0\nfor i in range(1, len(a)):\n    if a[i] > best:\n        best, position = a[i], i\n    print(i, best, position)\nprint(position + 1, best)",
+            "output": "1 7 1\n2 7 1\n3 7 1\n2 7\n"
+          },
+          {
+            "title": "不変条件で修正を説明する",
+            "body": "各反復後に成り立つべき主張を不変条件と呼びます。この例では「添字 0 から i までの最大値が best であり、それが最初に現れる添字が position である」と書けます。実際の先頭要素を初期値にするため、最初の一項だけを処理した時点で成立します。新しい値が厳密に大きければ新最大値となり、その位置を保存します。同じか小さければ、既存の最大値と最初の位置はそのまま正しい状態です。この性質を毎回保つので、終了時にはリスト全体に対して成立します。サンプルが通るという観察より強い説明であり、比較を > にする理由と、初期値を無条件に 0 にしない理由を同時に示します。"
+          },
+          {
+            "title": "テストを種類ごとに設計する",
+            "body": "境界テストは適当な乱数を何個か入力することではありません。要素が一つ、全部負、最大値が重複、最大値が先頭または末尾、0 を含む、制約の端に近い値、といった分岐に関わる種類を先に列挙します。一つの入力で複数の種類を確認しても構いませんが、全テストが同じ形にならないようにします。独立した簡単な正解器として max(a) と a.index(max(a)) を使えば、小さいリストで手書きの走査と比較できます。正解器に同じループをコピーすると同じ不具合を共有するので避けます。自動テストで証拠を増やしながら、題意と不変条件の説明で、未実行の入力にも修正が通用する理由を確かめます。"
+          },
+          {
+            "title": "実習：仮説を一つずつ検証する",
+            "body": "失敗した元コードと入力を保存してから変更を始めます。位置が1小さいと思ったら出力部分だけを直し、一要素と末尾最大の入力で確認します。その時に初期値や比較まで一緒に変更しないでください。次に全負数で初期値を、最大値の重複で同値処理を調べます。原因ごとに修正を分けると、どの変更が効果を持ったか分かり、新しい失敗が出ても最小変更を戻せます。実行結果を見てから理由を後付けせず、先に期待答えを手で決めましょう。\n\n変形によるテストもできます。全要素に同じ定数を足しても最大位置は変わらず、最大値だけがその定数分増えるはずです。元最大値より小さい値や、同じ最大値を末尾へ追加しても、最初の位置は変わりません。この関係なら複雑な正解器がなくても題意との整合性を確認できます。ただし任意の並べ替えは最初の位置を保存しないので、ソートをこの問題の検査変換にしてはいけません。最後に、初期状態の合法性、各反復で保存する性質、添字変換を一回だけ行う理由を自分で説明します。"
+          }
+        ],
+        "objectives": [
+          "失敗の種類から調査方法を選ぶ",
+          "最小反例と状態追跡を作る",
+          "初期値と比較を不変条件で説明する"
+        ],
+        "checkpoints": [
+          {
+            "question": "最大値を必ず0で初期化してよいですか。",
+            "answer": "全要素が負なら誤ります。実在する先頭要素で初期化します。"
+          },
+          {
+            "question": "同値で位置を更新しないのはなぜですか。",
+            "answer": "保存した位置の方が早く、更新すると最後の出現になるためです。"
+          }
+        ]
+      }
+    },
+    "id": "debugging",
+    "order": 9,
+    "stage": "methods",
+    "minutes": 50,
+    "prerequisiteIds": [
+      "functions"
+    ]
+  },
+  {
+    "relatedProblems": [
+      "ABC081B",
+      "ABC083B"
+    ],
+    "starter": "n = int(input())\n# Compute the three operation counts without enumerating pairs.\n",
+    "solution": "n = int(input())\npairs = n * (n - 1) // 2\nx, steps = n, 0\nwhile x > 0:\n    x //= 2\n    steps += 1\nprint(n, pairs, steps)\n",
+    "tests": [
+      {
+        "input": "1\n",
+        "expected": "1 0 1\n"
+      },
+      {
+        "input": "2\n",
+        "expected": "2 1 2\n"
+      },
+      {
+        "input": "7\n",
+        "expected": "7 21 3\n"
+      },
+      {
+        "input": "8\n",
+        "expected": "8 28 4\n"
+      },
+      {
+        "input": "1000000000000000000\n",
+        "expected": "1000000000000000000 499999999999999999500000000000000000 60\n"
+      }
+    ],
+    "content": {
+      "zh": {
+        "exerciseTitle": "精确计算操作次数",
+        "task": "输入整数N（1≤N≤10¹⁸）。输出扫描N个元素的次数N、不同下标无序对数量N(N−1)/2、以及从x=N开始反复x//=2直到x=0的迭代次数。",
+        "input": "一行整数N。",
+        "output": "三个整数，以空格分隔。",
+        "hint": "前两项直接计算；第三项用不断减半的while循环。",
+        "explanation": "扫描次数直接为N。每个不同下标对若有序计算会出现两次，所以无序数量是N(N−1)//2。减半循环每次更新x并加一次计数，包含1变为0的一步。最多约60次，时间O(logN)，额外变量数O(1)；Python大整数的位运算成本随位数增长，此处输入上限固定且很小。",
+        "title": "复杂度：先估计，再实现",
+        "summary": "数清真正重复的操作，区分算法增长、输入成本和实际耗时。",
+        "sections": [
+          {
+            "title": "为什么正确还不够",
+            "body": "一个逐一枚举所有数对的程序可以完全正确，却在较大输入上无法及时结束。题目约束不仅规定允许输入什么，也在提示需要什么规模的算法。N=20 时枚举数对很轻松，N=200000 时数对约有两百亿个，无法靠改用更短的变量名挽救。复杂度讨论的是输入扩大时工作量如何增长，不是某种程序风格的评价。开始写代码前，先找出规模变量：一个列表可能只有N；多次区间查询同时涉及N和Q；网格涉及H与W。分别估计读入、预处理、每次查询与输出，避免只分析最漂亮的一小段循环而忽略整体程序。"
+          },
+          {
+            "title": "从操作次数推导阶",
+            "body": "一个循环读取N个元素，需要N次处理，称为O(N)。两个连续循环各做N次，总量是2N，仍然是O(N)；两个嵌套循环每次都完整遍历N项，总量是N²，属于O(N²)。如果内层从i+1开始，则次数是(N-1)+(N-2)+…+1=N(N-1)/2，仍为二次增长。大O记号保留增长中主导的部分，但不表示常数在实际运行中毫无影响。分析时先写精确或可比较的次数，再简化阶数，能防止把所有“两层循环”都机械判为O(N²)。之后的双指针课程中，两层语法循环就可能只有线性总移动次数。"
+          },
+          {
+            "title": "对数来自不断缩小",
+            "body": "若每一步把候选范围缩成一半，N个候选经过大约log₂N步就只剩一个。N从8增加到16，线性处理翻倍，但二分步骤只多一次。对N=1、2、4、8逐个手算：把正整数x反复做x//=2直到0，需要1、2、3、4次；这里数的是包含最后一次从1到0的循环，所以不能和另一种“缩到1就停止”的定义混淆。算法证明必须对应你实际写的停止条件。对数的底数不同只相差常数倍，复杂度里通常写O(logN)。然而读取N个输入仍需O(N)，不能因为查询循环是对数，就声称整个读取列表的程序也是对数。",
+            "code": "for n in [1, 2, 4, 8, 16]:\n    x, steps = n, 0\n    while x > 0:\n        x //= 2\n        steps += 1\n    print(n, steps)",
+            "output": "1 1\n2 2\n4 3\n8 4\n16 5\n"
+          },
+          {
+            "title": "看见隐藏的线性操作",
+            "body": "Python把很多遍历封装成一个表达式，写得短并不代表常数时间。sum(a[l:r])先复制切片，再求和，费用与区间长度有关；x in a对普通列表可能扫描全部元素；a.count(x)也会完整统计。若对每个元素再调用一次count，就可能变成O(N²)。与此相对，列表下标访问通常O(1)，字典或集合查找通常平均O(1)，但需要保存额外数据。a.sort()的排序成本应按O(NlogN)考虑，sorted(a)还会产生一个新列表。选择方法时同时写出时间和内存，尤其警惕每轮新建长列表、保存所有数对、递归中不断复制剩余数组等隐蔽开销。"
+          },
+          {
+            "title": "用数量级筛选方案",
+            "body": "取N=100000：N约十万，Nlog₂N约一百七十万，N²约一百亿。这个比较足以淘汰明显不合适的全扫描方案，却不能许诺某个次数必定在一秒内结束，因为Python版本、操作内容、运行环境和数据结构都影响常数。先选择增长速度合适的算法，再用接近上限的合法数据测量；不要仅用五个元素的样例判断性能。性能测试也要有代表性，例如提前退出的循环可能在随机输入上很快，却在“始终没有找到答案”的输入上达到最坏情况。报告复杂度时说明是最坏界、平均界还是摊还界，不要把一次幸运的早停当成通用保证。"
+          },
+          {
+            "title": "练习：比较三个精确计数",
+            "body": "本课不要求编写一个运行N²次的程序来证明它很慢，而要求输出三个操作次数：一次完整扫描为N；枚举不同下标无序对为N(N-1)//2；把N反复整除2直到0的次数由短循环得到。注意N最大可到10¹⁸，显式生成range(N)或所有数对毫无必要。第三项也可以用整数的bit_length得到，但先手写循环更容易对应定义。乘法再整除2使用整数运算，避免浮点数在大整数附近丢精度。三个答案描述不同算法的工作量，并不要求真正执行前两类操作。这里“计算操作次数”与“执行这些操作”之间的区分，本身就是一次通过数学减少计算的示范。"
+          },
+          {
+            "title": "工作坊：把一段程序拆成账本",
+            "body": "设程序先读N个数，排序一次，再回答Q次二分查找。可以分别记账：读入O(N)，排序O(NlogN)，查询总和O(QlogN)，输出O(Q)，合计O(NlogN+QlogN)，而不是随手写O(logN)。如果每次查询前都重新排序，排序费用就变成O(QNlogN)，即使二分函数一字未改，整体算法也已经完全不同。把不依赖查询的计算移到查询循环外，是很实际的优化，但必须确认输入数组不会在查询之间改变。\n\n再看内存账本：保存原数组、排序副本和Q个输出字符串，数量级为O(N+Q)。如果把所有可能的区间都保存下来，区间对象数会达到O(N²)，即便之后的查询很快也可能先耗尽内存。测试时可以用两个递增规模观察趋势，但测到两倍时间不自动证明线性，因为缓存、启动费用和输入分布也影响结果。理论计数与实测应相互补充：理论用于排除无法扩展的方法，实测用于发现实现常数和隐藏复制。练习结束后，尝试在纸上预测N翻倍时三项输出如何变化，再使用程序验证，观察线性、二次和对数增长的不同形状。"
+          }
+        ],
+        "objectives": [
+          "计算循环的总工作量",
+          "发现切片与库函数中的隐藏开销",
+          "区分精确计数、复杂度与实测时间"
+        ],
+        "checkpoints": [
+          {
+            "question": "两个顺序执行的N次循环为什么不是N²？",
+            "answer": "次数相加为2N，并非每次外层都再执行N次。"
+          },
+          {
+            "question": "为何不能用N²循环来计算数对数量？",
+            "answer": "计数已有闭式N(N-1)//2；实际枚举会在大N上失去可行性。"
+          }
+        ]
+      },
+      "en": {
+        "exerciseTitle": "Exact operation counts",
+        "task": "Given N with 1≤N≤10¹⁸, print N, the number N(N−1)/2 of unordered distinct-index pairs, and the iterations of x//=2 starting at N and stopping at zero.",
+        "input": "One integer N.",
+        "output": "Three space-separated integers.",
+        "hint": "Use formulas for the first two counts and a halving loop for the third.",
+        "explanation": "A scan visits N elements. Ordered distinct-index pairs count each unordered pair twice, giving N(N−1)//2. The loop counts every halving, including the final transition from one to zero. It takes about sixty iterations at most: O(logN) iterations and O(1) variables. Python integer-operation cost depends on bit length, which is small under this fixed bound.",
+        "title": "Complexity before implementation",
+        "summary": "Count repeated work and distinguish growth rates, input cost, and measured time.",
+        "sections": [
+          {
+            "title": "Correctness is only one requirement",
+            "body": "A program that examines every pair can be correct yet finish too late. Constraints describe legal inputs and also guide the scale of the algorithm. Twenty elements make pair enumeration easy; two hundred thousand give roughly twenty billion pairs. Shorter variable names cannot repair that growth. Complexity describes how required work changes as input grows, not whether code looks elegant. Identify the independent sizes before coding: a list may use N, repeated range questions use N and Q, and a grid uses H and W. Account for input, preprocessing, each query, and output rather than analyzing only the most attractive loop."
+          },
+          {
+            "title": "Derive the order from operations",
+            "body": "One pass processing N elements takes N iterations, or O(N). Two consecutive passes take 2N operations and remain O(N); two nested full passes take N squared. If the inner pass starts at i+1, the count is (N−1)+(N−2)+…+1=N(N−1)/2, still quadratic. Big-O keeps the dominant growth term, but constants can matter in measurements. Write an exact or comparable operation count before simplifying it. Counting indentation levels is not a valid analysis: a later two-pointer algorithm may contain a while inside a for yet perform only linearly many pointer movements across the entire execution."
+          },
+          {
+            "title": "Where logarithms come from",
+            "body": "Repeatedly halving a candidate range takes about log₂N steps to leave one candidate. Doubling N adds roughly one halving step rather than doubling the work. Trace x//=2 until zero for initial values 1,2,4,8: the iteration counts are 1,2,3,4. That convention includes the final transition from one to zero; a loop that stops at one has a different exact count. Match the proof to the actual stopping condition. Different logarithm bases differ by a constant factor. Also keep input cost visible: a logarithmic search does not make a program logarithmic when it first reads an entire N-element list.",
+            "code": "for n in [1, 2, 4, 8, 16]:\n    x, steps = n, 0\n    while x > 0:\n        x //= 2\n        steps += 1\n    print(n, steps)",
+            "output": "1 1\n2 2\n4 3\n8 4\n16 5\n"
+          },
+          {
+            "title": "Expose hidden linear work",
+            "body": "A short Python expression can conceal a full traversal. sum(a[l:r]) copies a slice and then sums it, so its cost depends on range length. Membership in a list and a.count(x) may scan the whole list. Calling count once for every element can therefore be quadratic despite having only one visible loop. Indexing is normally constant time, while sets and dictionaries usually offer average constant-time lookup at the cost of additional storage. Sorting costs O(N log N), and sorted creates a new list. Track memory as well as time, especially when copying long lists, storing all pairs, or slicing repeatedly inside recursion."
+          },
+          {
+            "title": "Use scale to reject unsuitable approaches",
+            "body": "At N=100000, N is one hundred thousand, N log₂N is about 1.7 million, and N squared is ten billion. That comparison can reject an obviously unsuitable exhaustive scan, but it cannot promise a fixed number of operations per second. Python version, operation type, machine, and representation affect constants. Choose suitable growth first, then measure legal near-limit cases rather than tiny samples. Include inputs that prevent early exit: random data may find an answer quickly while a no-answer case forces the worst path. State whether a bound is worst-case, average, or amortized instead of treating one fortunate early return as a guarantee."
+          },
+          {
+            "title": "Exercise: compute counts, not the work itself",
+            "body": "Print three exact counts: N for a complete scan, N(N−1)//2 for unordered pairs of distinct indices, and the number of repeated integer halvings needed to reach zero. N may be as large as 10¹⁸, so never actually iterate over all N items or generate the pairs. Use the closed formula for the second count and a short loop for the third. Python integers keep the multiplication exact; converting to floating point can lose precision. Although bit_length offers the halving count directly, implement the loop first to connect its behavior to the definition. Counting a workload need not require performing that workload."
+          },
+          {
+            "title": "Workshop: keep a cost ledger",
+            "body": "Suppose a program reads N numbers, sorts once, and answers Q binary-search queries. Record input O(N), sorting O(N log N), queries O(Q log N), and output O(Q), giving O(N log N+Q log N), not simply O(log N). Sorting again before every query changes preprocessing to O(QN log N) even if the search function is identical. Moving query-independent work outside the query loop is useful only after verifying that the underlying data remains unchanged.\n\nKeep a memory ledger too. The original array, a sorted copy, and Q output strings use O(N+Q) storage. Saving every possible interval requires O(N²) objects and can exhaust memory before fast queries begin. Timing two growing inputs can reveal a trend but does not prove a complexity class: startup costs, caching, and distributions also matter. Use theory to reject algorithms that cannot scale, and measurements to expose constants or hidden copying. Finally predict how each exercise output changes when N doubles, then run the program to compare linear, quadratic, and logarithmic growth."
+          }
+        ],
+        "objectives": [
+          "Count total loop operations",
+          "Identify hidden traversal and copying",
+          "Separate exact counts, growth rates, and measurements"
+        ],
+        "checkpoints": [
+          {
+            "question": "Why are two consecutive N-step loops not quadratic?",
+            "answer": "Their counts add to 2N; they are not nested."
+          },
+          {
+            "question": "Why not enumerate pairs to count them?",
+            "answer": "The exact formula is available, while enumeration is infeasible for large N."
+          }
+        ]
+      },
+      "ja": {
+        "exerciseTitle": "操作数を正確に計算する",
+        "task": "1≤N≤10¹⁸を入力し、全走査の回数N、異なる添字の無順序ペア数N(N−1)/2、x=Nからx//=2を繰り返して0に至る反復数を出力。",
+        "input": "整数Nを1行。",
+        "output": "三つの整数を空白区切り。",
+        "hint": "最初の二つは式、三つ目は半分にするwhileを使います。",
+        "explanation": "全走査はN回です。順序付きの異なる添字ペアでは各組を二度数えるので、N(N−1)//2になります。減半ループは1から0への操作も含めて数えます。最大約60反復で、O(logN)反復、O(1)個の変数です。Python整数の操作費用はビット長に依存しますが、この上限では小さい値です。",
+        "title": "実装前に計算量を見積もる",
+        "summary": "繰り返される処理を数え、増加率と入力費用と実測時間を区別します。",
+        "sections": [
+          {
+            "title": "正しいだけでは足りない理由",
+            "body": "すべての組を調べるプログラムは正しくても、大きな入力では時間内に終わらない場合があります。制約は合法な入力を定めると同時に、必要なアルゴリズムの規模を示しています。要素が20個なら組の列挙は容易ですが、20万個なら約200億組になります。変数名を短くしてもこの増加は解消しません。計算量は入力が大きくなったとき処理がどう増えるかを表し、コードの見た目を評価するものではありません。書き始める前に独立した規模を確認します。リストにはN、区間への質問にはNとQ、盤面にはHとWがあります。入力、前計算、質問一回分、出力まで数え、都合のよいループだけの分析にしないことが大切です。"
+          },
+          {
+            "title": "操作回数から次数を導く",
+            "body": "N要素を一度ずつ処理するループはN回、つまりO(N)です。N回のループを二つ続ければ2N回なのでO(N)のままです。各反復の中で再び全N要素を走査するとN²回になります。内側がi+1から始まる場合も、回数は(N−1)+(N−2)+…+1=N(N−1)/2であり、二次的に増えます。大Oは支配的な増加項を残す記法ですが、実測で定数が無意味になるわけではありません。まず具体的な回数や比較可能な式を書いてから簡約しましょう。インデントの深さを数えるだけでは不十分です。後の尺取り法ではfor内にwhileがあっても、ポインタが全体で動く回数は線形に抑えられます。"
+          },
+          {
+            "title": "対数は繰り返し半分にする操作から生まれる",
+            "body": "候補範囲を毎回半分にすると、およそlog₂N回で一つになります。Nを8から16へ増やすと線形走査は倍になりますが、半分にする回数はほぼ一回増えるだけです。正整数xを0までx//=2で減らす処理を、1、2、4、8から手で追うと、反復数は1、2、3、4です。この定義は1から0への最後の操作を含み、1で止まる定義とは厳密な回数が違います。停止条件に一致した説明をする必要があります。対数の底の違いは定数倍なので通常O(logN)と書きます。ただしN個の入力を読み込む費用はO(N)です。探索部分が対数でも、リスト全体を読むプログラムまで対数時間と呼ぶことはできません。",
+            "code": "for n in [1, 2, 4, 8, 16]:\n    x, steps = n, 0\n    while x > 0:\n        x //= 2\n        steps += 1\n    print(n, steps)",
+            "output": "1 1\n2 2\n4 3\n8 4\n16 5\n"
+          },
+          {
+            "title": "式の中に隠れた線形処理を見つける",
+            "body": "Pythonでは一つの式が長い走査を隠していることがあります。sum(a[l:r])は部分リストをコピーしてから加算するため、区間長に比例した費用がかかります。通常のリストに対するx in aやa.count(x)も全体を調べる場合があります。各要素についてcountを呼べば、見えるループが一つでもO(N²)になり得ます。一方、添字アクセスは通常O(1)、集合と辞書の検索は平均O(1)ですが、保存領域が必要です。ソートはO(NlogN)として考え、sortedでは新しいリストも作られます。各反復で長いリストを生成したり、全ペアを保存したり、再帰ごとに残りの配列をコピーしたりする処理に注意し、時間と領域の両方を見積もりましょう。"
+          },
+          {
+            "title": "桁の違いで候補を絞る",
+            "body": "N=100000なら、Nは十万、Nlog₂Nは約170万、N²は百億です。この比較で明らかに不適切な全探索を除外できますが、「この回数なら必ず一秒」という約束はできません。Pythonの版、操作内容、機械、表現方法によって定数が変わるためです。まず増加率の適切な方法を選び、その後で制約上限に近い合法なデータを測定します。五要素程度のサンプルだけで性能を判断してはいけません。早期終了する処理では、乱数だと答えが早く見つかっても、最後まで答えが存在しない入力で最悪経路を通ります。最悪、平均、償却のどの評価なのかを明記し、偶然の早期終了を全入力に対する保証と取り違えないようにします。"
+          },
+          {
+            "title": "演習：処理せずに回数を計算する",
+            "body": "本演習ではN²回の処理を実行して遅さを確認するのではなく、三種類の正確な回数を出力します。全走査はN回、異なる添字の無順序ペアはN(N−1)//2回、Nを整数除算で0まで半分にする回数は短いループで求めます。Nは10¹⁸にもなるので、range(N)を実際に走査したり全ペアを生成したりする必要はありません。三番目はbit_lengthでも得られますが、最初は定義に対応したループを書きましょう。掛け算の後で整数として2で割り、巨大整数付近で精度を失う浮動小数点変換を避けます。出力するのは操作回数であり、その操作を実行することではありません。数式によって計算そのものを省く考え方を実感する課題です。"
+          },
+          {
+            "title": "実習：処理ごとの費用表を書く",
+            "body": "N個を読んで一回ソートし、Q回二分探索するプログラムを考えます。入力O(N)、整列O(NlogN)、質問全体O(QlogN)、出力O(Q)と別々に記録し、全体をO(NlogN+QlogN)と評価します。探索関数だけを見てO(logN)と書いてはいけません。質問のたびにソートし直すと、探索関数が同じでも整列費用はO(QNlogN)です。質問に依存しない計算を外へ移すのは有効ですが、途中で配列が変化しないという確認が必要です。\n\n領域の表も作ります。元配列、整列済みの複製、Q個の出力文字列ならO(N+Q)です。全区間を保存するとO(N²)個の対象になり、その後の質問が速くても先にメモリを使い切ることがあります。二つの規模で時間を測ると傾向は見えますが、起動費用やキャッシュや分布の影響があるため、倍になったことだけで線形性は証明できません。理論で拡大不可能な方法を除き、実測で定数や隠れた複製を見つけます。最後にNを倍にしたとき演習の三出力がどう変わるかを紙で予想してから実行してください。"
+          }
+        ],
+        "objectives": [
+          "ループ全体の操作数を数える",
+          "コピーや関数内の走査を見抜く",
+          "厳密回数・増加率・実測を分ける"
+        ],
+        "checkpoints": [
+          {
+            "question": "N回のループ二つを続けても二次にならないのは？",
+            "answer": "処理数は足して2Nであり、入れ子ではないためです。"
+          },
+          {
+            "question": "組数を求めるために全組を列挙しないのは？",
+            "answer": "閉じた式で正確に求められ、大きいNで列挙は不可能だからです。"
+          }
+        ]
+      }
+    },
+    "id": "complexity",
+    "order": 10,
+    "stage": "methods",
+    "minutes": 50,
+    "prerequisiteIds": [
+      "debugging"
+    ]
+  },
+  {
+    "id": "exhaustive-search",
+    "order": 11,
+    "stage": "methods",
+    "minutes": 50,
+    "prerequisiteIds": [
+      "complexity"
+    ],
+    "relatedProblems": [
+      "ABC087B",
+      "ABC085C",
+      "ABC282B"
+    ],
+    "content": {
+      "zh": {
+        "title": "枚举：先定义候选，再保证不重不漏",
+        "summary": "把题意转换为有限候选空间，并用约束判断枚举是否合适。",
+        "sections": [
+          {
+            "title": "枚举是一种完整算法",
+            "body": "枚举不是“没想到好方法”的临时做法，而是在可接受范围内检查全部候选的完整算法。它通常由三部分构成：候选的定义、产生候选的顺序、判断候选是否合格的条件。例如统计和为K的数对，候选不是一个数值，而是两个不同位置组成的下标对。先确定位置是否有顺序，是否允许选同一个位置，重复数值是否代表不同对象。把这些问题写清楚之后，再设计循环，远比先写两层for再猜范围可靠。约束N≤2000意味着约两百万个无序对，二次枚举在本课规模内是合理教学起点；若N变成二十万，就必须重新评估方法。"
+          },
+          {
+            "title": "用i<j表达无序对",
+            "body": "外层i从0到N-1，内层j从i+1到N-1。这样每次都有i<j，自然排除了自己和自己配对。任意两个不同位置中，较小的位置只能放在i，较大的只能放在j，因此它们只出现一次。如果两层都遍历range(n)，则会生成(i,j)和(j,i)，还会生成(i,i)；最后简单除以2不能可靠处理自配对。若题目确实要求有序对，则反而不能套用i<j。循环结构必须来自对象定义。对于三个不同位置组成的无序组，可以类似使用i<j<k；但候选数会增长为约N³/6，写循环前要先检验可行性。"
+          },
+          {
+            "title": "手算每一对与计数变化",
+            "body": "用a=[1,3,1,3]、K=4追踪。i=0时依次检查j=1、2、3，前后两项合格，计数从0变1再变2。i=1时检查j=2、3，只有j=2合格，计数变3。i=2时检查j=3，计数变4。最后i=3没有合法j，内层是空循环。注意两个1和两个3并未被合并：四个位置组合分别是(0,1)、(0,3)、(1,2)、(2,3)。把“值的组合只有一种”和“下标对有四种”区分开，是本课最重要的读题点之一。下方代码打印每个候选及更新后的计数，用完诊断后正式解法只输出最终count。",
+            "code": "a, k = [1, 3, 1, 3], 4\ncount = 0\nfor i in range(len(a)):\n    for j in range(i + 1, len(a)):\n        if a[i] + a[j] == k:\n            count += 1\n        print(i, j, count)",
+            "output": "0 1 1\n0 2 1\n0 3 2\n1 2 3\n1 3 3\n2 3 4\n"
+          },
+          {
+            "title": "把枚举分成生成与判定",
+            "body": "调试全探索时，先暂时不看条件，确认循环是否生成正确候选，再检查判定表达式。若漏掉最后一个位置，问题在生成阶段；若用了差而不是和，问题在判定阶段；若把count=0放进外层循环，则合格候选都被看到，却在汇总阶段丢掉历史。把这三个阶段分开，可以快速缩小范围。判定函数若比较复杂，可单独写成is_valid并对几组候选测试，但不要为了形式制造不必要的函数。现在判定只有a[i]+a[j]==k，直接写在循环中更清晰。计数变量应在所有候选开始前初始化，且每个合格候选恰好增加一次。"
+          },
+          {
+            "title": "减少维度必须有依据",
+            "body": "全探索也能通过约束减少候选，而不是立即改成陌生算法。例如三个非负整数x、y、z满足x+y+z=N，枚举x和y后，z=N-x-y已经被唯一确定，无需再循环z。剩下要检查z≥0以及其他条件；若还枚举z，就重复做本可直接算出的工作。相反，在本课数对计数中，给定a[i]后只能确定需要的值K-a[i]，不能确定唯一的下标，因为这个值可能出现多次。以后字典可以统计此前出现的次数，但本课首先要求你能证明直接枚举正确。任何剪枝都要说明被跳过的候选为何不可能满足条件，不能凭当前样例“看起来没用”就删掉分支。"
+          },
+          {
+            "title": "正确性、成本与反例",
+            "body": "证明可以分成覆盖性、唯一性和判定正确性：任意合法下标对都有较小者和较大者，因此会被某次i<j生成；不同循环位置产生不同下标对，因此不会重复；最后和等于K的判断与题意完全一致，因此count就是答案。检查次数固定为N(N-1)/2，负数和0不会改变循环次数。测试至少包括N=1、没有合格对、全相同元素、正负数抵消。全相同且每个值是K/2时，答案就是组合数，能直接检查是否错误去重或除二。不要为了减少空间保存所有候选：边生成边判断就够，除输入列表外只需要几个变量。"
+          },
+          {
+            "title": "工作坊：有序、无序与可重复选择",
+            "body": "把同一组数对问题改成三个版本，能检查你是否真的理解候选空间。版本一允许有序且不同下标，(i,j)与(j,i)都算，候选总数为N(N-1)。版本二无序且不同下标，就是本课的N(N-1)/2。版本三允许同一个下标被选两次且顺序不区分，可以枚举i≤j，候选数为N(N+1)/2。三个版本的数据完全相同，只有对象定义变了，循环范围和答案就会改变。不要看到两个数就自动写i<j，而应该从题目措辞确认是哪一种。\n\n进一步测试本课算法：把输入列表倒序或任意重排，合格下标对的数量应保持不变，因为数值多重集合未变；给每个元素增加常数c，并把目标增加2c，答案也应不变。删除一个元素则没有固定的答案变化，因为它参与了多少合格对取决于其他值。你可以手工列出三元素输入的全部三个候选，再逐个检查程序是否访问到了它们。对于每一个循环边界，解释起点为什么合法、终点为什么不会遗漏，特别是range的右端不包含这一点。最后确认计数没有提前停止，输出没有混入调试轨迹。这样的检查习惯会直接迁移到货币枚举、网格选择和状态搜索。"
+          }
+        ],
+        "exerciseTitle": "和为目标值的数对",
+        "task": "给定 N 个整数和目标值 K，统计满足 i < j 且 Aᵢ + Aⱼ = K 的下标对数量。相同数值出现在不同位置时视为不同元素。1 ≤ N ≤ 2000，−10⁹ ≤ K, Aᵢ ≤ 10⁹。",
+        "input": "第一行 N K；第二行 N 个整数 Aᵢ。",
+        "output": "输出符合条件的下标对数量。",
+        "hint": "使用两重循环，只枚举 j > i。不要先去掉列表中的重复数。",
+        "explanation": "把答案初始化为0，然后逐一选择第一个下标i。第二个下标从i+1开始，因此每次候选都使用两个不同位置，且每个无序对只出现一次。只有a[i]+a[j]==k时增加计数。相同数值位于不同位置仍是不同元素，不能预先去重，也不能找到一个匹配后立即退出内层循环。对于N=1，根本没有候选，初值0自然就是答案。对于四个2且K=4，六个不同下标对都会被统计。覆盖性来自任意不同下标必有较小和较大者，唯一性来自i<j的表示唯一，判定式又恰好等于题意，因此总计数正确。比较次数为N(N−1)/2，时间O(N²)；读取列表占O(N)空间，循环本身仅需O(1)额外状态。",
+        "objectives": [
+          "从题意定义候选对象",
+          "使用i<j保证不重不漏",
+          "根据约束判断枚举和剪枝是否合理"
+        ],
+        "checkpoints": [
+          {
+            "question": "四个2、K=4时有多少下标对？",
+            "answer": "六对，等于4×3/2。四个位置分别是0、1、2、3，合法下标对为(0,1)、(0,2)、(0,3)、(1,2)、(1,3)、(2,3)。数值虽然相同，位置身份仍然不同，不能合并。"
+          },
+          {
+            "question": "为什么不能一遇到合格对就break？",
+            "answer": "需要统计全部下标对，同一个i可能配多个j。"
+          }
+        ]
+      },
+      "en": {
+        "title": "Exhaustive search without omissions or duplicates",
+        "summary": "Translate the statement into a finite candidate space and check feasibility.",
+        "sections": [
+          {
+            "title": "Enumeration is a complete algorithm",
+            "body": "Exhaustive search is not merely a temporary solution used when nothing clever occurs. It is a complete method whenever the candidate space is small enough. Separate three decisions: what constitutes a candidate, how candidates are generated, and how validity is checked. In a pair-sum task, candidates are pairs of positions, not just numerical values. Determine whether order matters, whether a position may be reused, and whether equal values at different positions remain different objects. Answering those questions before writing loops prevents many errors. With N at most two thousand, roughly two million unordered pairs provide a reasonable teaching baseline; a bound of two hundred thousand would require reconsideration."
+          },
+          {
+            "title": "Represent an unordered pair by i < j",
+            "body": "Let i range from zero through N−1 and j from i+1 through N−1. This automatically excludes pairing a position with itself. For any two distinct indices, the smaller can only be i and the larger can only be j, so the pair is generated once. Two complete range(n) loops also generate reversed pairs and self-pairs; dividing the final answer by two does not reliably repair those extra cases. Conversely, a task explicitly asking for ordered pairs should not use this restriction. For unordered triples, the analogous condition is i<j<k, but its roughly cubic candidate count must be checked before implementation."
+          },
+          {
+            "title": "Trace every pair and the counter",
+            "body": "Take a=[1,3,1,3] and K=4. For i=0, j visits 1,2,3; the first and third candidates are valid, bringing the count to two. For i=1, only j=2 is valid, bringing it to three. For i=2, j=3 supplies the fourth pair. The final i has no valid j, so the inner loop is empty. The two ones and two threes have not been merged: the accepted position pairs are (0,1), (0,3), (1,2), and (2,3). There is one combination of values but four combinations of positions. The trace prints every candidate; the submitted solution should print only the final count.",
+            "code": "a, k = [1, 3, 1, 3], 4\ncount = 0\nfor i in range(len(a)):\n    for j in range(i + 1, len(a)):\n        if a[i] + a[j] == k:\n            count += 1\n        print(i, j, count)",
+            "output": "0 1 1\n0 2 1\n0 3 2\n1 2 3\n1 3 3\n2 3 4\n"
+          },
+          {
+            "title": "Separate generation, checking, and aggregation",
+            "body": "When debugging exhaustive search, first ignore the condition and inspect which candidates the loops generate. A missing final position is a generation error. Comparing a difference instead of a sum is a validity-check error. Placing count=0 inside the outer loop loses earlier results during aggregation even though the candidates were visited correctly. Separating these stages narrows the investigation. A complex predicate may deserve its own is_valid function and direct tests, but a one-line sum comparison is clearer inline. Initialize the accumulator before all candidates are generated, and increment it exactly once for each valid candidate."
+          },
+          {
+            "title": "Reduce a dimension only when justified",
+            "body": "Exhaustive search can exploit constraints without switching to an unfamiliar algorithm. If nonnegative x,y,z satisfy x+y+z=N, choosing x and y uniquely determines z=N−x−y, so a third loop is unnecessary. You still check z≥0 and any additional conditions. In this pair-counting task, knowing a[i] determines the required value K−a[i], but not a unique index: that value may occur several times. A later dictionary method can count previous occurrences. First establish the direct solution. Any pruning rule must explain why skipped candidates cannot be valid; never remove a branch simply because it appeared unhelpful in one sample."
+          },
+          {
+            "title": "Prove coverage and test structural boundaries",
+            "body": "A proof has three parts. Coverage: every legal pair has a smaller and larger index, so the loops visit it. Uniqueness: distinct loop positions generate distinct index pairs. Validity: the sum comparison is exactly the condition in the statement. Therefore the accumulator equals the answer. The fixed check count is N(N−1)/2, regardless of negative values or zero. Test N=1, no valid pairs, all equal values, and positive-negative cancellation. When every value equals K/2, every pair is valid, providing a direct combinatorial oracle. Generate and test candidates immediately instead of storing them all; only a few variables beyond the input list are needed."
+          },
+          {
+            "title": "Workshop: ordered, unordered, and repeated selections",
+            "body": "Change the same pair problem into three versions. Ordered distinct-index pairs have N(N−1) candidates because (i,j) and (j,i) both count. Unordered distinct-index pairs are this lesson’s N(N−1)/2. Unordered selections allowing the same index twice can use i≤j and have N(N+1)/2 candidates. Identical numerical data produces different answers because the objects being counted changed. Never write i<j merely because two values are mentioned; derive it from the statement.\n\nFor our version, reversing or otherwise permuting the input preserves the number of matching pairs because the multiset of values is unchanged. Adding c to every value and 2c to the target also preserves the answer. Removing one element has no fixed effect because its number of partners varies. Manually list all three candidates of a three-element input and verify that the loops visit each exactly once. Explain every range endpoint, especially Python’s excluded right endpoint. Finally check that counting does not stop after the first match and that diagnostic output is absent from the submitted result."
+          }
+        ],
+        "exerciseTitle": "Pairs with a target sum",
+        "task": "Given N integers and a target K, count index pairs with i < j and Aᵢ + Aⱼ = K. Equal values at different positions are distinct elements. 1 ≤ N ≤ 2000 and −10⁹ ≤ K, Aᵢ ≤ 10⁹.",
+        "input": "N K on the first line; N integers Aᵢ on the second.",
+        "output": "Print the number of valid index pairs.",
+        "hint": "Use two loops with j > i. Do not remove repeated values first.",
+        "explanation": "Initialize the answer to zero, choose the first index i, and let the second index begin at i+1. Every candidate uses two distinct positions and every unordered pair appears exactly once. Increment only when a[i]+a[j]==k. Equal values at different positions remain different elements, so do not deduplicate or stop after the first match for an i. For N=1 no candidate exists and zero is correct; four twos with K=4 yield six pairs. Coverage follows because distinct indices have a unique smaller and larger member; uniqueness follows from that representation; the validity test matches the statement. There are N(N−1)/2 comparisons, giving O(N²) time, O(N) input storage, and O(1) extra scanning state.",
+        "objectives": [
+          "Define candidates from the statement",
+          "Use i<j to ensure exact coverage",
+          "Justify feasibility and any pruning"
+        ],
+        "checkpoints": [
+          {
+            "question": "How many pairs for four twos and K=4?",
+            "answer": "Six: 4×3/2. Equal values remain distinct positions."
+          },
+          {
+            "question": "Why not break after the first valid pair?",
+            "answer": "All pairs are required, and one i can match several j values."
+          }
+        ]
+      },
+      "ja": {
+        "title": "漏れと重複のない全探索",
+        "summary": "問題文を有限の候補集合に変え、制約から実行可能性を判断します。",
+        "sections": [
+          {
+            "title": "全探索も完成したアルゴリズムである",
+            "body": "全探索は、良い方法を思いつくまでの仮の処理とは限りません。候補数が十分小さければ、それ自体が完全な解法です。候補の定義、生成する順番、条件判定という三つを分けて考えます。和がKになるペアでは、候補は数値そのものではなく二つの位置の組です。順序を区別するか、同じ位置を再利用できるか、同値でも位置が違えば別の対象かを先に決めましょう。二重forを書いてから範囲を推測するより安全です。本課題のN≤2000では無順序ペアは約200万組で、二次時間の基本解法を学ぶ妥当な規模です。もし上限が20万なら同じ解法をそのまま採用できず、改めて計算量を検討する必要があります。"
+          },
+          {
+            "title": "無順序ペアをi<jで表す",
+            "body": "外側のiを0からN−1、内側のjをi+1からN−1まで動かします。常にi<jなので、自分自身との組を除外できます。任意の異なる二添字では、小さい方だけがi、大きい方だけがjになり、必ず一回だけ生成されます。両方をrange(n)にすると逆順の組と自己ペアも現れます。最後に2で割るだけでは自己ペアを正しく処理できません。反対に、問題が順序付きペアを要求しているならi<jに制限してはいけません。構造は対象の定義から決めます。無順序の三要素ならi<j<kとできますが、候補数は約N³/6になるので、実装の前に規模を検討します。"
+          },
+          {
+            "title": "候補とカウンタを一組ずつ追う",
+            "body": "a=[1,3,1,3]、K=4を使います。i=0ではj=1、2、3を調べ、最初と最後が条件を満たすのでcountは2になります。i=1ではj=2だけが合格して3、i=2ではj=3が合格して4になります。最後のi=3にはjが存在せず、内側のループは空です。二つの1と二つの3を同じ一要素にまとめてはいけません。合格する位置の組は(0,1)、(0,3)、(1,2)、(2,3)の四つです。「値の組合せは一種類」と「添字の組は四種類」を区別することが、この問題の重要な読解点です。次の追跡コードでは候補ごとに状態を出しますが、正式な解答では最終countだけを出力します。",
+            "code": "a, k = [1, 3, 1, 3], 4\ncount = 0\nfor i in range(len(a)):\n    for j in range(i + 1, len(a)):\n        if a[i] + a[j] == k:\n            count += 1\n        print(i, j, count)",
+            "output": "0 1 1\n0 2 1\n0 3 2\n1 2 3\n1 3 3\n2 3 4\n"
+          },
+          {
+            "title": "生成・判定・集計を分ける",
+            "body": "全探索を調べるときは、最初に条件式を無視して、ループが何を生成するか確認します。最後の添字が抜けるなら生成段階、和ではなく差を比較していれば判定段階、外側ループ内でcount=0にしていれば集計段階の問題です。最後の場合は候補を見ているのに、それまでの結果を失っています。この三段階を分けると原因を絞りやすくなります。判定が複雑ならis_valid関数に分け、候補を直接渡して検証できます。ただし今の条件はa[i]+a[j]==kだけなので、形式のために関数を増やさずその場に書く方が明快です。集計変数は全候補の生成前に初期化し、合格候補一つにつき一度だけ増やします。"
+          },
+          {
+            "title": "次元を減らすには根拠が必要",
+            "body": "全探索でも制約を利用すれば、別の難しい手法へ飛ばずに候補を減らせます。非負整数x、y、zがx+y+z=Nを満たすなら、xとyを選ぶとz=N−x−yに決まり、三番目のループは不要です。ただしz≥0や追加条件は調べます。一方、このペア問題でa[i]を決めると必要な値K−a[i]は分かりますが、位置は一意には決まりません。同じ値が複数位置にある可能性があるためです。後で辞書を使えば既出回数をまとめられますが、まず直接列挙が正しいことを理解します。枝刈りを行うなら、飛ばした候補が条件を満たさない理由を説明する必要があります。一つのサンプルで役に立たなそうだった、という理由で候補を消してはいけません。"
+          },
+          {
+            "title": "正しさと費用と反例をまとめる",
+            "body": "証明を網羅性、一意性、判定の正しさに分けます。合法なペアには小さい添字と大きい添字があるため、必ずi<jの形で生成されます。異なるループ位置は異なる添字組を表すので重複しません。最後の和の比較が題意そのものなので、countが答えです。判定回数は常にN(N−1)/2で、負数や0があっても変わりません。テストにはN=1、合格なし、全値同一、正負の打消しを含めます。すべての値がK/2なら全ペアが合格し、組合せの式が正解器になります。これによって誤った重複除去や二分割を発見できます。候補をすべて保存せず、その場で判定して集計すれば、入力リスト以外には少数の変数だけが必要です。"
+          },
+          {
+            "title": "実習：順序と再選択の有無を比べる",
+            "body": "同じ数列で問題を三種類に変えます。異なる添字の順序付きペアなら(i,j)と(j,i)を区別しN(N−1)候補です。順序を区別しない異なる添字なら本課のN(N−1)/2です。同じ添字を二回選ぶことを許す無順序組ならi≤jでN(N+1)/2候補になります。数値が同じでも対象の定義でループ範囲と答えが変わります。二つの数と書かれたから自動でi<jにするのではなく、文章からどの種類か確認しましょう。\n\n本課の条件では、列を逆順や任意順に並べ替えても値の多重集合が同じなので合格ペア数は変わりません。各値へc、目標へ2cを加えても答えは同じです。一要素を削除した場合は相手の数に依存し、一定の差にはなりません。三要素の全三候補を手で列挙し、ループが一度ずつ訪れるか確かめます。各範囲の始点と終点、特にrangeの右端が含まれない理由を説明してください。最初の合格で停止していないこと、診断用出力が解答に混入していないことも確認します。この習慣は硬貨の枚挙や状態探索にもそのまま役立ちます。"
+          }
+        ],
+        "exerciseTitle": "和が指定値になるペア",
+        "task": "N 個の整数と目標値 K が与えられます。i < j かつ Aᵢ + Aⱼ = K を満たす添字のペア数を求めてください。同じ値でも位置が異なれば別の要素です。1 ≤ N ≤ 2000、−10⁹ ≤ K, Aᵢ ≤ 10⁹ です。",
+        "input": "1 行目に N K、2 行目に N 個の整数 Aᵢ が与えられます。",
+        "output": "条件を満たす添字のペア数を出力してください。",
+        "hint": "二重ループで j > i だけを調べます。リストから同じ値を削除してはいけません。",
+        "explanation": "答えを0で初期化し、最初の添字iを順に選びます。二番目はi+1から始めるので異なる位置だけを使い、各無順序ペアが一度だけ現れます。a[i]+a[j]==kのときだけ増やします。同値でも位置が違えば別要素なので、重複除去や最初の一致でのbreakは行いません。N=1では候補がなく初値0が答えです。2が四つでK=4なら六組になります。異なる添字には小さい方と大きい方が一意にあるので網羅性と一意性が成立し、判定式も題意に一致するため総数は正しい値です。比較はN(N−1)/2回で時間O(N²)、入力領域O(N)、走査追加状態O(1)です。",
+        "objectives": [
+          "題意から候補を定義する",
+          "i<jで漏れと重複を防ぐ",
+          "全探索と枝刈りの根拠を説明する"
+        ],
+        "checkpoints": [
+          {
+            "question": "2が四つ、K=4なら何組ですか。",
+            "answer": "4×3/2=6組です。同値でも位置は別です。"
+          },
+          {
+            "question": "最初の合格でbreakしないのは？",
+            "answer": "全組の数が必要で、一つのiが複数のjと組めるためです。"
+          }
+        ]
+      }
+    },
+    "starter": "n, k = map(int, input().split())\na = list(map(int, input().split()))\n# TODO\n",
+    "solution": "n, k = map(int, input().split())\na = list(map(int, input().split()))\ncount = 0\nfor i in range(n):\n    for j in range(i + 1, n):\n        if a[i] + a[j] == k:\n            count += 1\nprint(count)\n",
+    "tests": [
+      {
+        "input": "1 4\n2\n",
+        "expected": "0\n"
+      },
+      {
+        "input": "4 4\n2 2 2 2\n",
+        "expected": "6\n"
+      },
+      {
+        "input": "5 0\n-2 2 -1 1 0\n",
+        "expected": "2\n"
+      },
+      {
+        "input": "4 100\n1 2 3 4\n",
+        "expected": "0\n"
+      }
+    ]
+  },
+  {
+    "id": "sorting-and-complexity",
+    "order": 12,
+    "stage": "methods",
+    "minutes": 50,
+    "prerequisiteIds": [
+      "exhaustive-search"
+    ],
+    "relatedProblems": [
+      "ABC088B",
+      "ABC201B",
+      "ABC212C"
+    ],
+    "content": {
+      "zh": {
+        "title": "排序：让最优答案出现在相邻位置",
+        "summary": "区分排序接口、证明相邻检查充分，并保留题目真正需要的信息。",
+        "sections": [
+          {
+            "title": "顺序如何改变候选结构",
+            "body": "在任意顺序的列表中寻找最接近的两个数，直接想法是枚举所有下标对。然而数值差只依赖两个值，不依赖它们原来的位置，因此可以先把值按大小排列。排序不是简单的预处理习惯，而是把“可能很远的两个候选”变成“可以用相邻关系检查”的结构变化。用[10,2,5,15]观察：原输入中相邻差未必代表最优值；排序成[2,5,10,15]之后，相邻差为3、5、5，最小值3就出现了。在其他问题中，原有位置可能决定可选条件，那时不能未经证明就排序。始终先问：重排会不会改变答案的定义？"
+          },
+          {
+            "title": "明确是否修改原列表",
+            "body": "sorted(a)返回新的有序列表，原来的a保持不变；a.sort()直接修改a，返回值是None。因此写a=a.sort()会把变量a变成None，后续访问列表时才报错。默认升序，reverse=True得到降序，不能在升序推导的差值公式里偷偷换成降序。若原序还要用于输出位置，可以保存带位置的元组，例如(value,index)，但要明确并列时的顺序规则。本课只输出最小差，不需要原下标，所以原地排序最直接。尽管名称叫原地，Python排序可能使用额外工作空间；分析时不能因此断言整个排序过程绝不分配内存。",
+            "code": "a = [5, 1, 4]\nb = sorted(a)\nprint(a)\nprint(b)\nresult = a.sort(reverse=True)\nprint(a)\nprint(result)",
+            "output": "[5, 1, 4]\n[1, 4, 5]\n[5, 4, 1]\nNone\n"
+          },
+          {
+            "title": "为什么只看相邻元素足够",
+            "body": "设排序后b[i]≤b[j]，且j>i+1。差b[j]-b[i]等于从i到j之间所有相邻差的和，而每个相邻差都非负。因此，这个较远的差不可能小于区间内每一个相邻差；至少存在一个相邻候选不比它差。于是对任意最优的远距离配对，都能找到一个同样好或更好的相邻配对，检查相邻元素就足够了。这是“存在一个最优解具有某种结构”的证明，而不是宣称所有最优配对都相邻。若多个值相等，很多不同位置都能组成差0的最优对；我们只需要找最小差，不需要枚举所有达到最小差的对。"
+          },
+          {
+            "title": "追踪排序后的扫描",
+            "body": "用[8,3,10,4]排序得到[3,4,8,10]。先用第一组合法相邻差4-3=1初始化answer，而不是用0；若初值为0，后续min会一直保留0，除非实际存在重复值，否则答案错误。接着检查8-4=4，answer仍为1；最后检查10-8=2，仍为1。一般循环可以从i=1扫描到N-2，因为第一对已经用于初始化。也可以把answer初始化为一个足够大的值再扫描所有相邻对，但那个“足够大”必须由约束证明。优先从真实候选初始化，可以少记一个人为哨兵，也使N=2时的空循环自然正确。",
+            "code": "a = sorted([8, 3, 10, 4])\nanswer = a[1] - a[0]\nprint(a, answer)\nfor i in range(1, len(a) - 1):\n    gap = a[i + 1] - a[i]\n    answer = min(answer, gap)\n    print(i, gap, answer)",
+            "output": "[3, 4, 8, 10] 1\n1 4 1\n2 2 1\n"
+          },
+          {
+            "title": "重复值、负数与比较键",
+            "body": "重复值必须保留，因为两个不同位置都等于8时，合法最小差就是0。先做set去重会把最优候选删掉。负数不需要特殊分支，升序相减仍非负，例如[-8,-7,-3]的相邻差是1和4。字符串排序则按字符顺序，不会把“10”和“2”当作整数比较，读入阶段要把数值转换成int。扩展到带名字的记录时，可用key指定按哪个字段排序，而不是依赖整段元组的默认比较；如果需要第二关键字，要明确写入key。排序保证的稳定性指相同关键字保留原相对顺序，它不自动替你实现题目要求的所有并列规则。"
+          },
+          {
+            "title": "如何决定用排序还是枚举",
+            "body": "如果题目询问最小差、大小排名、按顺序分配、相同值聚集，排序值得优先考虑，但仍要证明重排后哪些候选可以省去。本课把O(N²)数对检查变成O(NlogN)排序加O(N)扫描，N≤200000时才有合理规模。若N非常小，朴素枚举仍可作为独立测试用的正解器：对短列表枚举所有i<j，求abs(a[i]-a[j])最小值，与排序解比较。测试包括两端极值、全相同、已经升序、逆序、全负数，以及最优对原来相距很远。不要把本课结论套到“原数组相邻两数差最小”的题，那类题的邻接关系本来由输入位置决定，排序会改变问题。"
+          },
+          {
+            "title": "工作坊：排序前后保留了哪些性质",
+            "body": "请对列表[5,1,5,9]回答几个问题。排序前后的总和、元素个数、最大值、最小值和每种数值的出现次数都不变；原位置、相邻元素关系以及某个值第一次出现的下标通常会变。最小绝对差只使用数值与不同位置对应的两个元素，重排后仍能选到同样的两个对象，因此答案保持0。若问题改成最长连续递增片段，排序会把原本不相邻的对象放到一起，显然不能保持答案。把这些不变量列出来，比凭经验说“这题大概可以排序”更严谨。\n\n还要区分“返回最小差”和“返回最小差对应的所有下标对”。后者在全部相同的输入上可能有N(N-1)/2个答案，仅扫描相邻对不能完整枚举这些下标对；本课证明只保证找到一个最优值。若只需返回其中一对原下标，可以排序(value,index)后记录相邻候选的原位置。若存在并列，还需根据题目规定选择字典序最小或其他规则，而不能认为排序稳定性自动完成了全部要求。练习时先写下你要输出的对象是什么，再决定需要保留哪些信息。最后把排序解与朴素枚举在所有两三项的小例子上对比，特别检查重复值没有在处理中丢失。"
+          }
+        ],
+        "exerciseTitle": "最小差值",
+        "task": "给定 N 个整数，找出两个不同位置上的数，其绝对差最小，输出这个差值。允许重复值。2 ≤ N ≤ 200000，−10⁹ ≤ Aᵢ ≤ 10⁹。",
+        "input": "第一行 N；第二行 N 个整数。",
+        "output": "输出最小绝对差。",
+        "hint": "排序后，只需要检查相邻两个数的差。重复值可以让答案为 0。",
+        "explanation": "先把整数列表升序排序，保留所有重复值。使用第一对相邻值的差a[1]-a[0]初始化答案，避免人为哨兵值；N≥2保证这一对存在。随后扫描尚未检查的相邻对，用更小的差更新答案。排序后任何较远两值的差都是中间若干非负相邻差之和，所以一定有相邻差不大于它；全局最小差因此能在相邻对中找到。两个不同位置的相同数值会相邻并产生0，这是合法答案而非需要消除的重复。负数排序后同样适用。排序O(NlogN)，扫描O(N)，总时间O(NlogN)；输入列表和排序工作空间按O(N)计。若题目要求原下标，需另存位置，但本练习只输出差值。",
+        "objectives": [
+          "正确选择sorted与sort",
+          "证明相邻差包含最优解",
+          "避免去重、字符串排序和位置丢失错误"
+        ],
+        "checkpoints": [
+          {
+            "question": "为什么先set去重会错？",
+            "answer": "相同值位于不同位置时差0是合法答案，去重会删掉它。"
+          },
+          {
+            "question": "排序后为什么不需要abs？",
+            "answer": "升序中a[i+1]≥a[i]，前者减后者自然非负。"
+          }
+        ]
+      },
+      "en": {
+        "title": "Sorting to expose adjacent candidates",
+        "summary": "Choose the right sorting interface and prove why adjacent comparisons suffice.",
+        "sections": [
+          {
+            "title": "How ordering changes the candidate space",
+            "body": "To find the closest two values in an arbitrary list, the direct approach examines every pair. But numerical distance depends on the values, not on their original positions, so reordering is allowed. Sorting is not an automatic preprocessing habit: it changes the structure so distant-looking candidates can be replaced by neighbors in value order. For [10,2,5,15], original neighbors do not explain the optimum; sorting yields [2,5,10,15] with gaps 3,5,5. In other tasks, original positions may define which selections are legal. Ask whether reordering preserves the question before sorting merely because the technique is familiar."
+          },
+          {
+            "title": "Choose an interface deliberately",
+            "body": "sorted(a) returns a new ordered list without changing a. In contrast, a.sort() modifies a and returns None, so assigning a=a.sort() destroys the variable’s reference to the list. The default order is ascending; reverse=True changes the order and also changes which subtraction produces a nonnegative gap. If the original positions are needed later, retain pairs such as (value,index), with an explicit tie rule. This exercise only asks for the distance, so sorting the existing list is straightforward. “In place” describes the visible interface; Python’s sort can still allocate temporary workspace, which must be considered in a memory discussion.",
+            "code": "a = [5, 1, 4]\nb = sorted(a)\nprint(a)\nprint(b)\nresult = a.sort(reverse=True)\nprint(a)\nprint(result)",
+            "output": "[5, 1, 4]\n[1, 4, 5]\n[5, 4, 1]\nNone\n"
+          },
+          {
+            "title": "Prove that adjacent pairs suffice",
+            "body": "For sorted b and j>i+1, the difference b[j]−b[i] is the sum of all adjacent gaps between them. Every gap is nonnegative. Consequently, a distant pair cannot have a difference smaller than every adjacent gap inside its interval: some adjacent candidate is at least as good. Any optimum can therefore be replaced by an equally good or better neighboring pair. This proves that an optimum exists among neighbors, not that every optimal pair must be adjacent. With repeated equal values, many position pairs can all have distance zero. The exercise asks for the minimum value, not an enumeration of every pair attaining it."
+          },
+          {
+            "title": "Trace the ordered scan",
+            "body": "Sorting [8,3,10,4] gives [3,4,8,10]. Initialize answer from the first real gap, 4−3=1. Zero is not a suitable initial value for a minimum: every later min would retain it even when no equal values exist. The next gap is four, then two, so the answer remains one. Since the first pair established the initial candidate, the remaining scan starts at i=1 and ends at N−2. An artificially large sentinel can also work, but its size must follow from the constraints. Initializing from a genuine candidate avoids that extra assumption and handles N=2 with an empty remaining loop.",
+            "code": "a = sorted([8, 3, 10, 4])\nanswer = a[1] - a[0]\nprint(a, answer)\nfor i in range(1, len(a) - 1):\n    gap = a[i + 1] - a[i]\n    answer = min(answer, gap)\n    print(i, gap, answer)",
+            "output": "[3, 4, 8, 10] 1\n1 4 1\n2 2 1\n"
+          },
+          {
+            "title": "Duplicates, negatives, and keys",
+            "body": "Keep duplicates: two different positions both containing eight produce the valid optimal difference zero. Converting the list to a set would remove that candidate. Negative values need no special branch because ascending subtraction stays nonnegative. Input strings, however, sort lexicographically rather than numerically, so convert numeric tokens to int first. For named records, use an explicit key to choose the field instead of accidentally comparing entire tuples. If a secondary rule is required, include it in the key. Stability means records with equal keys retain their previous relative order; it does not invent all tie rules that a statement might request."
+          },
+          {
+            "title": "Recognize when sorting is appropriate",
+            "body": "Minimum distances, ranks, ordered allocation, and groups of equal values often suggest sorting, but you must still explain which candidates can be discarded afterward. Here an O(N²) pair scan becomes O(N log N) sorting plus O(N) scanning, suitable for the stated large bound. Keep the brute-force version as an independent oracle for short lists: enumerate all i<j and minimize abs(a[i]−a[j]). Compare both methods on extreme values, duplicates, ascending and descending lists, negatives, and an optimal pair originally far apart. Do not transfer the result to a question specifically about adjacent positions in the original array; sorting would redefine its adjacency relation."
+          },
+          {
+            "title": "Workshop: what does sorting preserve?",
+            "body": "For [5,1,5,9], sorting preserves the total, length, extrema, and frequency of every value. It generally changes positions, original adjacency, and first-occurrence indices. Minimum absolute difference only uses the values of two distinct elements, so the same objects remain selectable and the optimum stays zero. A longest contiguous increasing segment is different: sorting creates new neighbor relations and does not preserve the answer. Listing preserved properties is more reliable than saying that sorting “seems appropriate.”\n\nAlso separate returning the minimum distance from returning every pair of original indices attaining it. An all-equal array may have N(N−1)/2 optimal pairs, so scanning only neighbors cannot list them all. Our proof guarantees finding an optimal value. To return one pair of original indices, retain (value,index) records while sorting and save the chosen adjacent pair’s original indices. If ties require a lexicographic or other rule, implement that rule explicitly. Write down the requested output object before discarding information, then compare the optimized method with exhaustive search on short lists containing duplicates."
+          }
+        ],
+        "exerciseTitle": "Minimum difference",
+        "task": "Given N integers, find the minimum absolute difference between values at two distinct positions. Repeated values are allowed. 2 ≤ N ≤ 200000 and −10⁹ ≤ Aᵢ ≤ 10⁹.",
+        "input": "N on the first line; N integers on the second.",
+        "output": "Print the minimum absolute difference.",
+        "hint": "After sorting, check only adjacent pairs. Repeated values can produce an answer of 0.",
+        "explanation": "Sort the integer list in ascending order without removing duplicates. Initialize the answer from a[1]−a[0]; N≥2 guarantees that real candidate exists. Scan the remaining adjacent pairs and retain the smallest gap. Any difference between nonadjacent sorted values is a sum of intervening nonnegative gaps, so at least one adjacent gap is no larger. Hence a global minimum occurs among adjacent candidates. Equal values at distinct positions become neighbors and give zero, a valid answer rather than redundant data to remove. Negative values require no extra branch. Sorting takes O(N log N), the scan O(N), and total storage including the input and sorting workspace is O(N). Returning original indices would require preserving them, but this exercise asks only for the distance.",
+        "objectives": [
+          "Choose sorted or sort correctly",
+          "Prove the adjacent-gap reduction",
+          "Preserve duplicates and required positional information"
+        ],
+        "checkpoints": [
+          {
+            "question": "Why can set conversion change the answer?",
+            "answer": "Distinct positions with equal values give distance zero; deduplication removes that pair."
+          },
+          {
+            "question": "Why is abs unnecessary after sorting?",
+            "answer": "In ascending order, a[i+1] is at least a[i]."
+          }
+        ]
+      },
+      "ja": {
+        "title": "ソートで隣接候補を取り出す",
+        "summary": "ソートの使い分けと、隣同士だけで十分な理由を学びます。",
+        "sections": [
+          {
+            "title": "順序によって候補の構造が変わる",
+            "body": "任意順のリストから最も近い二値を選ぶなら、直接的には全添字ペアを調べます。しかし数値の差は元の位置に依存しないので、値を大小順に並べ替えられます。ソートは単なる習慣的な前処理ではなく、離れて見える候補を値の隣接関係で扱えるようにする構造変化です。[10,2,5,15]を[2,5,10,15]にすると、隣接差3、5、5から最小値3が現れます。元の順番で隣同士だけを見るのとは違います。他の問題では元の位置が選択条件を決めることもあり、その場合に無条件でソートすると題意を変えてしまいます。まず「並べ替えても答えの定義が保たれるか」を確認してください。"
+          },
+          {
+            "title": "元のリストを書き換えるかを決める",
+            "body": "sorted(a)は新しい整列済みリストを返し、aを変更しません。a.sort()はa自身を書き換えてNoneを返すため、a=a.sort()と代入するとaはリストでなくなります。既定は昇順で、reverse=Trueなら降順です。昇順に合わせて導いた差の式に、説明なしで降順を混ぜてはいけません。元の位置が必要なら(value,index)のような組で保存し、同値の順序も明確にします。本課題は差だけを求めるので、元リストの並べ替えが簡潔です。「その場で並べ替える」という操作の説明は、内部で追加領域を一切使わないという保証ではありません。Pythonのソートには作業用メモリが必要になる場合があります。",
+            "code": "a = [5, 1, 4]\nb = sorted(a)\nprint(a)\nprint(b)\nresult = a.sort(reverse=True)\nprint(a)\nprint(result)",
+            "output": "[5, 1, 4]\n[1, 4, 5]\n[5, 4, 1]\nNone\n"
+          },
+          {
+            "title": "隣接要素だけで十分な理由を証明する",
+            "body": "整列後のbについてi<jを取り、間に要素がある場合を考えます。b[j]−b[i]は、その間のすべての隣接差を足した値です。各隣接差は非負なので、遠い二値の差が途中のすべての隣接差より小さくなることはありません。少なくとも一つ、同等かそれ以上に良い隣接候補があります。したがって最適な遠いペアを、同等かさらに良い隣接ペアに置き換えられます。これは「最適解が隣接候補の中に存在する」という証明で、「すべての最適ペアが隣接する」という主張ではありません。同じ値が複数あれば差0の最適ペアは多数ありますが、本課題は最小差だけを求めます。"
+          },
+          {
+            "title": "整列後の走査を追う",
+            "body": "[8,3,10,4]を並べ替えると[3,4,8,10]です。最初の実在する隣接差4−3=1をanswerの初期値にします。最小値を0で初期化すると、その後のminは常に0を保持し、重複値がない場合に誤答となります。次の差8−4=4、最後の差10−8=2ではどちらもanswerは1のままです。最初のペアを初期化に使ったので、残りのループはi=1からN−2までで十分です。非常に大きい番兵値から始めて全ペアを走査してもよいのですが、その大きさは制約に基づく必要があります。実在する候補から初期化すると仮定が一つ減り、N=2では残りのループが空でも自然に正しくなります。",
+            "code": "a = sorted([8, 3, 10, 4])\nanswer = a[1] - a[0]\nprint(a, answer)\nfor i in range(1, len(a) - 1):\n    gap = a[i + 1] - a[i]\n    answer = min(answer, gap)\n    print(i, gap, answer)",
+            "output": "[3, 4, 8, 10] 1\n1 4 1\n2 2 1\n"
+          },
+          {
+            "title": "重複・負数・比較キーに注意する",
+            "body": "重複値は残します。異なる二位置がともに8なら差0が合法な最適候補で、setによる重複除去はそれを消してしまいます。負数にも特別な分岐は不要で、[-8,-7,-3]なら隣接差は1と4です。ただし文字列は文字の順で整列され、「10」と「2」は整数の大小として比較されません。入力時にintへ変換しましょう。名前付き記録へ応用するときはkeyで比較する項目を指定し、タプル全体の暗黙の比較に頼らないようにします。第二条件があるならkeyにも明記します。安定なソートとは同じキーの元の相対順を保つことであり、問題が要求する並列時の規則をすべて自動で実現する意味ではありません。"
+          },
+          {
+            "title": "ソートと全探索をどう選ぶか",
+            "body": "最小差、順位、順番に割り当てる処理、同値の集約などではソートが候補になります。ただし並べ替え後にどの候補を省けるかの証明は必要です。本課題ではO(N²)のペア判定を、O(NlogN)のソートとO(N)の走査に置き換え、N≤200000に対応します。小さい入力では全探索を独立の正解器として残し、すべてのi<jでabs(a[i]−a[j])を計算して比較できます。両端の極値、全値同一、昇順、逆順、全負数、元の位置では遠い最適ペアを試します。この結論を「元配列で隣接する二要素の最小差」に流用してはいけません。その隣接関係は入力位置で定まり、ソートすると問題を別のものへ変えてしまいます。"
+          },
+          {
+            "title": "実習：並べ替えで保つ性質を確認する",
+            "body": "[5,1,5,9]を並べ替えても、総和、個数、最大値、最小値、各値の出現回数は変わりません。元位置、元の隣接関係、最初の出現添字は一般に変わります。最小絶対差は異なる二要素の数値を使うだけで、同じ対象を再び選べるので答え0を保ちます。最長連続増加部分なら、新たな隣接関係が作られて答えを保ちません。「ソートできそう」という印象ではなく、保存される性質を列挙すると根拠が明確になります。\n\nまた最小差の値を返すことと、それを達成する元添字ペアをすべて返すことは別です。全要素同一では最適ペアがN(N−1)/2個あり、隣接だけの走査で全ペアは列挙できません。本課の証明は最適値が見つかる保証です。一組の元添字を返すだけなら(value,index)を並べ替え、選んだ隣接候補の元位置を保存できます。並列時に辞書順などが指定されるなら、その規則を明示的に実装します。情報を捨てる前に出力対象を定義し、重複を含む短い列で全探索と比較してください。"
+          }
+        ],
+        "exerciseTitle": "最小の差",
+        "task": "N 個の整数が与えられます。異なる 2 つの位置の値の絶対差の最小値を求めてください。同じ値が複数現れてもかまいません。2 ≤ N ≤ 200000、−10⁹ ≤ Aᵢ ≤ 10⁹ です。",
+        "input": "1 行目に N、2 行目に N 個の整数が与えられます。",
+        "output": "絶対差の最小値を出力してください。",
+        "hint": "ソートした後、隣り合う要素の差だけを調べます。同じ値があれば答えは 0 になり得ます。",
+        "explanation": "整数列を昇順に整列し、重複値も残します。N≥2なので存在する最初の隣接差a[1]−a[0]で答えを初期化し、残る隣接ペアを走査して小さい差を保持します。離れた二値の差は間の非負な隣接差の和なので、少なくとも一つの隣接差がそれ以下です。したがって全体の最小値は隣接候補から得られます。異なる位置の同値は隣り合って0を作り、これは削除すべき冗長性でなく合法な答えです。負数も同じ方法で扱えます。整列O(NlogN)、走査O(N)、入力と整列作業領域を含めO(N)です。元添字が必要なら保存しますが、本課題の出力は差だけです。",
+        "objectives": [
+          "sortedとsortを使い分ける",
+          "隣接差への帰着を証明する",
+          "重複と必要な位置情報を保持する"
+        ],
+        "checkpoints": [
+          {
+            "question": "set化で答えが変わる理由は？",
+            "answer": "異なる位置の同値による差0のペアが消えるためです。"
+          },
+          {
+            "question": "昇順後にabsが不要なのは？",
+            "answer": "a[i+1]≥a[i]なので差が非負だからです。"
+          }
+        ]
+      }
+    },
+    "starter": "n = int(input())\na = list(map(int, input().split()))\n# TODO\n",
+    "solution": "n = int(input())\na = list(map(int, input().split()))\na.sort()\nanswer = a[1] - a[0]\nfor i in range(1, n - 1):\n    answer = min(answer, a[i + 1] - a[i])\nprint(answer)\n",
+    "tests": [
+      {
+        "input": "2\n-1000000000 1000000000\n",
+        "expected": "2000000000\n"
+      },
+      {
+        "input": "4\n8 3 8 20\n",
+        "expected": "0\n"
+      },
+      {
+        "input": "4\n10 2 5 15\n",
+        "expected": "3\n"
+      },
+      {
+        "input": "3\n-8 -3 -7\n",
+        "expected": "1\n"
+      }
+    ]
+  },
+  {
+    "id": "sets-and-dictionaries",
+    "order": 13,
+    "stage": "sequences",
+    "minutes": 50,
+    "prerequisiteIds": [
+      "sorting-and-complexity"
+    ],
+    "relatedProblems": [
+      "ABC085B",
+      "ABC338B",
+      "APG4bPython EX20"
+    ],
+    "content": {
+      "zh": {
+        "title": "集合与字典：把历史压缩成状态",
+        "summary": "根据是否需要次数选择数据结构，建立一遍扫描的统计方法。",
+        "sections": [
+          {
+            "title": "从重复查询中发现需求",
+            "body": "假设要统计十万个整数的种类数，每读入一个数就重新扫描之前所有元素，最坏会产生二次工作量。真正需要记住的不是出现过程的所有细节，而是“这个值以前是否出现过”。集合保存这一信息。若还要输出最高出现次数，仅有集合就不够，因为集合不会保留重复次数；应改用字典，把每个数映射到一个计数。这是先确定信息需求，再选择容器，而不是记住“看到去重就set”的口号。序列位置、首次出现位置、总次数是不同信息；丢掉以后不一定能恢复。先用一句话定义每个键和值的含义，能让更新规则和正确性更容易检查。"
+          },
+          {
+            "title": "集合保存有无，不保存次数",
+            "body": "空集合要写set()，而不是{}，后者创建空字典。seen.add(x)把值记录到集合，再添加同一个值不会增加大小；x in seen判断成员关系；len(seen)给出不同元素数量。集合的遍历顺序不应当用来表示最小值、排名或首次出现顺序，如果需要有序输出，应显式sorted(seen)。值必须可哈希，整数和字符串常用，普通列表不能直接当集合元素。本课输入是整数，不必处理复杂对象。实践中可以用len(set(a))快速求种类数，但这只能回答有无问题，不能从set反推出某个值在原列表出现了多少次。",
+            "code": "seen = set()\nfor x in [4, 2, 4]:\n    seen.add(x)\n    print(len(seen), x in seen)\nprint(sorted(seen))",
+            "output": "1 True\n2 True\n2 True\n[2, 4]\n"
+          },
+          {
+            "title": "字典更新的精确含义",
+            "body": "令freq[x]表示已经处理的前缀中x出现的次数。处理一个新值x时，应把旧次数加1。若x还没有出现，旧次数视为0，所以写freq[x]=freq.get(x,0)+1。直接freq[x]+=1会在第一次遇到新键时抛KeyError。另一种显式写法是先判断x是否在字典中，不在就设为0，然后再加1。两种写法语义相同，先理解再选简洁写法。遍历字典得到的是键，freq.values()得到次数，freq.items()得到键与次数配对；不要把max(freq)误当最高频率，它返回的是最大的键。键可以为负，字典不会要求数值从0开始连续排列。"
+          },
+          {
+            "title": "逐步追踪一份频率表",
+            "body": "用[3,-1,3,2,-1,3,2]构表。第一项后有3→1；第二项新增-1→1；第三项只把3改为2；第四项新增2→1；随后-1改为2、3改为3、2改为2。最终三个键对应次数3、2、2，因此种类数3、最高频率3。每步只改变当前值对应的一个格子，其余键的次数保持不变。这说明为什么不需要每次重新数完整列表。下方为了固定输出顺序，打印sorted(freq.items())；正式求答案不需要排序。观察所有计数之和应等于已经读过的元素数，这是很有用的调试检查，但不要每轮真的sum全部字典值，否则会重新引入不必要的扫描。",
+            "code": "freq = {}\nfor x in [3, -1, 3, 2, -1, 3, 2]:\n    freq[x] = freq.get(x, 0) + 1\n    print(x, freq[x], len(freq))\nprint(sorted(freq.items()))\nprint(len(freq), max(freq.values()))",
+            "output": "3 1 1\n-1 1 2\n3 2 2\n2 1 3\n-1 2 3\n3 3 3\n2 2 3\n[(-1, 2), (2, 2), (3, 3)]\n3 3\n"
+          },
+          {
+            "title": "用状态压缩优化数对计数",
+            "body": "回想枚举课的和为K的数对。如果从左到右扫描，把此前数值的出现次数放入freq，那么读到当前x时，能与它配对的旧元素共有freq.get(K-x,0)个。先把这个次数加到答案，再将当前x计入字典，就不会配对自己；顺序反过来时，当2x=K便可能多算自己。重复值依然正确，因为字典保存次数而不是仅保存有无。这不是本课练习要求的额外输出，而是展示如何把“与所有旧元素比较”压缩成一次查询。正确性仍然依赖此前前缀的精确定义，不能把整个输入先统计好后直接同样求和，否则每对会被两端分别计算。"
+          },
+          {
+            "title": "复杂度与容器选择的边界",
+            "body": "对N个输入每次做一次字典查询和更新，通常平均时间O(N)，不同值数量D决定字典占用O(D)空间。这里的O(1)查询是哈希表平均性质，不是每种操作在每种输入下的绝对上界。若值域很小而且非负，也可以用固定长度列表作计数表，此时下标就是值；若值很大或负数很多，字典更自然。最高频率用max(freq.values())需要扫描D个计数，总体仍线性。因为题目保证N≥1，字典不会为空；如果扩展允许空输入，就必须单独定义答案，不能对空values直接max。测试全相同、全不同、负数、0和不同值并列最高频率，确认输出要的是次数而非对应数值。"
+          },
+          {
+            "title": "工作坊：频率、最频值与首次出现",
+            "body": "本练习输出“最高频率”，而不是“最频繁的那个整数”。例如[9,9,-2,-2]的答案是种类数2和最高频率2，不需要在9与-2之间选择。若题目改成返回最频值，便必须规定并列规则：取最小值、取最先出现者、或允许任意一个。这个规则决定需要额外保存位置、排序键，还是只扫描频率表。不要在没有题目依据时依赖字典的插入顺序来代替规则。即使Python保留插入顺序，它表达的也只是键第一次被插入的顺序，不自动等于大小顺序。\n\n还可以从频率表推出其他统计：所有频率相加是N，频率等于1的键数量是只出现一次的值种类数，各键的c(c-1)//2之和是“数值相等的下标对”数量。这些是不同的问题，不应把种类数、元素数和配对数混在一起。对于x=[4,4,4,7]，三者分别会得到2、4和3。你可以先手算这些结果，再写几行循环验证。需要删除键时，也应区分计数降为0和键仍留在字典中的情况：len(freq)只数键，不理解你赋给它的0意味着“不存在”。本课只增加计数，所以不会出现零频率键；以后滑动窗口中删除元素时，这个细节就十分重要。"
+          }
+        ],
+        "exerciseTitle": "种类与最高频率",
+        "task": "给定 N 个整数，输出不同整数的数量和任意一个整数出现次数的最大值。1 ≤ N ≤ 100000，−10⁹ ≤ Aᵢ ≤ 10⁹。",
+        "input": "第一行 N；第二行 N 个整数。",
+        "output": "一行输出种类数和最高出现次数，以空格分隔。",
+        "hint": "字典的键就是不同值；字典的值就是对应次数。可用 len(freq) 和 max(freq.values())。",
+        "explanation": "建立空字典freq，并按输入顺序处理每个整数x。freq.get(x,0)取出旧次数，未出现时视为0，加1后写回。由归纳可知，每个键对应已处理前缀中该值的真实出现次数。所有元素处理完后，字典键数len(freq)就是不同整数的种类数，max(freq.values())就是任意一个整数出现次数的最大值。不要用max(freq)，它比较的是键本身。题目保证N≥1，因而频率集合非空；并列最高频率不需要额外处理，因为只输出次数，不输出对应整数。全相同输入得到1与N，全不同输入得到N与1，可用于检查。平均时间O(N)，若有D个不同值，字典空间O(D)；参考实现保存输入列表，整体空间O(N)。",
+        "objectives": [
+          "区分成员关系与频率",
+          "维护前缀频率的不变式",
+          "正确使用get、values与items"
+        ],
+        "checkpoints": [
+          {
+            "question": "max(freq)得到最高次数吗？",
+            "answer": "不是，得到最大键；最高次数应看freq.values()。"
+          },
+          {
+            "question": "优化数对计数时为何先查询后加入当前元素？",
+            "answer": "字典必须只表示旧位置，才能避免把元素与自己配对。"
+          }
+        ]
+      },
+      "en": {
+        "title": "Sets and dictionaries as compact history",
+        "summary": "Choose membership or frequency storage and build a one-pass summary.",
+        "sections": [
+          {
+            "title": "Find the information that repeated queries need",
+            "body": "Suppose you need the distinct count of one hundred thousand integers. Scanning all earlier values after every input can create quadratic work. The relevant history is not every event in order, but whether each value has appeared. A set records that fact. If the task also asks for the largest occurrence count, membership alone is insufficient because a set discards multiplicity. Use a dictionary mapping each value to its frequency. Choose the information model before the container. Position, first occurrence, and total frequency are different facts; once discarded, they may be impossible to reconstruct. State the meaning of each key and value explicitly."
+          },
+          {
+            "title": "A set stores presence, not multiplicity",
+            "body": "Write set() for an empty set; {} creates a dictionary. Adding an existing element does not increase the set size. Membership uses x in seen, and len(seen) returns the number of distinct elements. Do not interpret set iteration order as numerical rank or first occurrence; request sorted(seen) when ordered output is required. Elements must be hashable, so integers and strings work while ordinary lists cannot be inserted directly. Our input consists only of integers. The compact expression len(set(a)) solves distinct counting, but it cannot recover how many times an element occurred in the original sequence.",
+            "code": "seen = set()\nfor x in [4, 2, 4]:\n    seen.add(x)\n    print(len(seen), x in seen)\nprint(sorted(seen))",
+            "output": "1 True\n2 True\n2 True\n[2, 4]\n"
+          },
+          {
+            "title": "Define the update precisely",
+            "body": "Let freq[x] mean the number of occurrences of x in the prefix already processed. A new x increases its old count by one. For an absent key, the old count is zero, giving freq[x]=freq.get(x,0)+1. Directly using freq[x]+=1 raises KeyError on the first occurrence. You can equivalently initialize absent keys explicitly before incrementing. Iterating over a dictionary yields keys; values() yields counts, and items() yields key-count pairs. In particular, max(freq) returns the largest key, not the highest frequency. Negative and widely separated integers are valid keys; dictionary storage does not require a dense zero-based numerical range."
+          },
+          {
+            "title": "Trace a frequency table",
+            "body": "Process [3,-1,3,2,-1,3,2]. The first two items create counts for three and minus one. The next three updates increase three, create two, and increase minus one. Finally three reaches three occurrences and two reaches two. The finished table has three keys with counts 3,2,2. Each input changes exactly one cell, leaving every other count intact, which explains why rescanning the entire list is unnecessary. The demonstration sorts items only to make its printed trace deterministic. The sum of all counts should equal the processed length, a useful diagnostic invariant, but recomputing that sum every iteration would add avoidable work.",
+            "code": "freq = {}\nfor x in [3, -1, 3, 2, -1, 3, 2]:\n    freq[x] = freq.get(x, 0) + 1\n    print(x, freq[x], len(freq))\nprint(sorted(freq.items()))\nprint(len(freq), max(freq.values()))",
+            "output": "3 1 1\n-1 1 2\n3 2 2\n2 1 3\n-1 2 3\n3 3 3\n2 2 3\n[(-1, 2), (2, 2), (3, 3)]\n3 3\n"
+          },
+          {
+            "title": "Compress the history used by pair counting",
+            "body": "Recall the target-sum pair task. While scanning left to right, store frequencies of earlier values. When the current value is x, exactly freq.get(K−x,0) earlier positions can pair with it. Add that count before inserting the current x, otherwise an element with 2x=K may pair with itself. Repeated values remain correct because the dictionary retains multiplicity. This is an application of the data structure, not an extra output required by this exercise. Its correctness depends on the meaning “earlier prefix”; building a table for the entire input and summing the same formula would count pairs from both ends."
+          },
+          {
+            "title": "Complexity and the boundary of the representation",
+            "body": "One dictionary lookup and update per input gives average O(N) time, with O(D) storage for D distinct values. The constant-time lookup claim is an average hash-table property, not an absolute guarantee for every operation on every possible input. A small nonnegative value range may instead use a fixed counting list; large or negative keys make a dictionary more natural. Finding max(freq.values()) scans D counts and still leaves total time linear. N is at least one here, so the table is nonempty. An extension allowing empty input needs a defined answer instead of max on an empty collection. Test equal frequencies carefully: the required output is a frequency, not its associated key."
+          },
+          {
+            "title": "Workshop: frequency, mode, and first occurrence",
+            "body": "This exercise returns the highest frequency, not the integer that occurs most often. For [9,9,−2,−2], the requested output is distinct count two and frequency two; no tie between nine and minus two needs resolving. A task asking for a mode must state whether ties choose the smallest value, the earliest occurrence, or any answer. That determines whether positions, sorted keys, or a simple scan are needed. Dictionary insertion order represents first insertion, not numerical order or every possible tie policy.\n\nOther summaries follow from the same table. Frequencies sum to N; keys with count one identify values appearing once; summing c(c−1)//2 over keys counts equal-value index pairs. These are different questions. For [4,4,4,7], distinct count, element count, and equal-value pair count are two, four, and three. Predict them before writing code. When later decrementing counts, distinguish a key with zero frequency from a removed key: len(freq) counts stored keys, regardless of your intended interpretation of zero. Our insertion-only exercise avoids this issue, but sliding-window frequency tables will need explicit handling."
+          }
+        ],
+        "exerciseTitle": "Distinct values and peak frequency",
+        "task": "Given N integers, print the number of distinct integers and the largest number of occurrences of any integer. 1 ≤ N ≤ 100000 and −10⁹ ≤ Aᵢ ≤ 10⁹.",
+        "input": "N on the first line; N integers on the second.",
+        "output": "Print the distinct count and maximum frequency on one line, separated by a space.",
+        "hint": "Dictionary keys are distinct values; dictionary values are their counts. Use len(freq) and max(freq.values()).",
+        "explanation": "Create an empty frequency dictionary and process each integer x in input order. Read its previous count with freq.get(x,0), add one, and store it back. Inductively every entry now equals the true occurrence count in the processed prefix. After all inputs, len(freq) counts distinct keys and max(freq.values()) gives the largest frequency. max(freq) would compare keys instead. N≥1 guarantees a nonempty collection; tied peak frequencies need no selection rule because only the count is requested, not the associated integer. All-equal data yields 1 and N; all-distinct data yields N and 1. Time is average O(N), dictionary space O(D) for D distinct values, and total space O(N) because the reference retains the input list.",
+        "objectives": [
+          "Distinguish membership from frequency",
+          "Maintain a prefix-frequency invariant",
+          "Use get, values, and items correctly"
+        ],
+        "checkpoints": [
+          {
+            "question": "Does max(freq) return the highest frequency?",
+            "answer": "No. It returns the largest key. Inspect freq.values() for frequencies."
+          },
+          {
+            "question": "Why query before inserting x in pair counting?",
+            "answer": "The table must contain only earlier positions to exclude self-pairing."
+          }
+        ]
+      },
+      "ja": {
+        "title": "集合と辞書で履歴を状態にまとめる",
+        "summary": "出現の有無か回数かを区別し、一回の走査で集計します。",
+        "sections": [
+          {
+            "title": "繰り返す質問から必要な情報を見つける",
+            "body": "十万個の整数の種類数を求めるとき、各入力のたびに過去の全要素を走査すると二次時間になり得ます。必要な履歴は出現過程の全詳細ではなく、その値が以前に現れたかどうかです。集合はその情報を保存します。さらに最大出現回数も必要なら、集合は重複回数を捨てるため不十分で、値から頻度への辞書を使います。容器を先に選ぶのではなく、保存すべき情報を先に決めましょう。位置、初出位置、総出現回数は異なる情報です。捨てた後で復元できるとは限りません。キーと値の意味を一文で定義してから更新規則を書くと、正しさを確認しやすくなります。"
+          },
+          {
+            "title": "集合は有無を保存し、回数を保存しない",
+            "body": "空集合はset()と書きます。{}は空辞書なので区別してください。seen.add(x)で記録し、同じ値を再び追加しても要素数は増えません。x in seenで存在を確認し、len(seen)で異なる値の数を得ます。集合の列挙順を最小値、順位、初出順として扱ってはいけません。整列が必要ならsorted(seen)を明示します。要素にはハッシュ可能性が必要で、整数や文字列は利用できますが、普通のリストをそのまま要素にはできません。本課題の入力は整数なので複雑な対象を考える必要はありません。len(set(a))は種類数を簡潔に計算できますが、元の列に各値が何回あったかを集合から復元することはできません。",
+            "code": "seen = set()\nfor x in [4, 2, 4]:\n    seen.add(x)\n    print(len(seen), x in seen)\nprint(sorted(seen))",
+            "output": "1 True\n2 True\n2 True\n[2, 4]\n"
+          },
+          {
+            "title": "更新式の意味を正確に定義する",
+            "body": "freq[x]を「処理済みの接頭部分でxが出現した回数」と定義します。新しいxを読んだら以前の回数を1増やします。未登録なら以前の回数は0なので、freq[x]=freq.get(x,0)+1と書けます。直接freq[x]+=1を使うと、新しいキーの初回にKeyErrorになります。存在を確認して未登録なら0を代入し、その後加算する明示的な書き方でも同じです。意味を理解してから短い形を選びましょう。辞書の走査はキー、values()は頻度、items()はキーと頻度の組を返します。max(freq)は最大頻度でなく最大キーです。負数や離れた整数もキーにでき、値が0から連続している必要はありません。"
+          },
+          {
+            "title": "頻度表の変化を追跡する",
+            "body": "[3,-1,3,2,-1,3,2]で表を作ります。最初は3→1、次に−1→1を追加し、三番目では3の回数だけを2にします。四番目に2→1を追加した後、−1を2、3を3、2を2へ更新します。最終的に三キーの頻度は3、2、2なので、種類数3、最大頻度3です。各入力で変化するのはその値の一か所だけで、他の回数は変わりません。全リストを毎回数え直す必要がない理由がここにあります。追跡例では表示順を一定にするためsorted(freq.items())を使いますが、解答計算にソートは不要です。回数の合計が処理済み要素数になることは診断に使えますが、毎回本当に全値をsumすると余分な走査を再導入してしまいます。",
+            "code": "freq = {}\nfor x in [3, -1, 3, 2, -1, 3, 2]:\n    freq[x] = freq.get(x, 0) + 1\n    print(x, freq[x], len(freq))\nprint(sorted(freq.items()))\nprint(len(freq), max(freq.values()))",
+            "output": "3 1 1\n-1 1 2\n3 2 2\n2 1 3\n-1 2 3\n3 3 3\n2 2 3\n[(-1, 2), (2, 2), (3, 3)]\n3 3\n"
+          },
+          {
+            "title": "数対計数の履歴を圧縮する",
+            "body": "全探索の「和がKになるペア」を振り返ります。左から読み、以前に現れた値の頻度を保存すれば、現在値xと組める過去の位置はfreq.get(K−x,0)個です。この回数を答えに加えてから現在のxを辞書へ登録します。逆順では2x=Kのとき自分自身を数えてしまう場合があります。集合と違って回数を保持するため、重複値も正しく扱えます。これは今回の課題で追加出力を求める話ではなく、過去の全要素との比較を一度の検索に圧縮する応用です。正しさは「以前の接頭部分」という定義に依存します。先に入力全体を集計して同じ式を各要素へ適用すると、各ペアを両端から数えるので、そのまま置き換えることはできません。"
+          },
+          {
+            "title": "計算量と表現の適用範囲",
+            "body": "N個の入力ごとに辞書の検索と更新を行うので、通常は平均O(N)時間、異なる値の数Dに対してO(D)領域です。O(1)検索はハッシュ表の平均的性質であり、あらゆる操作と入力に対する絶対上界ではありません。値域が狭く非負なら固定長リストで数え、添字を値として使う方法もあります。巨大な値や負数があるなら辞書が自然です。max(freq.values())はD個の回数を走査しますが、全体は依然線形です。今回はN≥1なので辞書は空になりません。空入力を許す拡張では答えを別途定義し、空のvaluesへmaxを呼ばないようにします。全同値、全異値、負数、0、最高頻度が並ぶ場合を試し、必要なのが頻度であって対応するキーではないことを確認します。"
+          },
+          {
+            "title": "実習：最大頻度と最頻値を区別する",
+            "body": "本演習が返すのは最高頻度であり、最も頻繁な整数そのものではありません。[9,9,-2,-2]なら種類数2と頻度2を出し、9と−2のどちらかを選ぶ必要はありません。最頻値を返す問題なら、同率で最小値を取るか、最初の出現を取るか、任意でよいかを確認します。それにより位置の保存、キーの整列、単純走査のどれが必要か変わります。辞書の挿入順はキーを初めて登録した順であり、大小順や任意の並列規則そのものではありません。\n\n同じ表から別の統計も得られます。頻度の総和はN、頻度1のキー数は一度しか現れない値の種類数、各キーのc(c−1)//2の和は同値の添字ペア数です。[4,4,4,7]なら種類数、要素数、同値ペア数は2、4、3で、それぞれ異なります。先に手計算してからコードで確認しましょう。回数を減らす場合は、0になったキーを残すことと削除することも違います。len(freq)は保存したキーを数え、0を「存在しない」と解釈しません。本課は加算だけなので問題ありませんが、後の窓内頻度では明示的な処理が必要です。"
+          }
+        ],
+        "exerciseTitle": "種類数と最大頻度",
+        "task": "N 個の整数が与えられます。異なる整数の種類数と、同じ整数の出現回数の最大値を求めてください。1 ≤ N ≤ 100000、−10⁹ ≤ Aᵢ ≤ 10⁹ です。",
+        "input": "1 行目に N、2 行目に N 個の整数が与えられます。",
+        "output": "種類数と最大出現回数を空白区切りで 1 行に出力してください。",
+        "hint": "辞書のキーが異なる値、辞書の値が回数です。len(freq) と max(freq.values()) が使えます。",
+        "explanation": "空のfreqを作り、各整数xについてfreq.get(x,0)で以前の回数を取り、1を加えて保存します。未登録なら0です。帰納的に各キーの値は処理済み接頭部分の実際の頻度になります。全入力後、len(freq)が種類数、max(freq.values())が最高頻度です。max(freq)はキーを比較するので使いません。N≥1により空の集合にはならず、最高頻度が並んでも出力は回数だけなので値の選択規則は不要です。全同値なら1とN、全異値ならNと1となり検査できます。平均時間O(N)、D種類の辞書領域O(D)、入力リストも含む参考実装全体ではO(N)領域です。",
+        "objectives": [
+          "存在と頻度を区別する",
+          "接頭部分の頻度を不変条件として保つ",
+          "get・values・itemsを使い分ける"
+        ],
+        "checkpoints": [
+          {
+            "question": "max(freq)は最大頻度ですか。",
+            "answer": "いいえ、最大キーです。頻度はvalues()で見ます。"
+          },
+          {
+            "question": "数対計数で登録前に検索する理由は？",
+            "answer": "過去の位置だけを表し、自己ペアを除くためです。"
+          }
+        ]
+      }
+    },
+    "starter": "n = int(input())\na = list(map(int, input().split()))\n# TODO\n",
+    "solution": "n = int(input())\na = list(map(int, input().split()))\nfreq = {}\nfor x in a:\n    freq[x] = freq.get(x, 0) + 1\nprint(len(freq), max(freq.values()))\n",
+    "tests": [
+      {
+        "input": "1\n9\n",
+        "expected": "1 1\n"
+      },
+      {
+        "input": "5\n4 4 4 4 4\n",
+        "expected": "1 5\n"
+      },
+      {
+        "input": "4\n-1 0 1 2\n",
+        "expected": "4 1\n"
+      },
+      {
+        "input": "7\n3 -1 3 2 -1 3 2\n",
+        "expected": "3 3\n"
+      }
+    ]
+  },
+  {
+    "id": "prefix-sums",
+    "order": 14,
+    "stage": "sequences",
+    "minutes": 50,
+    "prerequisiteIds": [
+      "sets-and-dictionaries"
+    ],
+    "relatedProblems": [
+      "ABC172C",
+      "ABC233D"
+    ],
+    "content": {
+      "zh": {
+        "title": "前缀和：用边界表示区间",
+        "summary": "从重复求和到一次预处理，统一下标含义并证明相减公式。",
+        "sections": [
+          {
+            "title": "多次区间查询的重复工作",
+            "body": "给定固定数组，每次问一段连续元素的和。如果直接sum(a[l:r])，一次查询可能扫描N项，Q次就可能达到O(NQ)。这些区间之间大量重叠，同一个元素可能被加很多遍。前缀和提前保存从数组开头到每一个边界的总和，使任意区间都能通过两次读取和一次相减得到。这需要额外O(N)空间，换来每次查询O(1)。如果只问整段总和一次，直接sum更简单，建立全部前缀并没有明显必要。先辨认“数组固定、查询很多、区间聚合”这组条件，再选择前缀和，而不是遇到数组就机械预处理。"
+          },
+          {
+            "title": "prefix[k]是前k项，不是第k项",
+            "body": "定义prefix[0]=0，prefix[k]表示a[0]到a[k-1]的和，即已经包含k个元素。长度N的数组需要N+1个前缀值，因为元素之间及两端一共有N+1条边界。递推式prefix[i+1]=prefix[i]+a[i]只是在旧前缀后加入一个新元素。开头的0不是为了凑长度，而是空前缀的数学定义；它使从第一个元素开始的查询也能用同一公式。可以把数组画成几个盒子、把prefix写在盒子之间的边界上，避免把“第k个数”和“前k个数”混淆。每个变量的含义一旦确定，后面所有下标都应从含义推导。"
+          },
+          {
+            "title": "把构建过程逐项写出来",
+            "body": "对a=[3,-1,4,2]，初始prefix=[0]。加入3得到[0,3]，加入-1得到[0,3,2]，加入4得到[0,3,2,6]，最后得到[0,3,2,6,8]。注意前缀和并不一定递增，因为原数组允许负数；前缀和方法仍然正确，但不能因此直接对prefix使用二分查找。构建不变式是：处理完前i个输入后，prefix具有i+1项，最后一项等于它们的总和。新一项由旧总和加当前值得到，所以这个性质逐步保持。若写成prefix.append(x)则保存的是原值而不是累积值；若漏了初始0，查询下标就需要重新推导，不能继续套同一个公式。",
+            "code": "a = [3, -1, 4, 2]\nprefix = [0]\nfor x in a:\n    prefix.append(prefix[-1] + x)\n    print(prefix)\nprint(prefix[3] - prefix[1])",
+            "output": "[0, 3]\n[0, 3, 2]\n[0, 3, 2, 6]\n[0, 3, 2, 6, 8]\n3\n"
+          },
+          {
+            "title": "两个前缀相减为什么得到区间",
+            "body": "对0起点半开区间[l,r)，prefix[r]包含从0到r-1的全部元素，prefix[l]恰好包含不需要的0到l-1部分。相减后公共部分抵消，剩下a[l]到a[r-1]。若题目使用从1开始、两端都包含的[L,R]，左侧不需要的是前L-1项，右边要保留到第R项，所以答案为prefix[R]-prefix[L-1]。以第二项到第三项为例，6-3=3，对应-1+4。单项查询L=R也适用；整段L=1、R=N也适用，不必写特殊分支。最常见错误是两端都减1或都不减，解决方法是重新说清“要删去前多少项”，而不是死记符号。"
+          },
+          {
+            "title": "前缀方法不能无条件推广",
+            "body": "加法之所以适合相减，是因为多算的前缀可以被减去。区间最小值不能通过“右侧前缀最小值减左侧前缀最小值”恢复：最小值没有这样的逆运算。原数组如果在查询间被更新，普通prefix中后续很多项都会过时，不能继续声称每次更新也是O(1)。这时可能需要重新构建或使用树状数组等更进一步的数据结构，本课先明确只处理固定数组。前缀计数是另一种直接可用的扩展，例如每个元素是否满足条件转成0或1，再求区间里满足条件的数量。始终检查聚合运算是否能撤掉前面那一段，而不是见到区间查询就套前缀差。"
+          },
+          {
+            "title": "实现成本与测试清单",
+            "body": "建表一次O(N)，回答Q个查询O(Q)，总时间O(N+Q)。保存prefix需要O(N)，参考实现还把答案放进字符串列表再统一输出，因而额外有O(Q)缓冲。逐行print也可保持正确，输出较多时缓冲通常更方便。最大总和可能远超单个元素上限，例如二十万个10⁹相加达到2×10¹⁴；Python整数可精确表示，不要为了输出而转float。测试N=1、负数、全0、整段、最后单项、左端为1以及重复查询。独立校验器在小数组上直接sum(a[L-1:R])即可；这里切片慢但规模小，适合验证前缀版本的下标，而非用于正式最大输入。\n\n参考解中的 str(value) 把整数 value 转成用于输出的字符串，例如 str(-3) 得到 \"-3\"；数值计算应在转换前完成。answers.append(str(...)) 因而保存的是字符串，不是整数。\"\\n\".join(answers) 以换行符 \"\\n\" 为分隔符，把这些字符串按原顺序连接：如果 answers 是 [\"5\", \"-3\"]，连接结果就是第一行 5、第二行 -3。分隔符只插在相邻元素之间，最后的 print 再补上末尾换行。join 要求所有元素都是字符串，直接对 [5, -3] 使用它会产生 TypeError；这正是前面需要 str 的原因。初写程序时也可以在查询循环内直接 print(prefix[r] - prefix[l - 1])，两种写法的答案顺序相同。"
+          },
+          {
+            "title": "工作坊：先画边界，再写查询",
+            "body": "在四个元素[3,-1,4,2]下面画出五条边界，按0、1、2、3、4编号。要取第三个元素4，就选择它左侧的边界2和右侧的边界3，计算prefix[3]-prefix[2]=6-2=4。要取最后两个元素，就选边界2与4，得到8-2=6。这种画法把元素编号和边界编号分开，也能解释空半开区间[l,l)为什么和为0。题目不一定允许空查询，但数学定义仍然一致，帮助你检查公式是否自洽。\n\n除了固定样例，可以检验两个关系。若相邻区间[L,M]与[M+1,R]拼成[L,R]，两段查询和相加应该等于整段查询；若给每个元素加常数c，长度为R-L+1的查询结果应该增加c×(R-L+1)。这些关系尤其适合发现少加或多加一个端点的错误。测试时选不同长度、正负混合和接近数组两端的区间，不要只测试长度为2的区间。输出顺序必须保持查询输入顺序，不能为了方便把查询按左端排序后忘记恢复顺序。参考实现把答案依次追加到列表，恰好保留了这种顺序。若允许在线到达的查询，也只需要保存同一份prefix，不需要预先知道所有问题。"
+          }
+        ],
+        "exerciseTitle": "多次区间求和",
+        "task": "给定 N 个整数和 Q 个查询。每次给出 L、R，求 A_L + … + A_R，位置从 1 开始，两端都包含。1 ≤ N,Q ≤ 200000，−10⁹ ≤ Aᵢ ≤ 10⁹，1 ≤ L ≤ R ≤ N。",
+        "input": "第一行 N Q；第二行 N 个整数；接下来 Q 行，每行 L R。",
+        "output": "每个查询输出一行区间和，按输入顺序输出。",
+        "hint": "先构建 prefix，再对每个查询计算 prefix[r] - prefix[l - 1]。",
+        "explanation": "从prefix=[0]开始，依次把prefix[-1]+x追加进去，得到N+1个边界累积值。输入查询L、R时，前R项总和是prefix[R]，区间左边不需要的前L-1项是prefix[L-1]，两者相减恰好留下第L项到第R项。L=1用到空前缀0，L=R得到单项值，R=N也合法，三个边界都无需特殊分支。负数只改变累积值的增减，不影响抵消公式。按查询原顺序将结果转成字符串追加到answers，最后换行连接输出，确保每问一行。预处理O(N)，每问O(1)，总体O(N+Q)；参考实现保存输入、前缀和与输出缓冲，总空间O(N+Q)。数组若中途变化则这份prefix不再有效，本题没有这种更新。",
+        "objectives": [
+          "定义N+1个边界累积值",
+          "推导闭区间与半开区间公式",
+          "识别静态查询及可逆聚合的条件"
+        ],
+        "checkpoints": [
+          {
+            "question": "为什么prefix需要N+1项？",
+            "answer": "包括空前缀和处理全部N项后的边界，共有N+1条边界。"
+          },
+          {
+            "question": "有负数时前缀和还有效吗？",
+            "answer": "相减仍正确，但prefix不再必然单调，不能因此直接二分。"
+          }
+        ]
+      },
+      "en": {
+        "title": "Prefix sums and interval boundaries",
+        "summary": "Replace repeated summation with preprocessing and precise endpoint conventions.",
+        "sections": [
+          {
+            "title": "Recognize repeated work in range queries",
+            "body": "For a fixed array, summing each requested segment directly may inspect N elements per query, producing O(NQ) work across Q queries. Overlapping segments repeatedly add the same values. Prefix sums store totals from the beginning to every boundary so any segment can be obtained by two reads and a subtraction. This spends O(N) extra memory to make each query constant time. If only the total of the entire array is requested once, a direct sum is simpler and building every prefix may be unnecessary. Look for the combination of fixed data, many queries, and a suitable range aggregate rather than preprocessing every array automatically."
+          },
+          {
+            "title": "prefix[k] means the first k elements",
+            "body": "Define prefix[0]=0 and let prefix[k] sum a[0] through a[k−1], exactly k elements. An N-element array needs N+1 prefix totals because there are N+1 boundaries, including both ends. The recurrence prefix[i+1]=prefix[i]+a[i] simply extends the previous prefix by one element. The initial zero is the sum of an empty prefix, not padding added to satisfy a template. It lets queries beginning at the first element use the same formula. Draw elements as boxes and prefix indices on their boundaries. Distinguishing “element k” from “the first k elements” is the key to deriving all later indices consistently."
+          },
+          {
+            "title": "Trace construction one element at a time",
+            "body": "For a=[3,−1,4,2], begin with [0], then append totals three, two, six, and eight. The completed prefix list is [0,3,2,6,8]. It is not necessarily increasing because input values may be negative. Prefix subtraction remains correct, but binary search on these totals is not automatically valid. After processing i values, the list has i+1 entries and its final entry is their sum. Adding the next input preserves that invariant. Appending x instead of the previous total plus x stores original values rather than sums. Omitting the initial zero changes the indexing convention, so the same query formula cannot be copied unchanged.",
+            "code": "a = [3, -1, 4, 2]\nprefix = [0]\nfor x in a:\n    prefix.append(prefix[-1] + x)\n    print(prefix)\nprint(prefix[3] - prefix[1])",
+            "output": "[0, 3]\n[0, 3, 2]\n[0, 3, 2, 6]\n[0, 3, 2, 6, 8]\n3\n"
+          },
+          {
+            "title": "Derive subtraction from cancellation",
+            "body": "For a zero-based half-open range [l,r), prefix[r] contains elements zero through r−1, while prefix[l] contains exactly the unwanted part before l. Subtraction cancels the shared prefix and leaves the desired segment. For one-based inclusive [L,R], remove the first L−1 elements from the first R, giving prefix[R]−prefix[L−1]. In the example, positions two through three sum to six minus three, or three. Single-element and whole-array queries use the same formula. Common mistakes adjust both endpoints identically. Repair them by asking how many elements must be removed, rather than memorizing where a minus one usually appears."
+          },
+          {
+            "title": "Know where the technique stops",
+            "body": "Addition supports subtraction: an unwanted prefix can be removed exactly. Range minima do not obey “right prefix minimum minus left prefix minimum,” because minimum has no corresponding inverse operation. If array values change between queries, many later prefix totals become stale; updates are not automatically constant time. Such tasks may require rebuilding or a more advanced structure such as a Fenwick tree. This lesson deliberately uses a fixed array. A useful direct extension is prefix counts: map a predicate to zero or one and answer how many matching elements lie in a range. Always check whether the aggregate permits removing the earlier prefix."
+          },
+          {
+            "title": "Implementation cost and a test checklist",
+            "body": "Build the table in O(N), answer Q queries in O(Q), and obtain O(N+Q) total time. Prefix storage is O(N); the reference also buffers Q output strings, giving O(N+Q) stored data. Printing each answer directly can be correct, while buffering is convenient for large output. Totals can greatly exceed individual values: two hundred thousand values of one billion sum to 2×10¹⁴. Python integers remain exact; do not convert to float. Test one element, negatives, all zeros, the whole range, the final singleton, ranges starting at one, and repeated questions. On small arrays, direct slicing and sum provide an independent indexing oracle.\n\nIn the reference solution, str(value) converts an integer into output text: str(-3) produces the string \"-3\". Finish the arithmetic before converting. Thus answers.append(str(...)) stores strings, not integers. The expression \"\\n\".join(answers) joins these strings in their existing order, placing the newline character \"\\n\" between adjacent entries. For answers = [\"5\", \"-3\"], the result contains 5 on the first line and -3 on the second. join adds separators between entries only; the final print adds the terminating newline. Every entry must be a string: joining [5, -3] directly raises TypeError, which explains the preceding str conversion. When first implementing the algorithm, you may instead use print(prefix[r] - prefix[l - 1]) inside the query loop. Both versions preserve the query order."
+          },
+          {
+            "title": "Workshop: draw boundaries before queries",
+            "body": "Draw five boundaries numbered zero through four around [3,−1,4,2]. The third element, four, lies between boundaries two and three, so its sum is prefix[3]−prefix[2]=6−2=4. The final two elements lie between boundaries two and four and sum to eight minus two. This drawing separates element labels from boundary labels and explains why an empty half-open range [l,l) sums to zero, even if empty queries are not allowed by the task.\n\nCheck two algebraic relationships. Queries [L,M] and [M+1,R] should add to query [L,R]. Adding a constant c to every element should increase a query by c×(R−L+1). Both expose missing or extra endpoints. Use mixed signs, different lengths, and endpoints near array edges rather than testing only length two. Preserve the input order of queries in the output; sorting queries for convenience without restoring order is incorrect. The reference appends answers sequentially, and the same prefix table also supports queries arriving one at a time."
+          }
+        ],
+        "exerciseTitle": "Range-sum queries",
+        "task": "Given N integers and Q queries, each query provides L and R. Find A_L + … + A_R, using one-based positions and including both ends. 1 ≤ N,Q ≤ 200000, −10⁹ ≤ Aᵢ ≤ 10⁹, and 1 ≤ L ≤ R ≤ N.",
+        "input": "N Q on the first line; N integers on the second; then Q lines, each containing L R.",
+        "output": "Print one sum per query, in input order.",
+        "hint": "Build prefix once, then calculate prefix[r] - prefix[l - 1] for each query.",
+        "explanation": "Begin with prefix=[0] and append prefix[-1]+x for every input, obtaining N+1 boundary totals. For a one-based inclusive query L,R, prefix[R] contains the first R values and prefix[L−1] contains the unwanted values before L. Subtraction leaves exactly positions L through R. L=1 uses the empty prefix, L=R yields one element, and R=N is valid without special handling. Negative entries affect the totals but not cancellation. Append string answers in query order and join with newlines so each query receives one output line. Preprocessing takes O(N), each query O(1), and total time O(N+Q). Input, prefixes, and output buffering use O(N+Q) space. Updates would invalidate the stored prefixes, but this task keeps the array fixed.",
+        "objectives": [
+          "Define N+1 boundary totals",
+          "Derive inclusive and half-open formulas",
+          "Recognize static data and invertible aggregates"
+        ],
+        "checkpoints": [
+          {
+            "question": "Why are N+1 prefix entries needed?",
+            "answer": "There is a boundary before all elements and after each processed element."
+          },
+          {
+            "question": "Do negative values invalidate prefix sums?",
+            "answer": "No; subtraction works, but the prefix values need not be monotone."
+          }
+        ]
+      },
+      "ja": {
+        "title": "累積和で区間を境界として表す",
+        "summary": "繰り返す加算を前計算に置き換え、端点の意味を統一します。",
+        "sections": [
+          {
+            "title": "区間質問で重複する仕事を見つける",
+            "body": "固定された配列の連続部分の和を何度も聞かれるとします。毎回sum(a[l:r])で求めると、一質問でN要素を調べる可能性があり、Q回ではO(NQ)になります。区間が重なるたびに同じ値を加え直しています。累積和は配列先頭から各境界までの合計を保存し、任意区間を二度の参照と一度の減算で求めます。O(N)の追加領域を使い、一質問をO(1)にする交換です。一度だけ全体の和を求めるなら直接sumが簡潔で、全前計算は必須ではありません。「配列は固定、質問は多数、区間の集約」という条件の組合せを見つけてから選び、配列を見たら常に作る習慣にしないようにしましょう。"
+          },
+          {
+            "title": "prefix[k]は第k要素ではなく先頭k個",
+            "body": "prefix[0]=0とし、prefix[k]をa[0]からa[k−1]まで、ちょうどk個の和と定義します。N要素の配列には両端を含めN+1個の境界があるので、累積値もN+1個必要です。prefix[i+1]=prefix[i]+a[i]は、既存の接頭部分に一つ加えるだけの漸化式です。先頭の0は長さを合わせる飾りではなく、空の接頭部分の和という定義です。これにより先頭要素から始まる区間も同じ式で処理できます。要素を箱として描き、その間の境界へprefixの添字を書くと、第k要素と先頭k個を混同しにくくなります。変数の意味を決めたら、その意味から以降の添字を導きます。"
+          },
+          {
+            "title": "構築を一要素ずつ追う",
+            "body": "a=[3,-1,4,2]なら、初めはprefix=[0]です。3を加えて[0,3]、−1を加えて[0,3,2]、4で[0,3,2,6]、最後に[0,3,2,6,8]となります。負数があるので累積和が増え続けるとは限りません。差による区間和は正しくても、このprefixに二分探索をそのまま適用してよいとは言えません。構築中の不変条件は、先頭i要素の処理後にi+1個の累積値があり、最後が処理済み総和であることです。旧総和に次の値を加えるので性質が保たれます。prefix.append(x)では元値を保存するだけです。また先頭0を省略したら添字の定義が変わるため、同じ質問式を無条件に使うことはできません。",
+            "code": "a = [3, -1, 4, 2]\nprefix = [0]\nfor x in a:\n    prefix.append(prefix[-1] + x)\n    print(prefix)\nprint(prefix[3] - prefix[1])",
+            "output": "[0, 3]\n[0, 3, 2]\n[0, 3, 2, 6]\n[0, 3, 2, 6, 8]\n3\n"
+          },
+          {
+            "title": "二つの接頭部分の差を導く",
+            "body": "0始まり半開区間[l,r)では、prefix[r]が0からr−1までを含み、prefix[l]が不要な0からl−1までを含みます。共通部分を引けばa[l]からa[r−1]だけが残ります。問題が1始まり両端込みの[L,R]なら、先頭R個から不要な先頭L−1個を引くのでprefix[R]−prefix[L−1]です。例の二番目から三番目なら6−3=3で、−1+4と一致します。L=Rの単要素もL=1、R=Nの全体も同じ式で処理でき、特別分岐は不要です。両端とも1を引いたり、両方引かなかったりするのが典型的誤りです。「前から何個を除くのか」を言葉に戻して考え、記号の位置だけを暗記しないようにしてください。"
+          },
+          {
+            "title": "無条件に他の集約へ広げない",
+            "body": "加算では余計な接頭部分を減算で取り除けるため、この方法が成立します。区間最小値は「右の接頭最小値から左の接頭最小値を引く」式では復元できません。最小値には同様の逆操作がないためです。質問の間で元配列を変更すると、その後の多くの累積値が古くなり、更新までO(1)になるわけでもありません。再構築やFenwick木などの発展的構造が必要な場合があります。本課では配列が固定という条件を明確にします。一方、各要素が条件を満たすかを0か1へ変換すれば、区間内の該当数を求める累積個数に直接応用できます。区間が出てきたというだけで差を使わず、前方部分を取り除ける演算かを確認します。"
+          },
+          {
+            "title": "実装費用とテスト項目",
+            "body": "前計算はO(N)、Q質問への回答はO(Q)で、合計O(N+Q)時間です。prefixはO(N)領域、参考実装は答えの文字列をまとめて出力するのでO(Q)のバッファも持ちます。逐次printでも正しく、出力が多いときには一括出力が便利です。合計は一要素の上限を大幅に超えます。例えば10⁹を20万個加えると2×10¹⁴ですが、Python整数なら正確に扱えます。floatへの変換は不要です。N=1、負数、全0、全体区間、末尾の一要素、左端1、同じ質問の繰り返しを試しましょう。小入力の独立正解器はsum(a[L−1:R])で十分です。切り出しは大入力で遅くても、添字の検証用には役立ちます。\n\n参考解の str(value) は整数 value を出力用の文字列へ変換します。例えば str(-3) の結果は文字列 \"-3\" です。計算は変換する前に済ませます。そのため answers.append(str(...)) が保存するのは整数ではなく文字列です。\"\\n\".join(answers) は改行文字 \"\\n\" を区切りとして、各文字列を元の順に連結します。answers が [\"5\", \"-3\"] なら、結果は一行目が 5、二行目が -3 の文字列です。区切りは要素の間だけに入り、末尾の改行は最後の print が加えます。join の要素はすべて文字列である必要があり、[5, -3] を直接連結すると TypeError になります。先に str を使う理由はここにあります。最初の実装では質問のループ内で print(prefix[r] - prefix[l - 1]) と逐次出力しても構いません。どちらも質問の順番を保ちます。"
+          },
+          {
+            "title": "実習：質問の前に境界を描く",
+            "body": "[3,-1,4,2]の周囲へ0から4まで五つの境界を描きます。三番目の要素4は境界2と3の間なので、prefix[3]−prefix[2]=6−2=4です。最後の二要素なら境界2と4を選び、8−2=6になります。要素番号と境界番号を分けると、空半開区間[l,l)の和が0になる理由も分かります。問題が空質問を許さなくても数学的定義は一貫しており、式の整合性を調べる助けになります。\n\n二つの関係も試せます。[L,M]と[M+1,R]の答えを足すと[L,R]の答えになり、全要素に定数cを足すと質問結果はc×(R−L+1)増えるはずです。端点を一つ余分に含めたり落としたりする誤りを見つけやすくなります。長さ2だけでなく、長短、正負混合、両端に近い範囲を選びます。出力は質問の入力順を守る必要があり、便宜的に質問を整列したら元の順へ戻さなければなりません。参考実装は答えを順番に追加して順序を保ちます。質問が逐次到着する場合でも、同じprefixを保存すれば事前に全質問を知る必要はありません。"
+          }
+        ],
+        "exerciseTitle": "区間和の問い合わせ",
+        "task": "N 個の整数と Q 個の質問が与えられます。各質問の L、R に対し A_L + … + A_R を求めてください。位置は 1 始まりで、両端を含みます。1 ≤ N,Q ≤ 200000、−10⁹ ≤ Aᵢ ≤ 10⁹、1 ≤ L ≤ R ≤ N です。",
+        "input": "1 行目に N Q、2 行目に N 個の整数、その後の Q 行にそれぞれ L R が与えられます。",
+        "output": "各質問の答えを入力順に 1 行ずつ出力してください。",
+        "hint": "最初に prefix を構築し、各質問には prefix[r] - prefix[l - 1] で答えます。",
+        "explanation": "prefix=[0]から始め、各xについてprefix[-1]+xを追加し、N+1個の境界累積値を作ります。1始まり両端込みのL,Rに対し、prefix[R]が先頭R個、prefix[L−1]が不要な左側のL−1個の和なので、その差だけが目的区間です。L=1は空の接頭部分0、L=Rは一要素、R=Nも特別扱いせず処理できます。負数でも打消し式は変わりません。質問順に文字列答えを追加して改行で連結し、一質問一行を保ちます。前計算O(N)、一質問O(1)、合計O(N+Q)時間です。入力、累積値、出力バッファでO(N+Q)領域を使います。途中更新があれば無効になりますが、この問題の配列は固定です。",
+        "objectives": [
+          "N+1個の境界和を定義する",
+          "閉区間と半開区間の式を導く",
+          "静的データと逆操作の条件を見抜く"
+        ],
+        "checkpoints": [
+          {
+            "question": "N+1個必要なのはなぜですか。",
+            "answer": "先頭前の空境界と各要素の後の境界があるためです。"
+          },
+          {
+            "question": "負数があっても使えますか。",
+            "answer": "減算は有効ですが、累積値の単調性は失われることがあります。"
+          }
+        ]
+      }
+    },
+    "starter": "n, q = map(int, input().split())\na = list(map(int, input().split()))\n# TODO\n",
+    "solution": "n, q = map(int, input().split())\na = list(map(int, input().split()))\nprefix = [0]\nfor x in a:\n    prefix.append(prefix[-1] + x)\nanswers = []\nfor _ in range(q):\n    l, r = map(int, input().split())\n    answers.append(str(prefix[r] - prefix[l - 1]))\nprint(\"\\n\".join(answers))\n",
+    "tests": [
+      {
+        "input": "1 1\n-5\n1 1\n",
+        "expected": "-5\n"
+      },
+      {
+        "input": "4 3\n3 -1 4 2\n1 4\n2 3\n4 4\n",
+        "expected": "8\n3\n2\n"
+      },
+      {
+        "input": "3 2\n0 0 0\n1 3\n2 2\n",
+        "expected": "0\n0\n"
+      },
+      {
+        "input": "3 2\n1000000000 1000000000 1000000000\n1 3\n1 2\n",
+        "expected": "3000000000\n2000000000\n"
+      }
+    ]
+  },
+  {
+    "id": "binary-search",
+    "order": 15,
+    "stage": "sequences",
+    "minutes": 50,
+    "prerequisiteIds": [
+      "prefix-sums"
+    ],
+    "relatedProblems": [
+      "ABC312C",
+      "ABC248D"
+    ],
+    "content": {
+      "zh": {
+        "title": "二分查找：寻找真假分界线",
+        "summary": "用不变式管理左右边界，明确重复值、无解位置和终止条件。",
+        "sections": [
+          {
+            "title": "要找的是边界，而不是随便一个相等项",
+            "body": "在有序数组中查找X，最常见的误解是只在a[mid]==X时返回。那样可以找到某个相等元素，却不能保证返回第一次出现的位置，也无法直接回答“第一个不小于X”的位置。本课把问题改写成条件a[i]≥X的真假序列：排序保证它只能先假后真，例如[2,4,4,9]对X=4对应假、真、真、真。我们寻找第一个真；如果全部是假，答案定义为数组后面的边界N。这个定义统一了有解和无解，不必先写“是否存在”的完整扫描。二分真正利用的是单调条件，而不是数值恰好相等。"
+          },
+          {
+            "title": "左右两侧分别已经知道什么",
+            "body": "维护lo、hi，初始为0、N。lo左边的元素已经确认小于X；hi及其右边的有效元素已经确认不小于X；中间[lo,hi)还未归类。答案这个边界一定在闭区间[lo,hi]之中，注意它可以等于hi，甚至等于N。取mid=(lo+hi)//2。若a[mid]<X，单调性说明mid及左边都不可能是答案，所以lo=mid+1。否则mid可能就是第一个真，必须保留这个边界，令hi=mid，而不是mid-1。这里用的是半开区间模板，不要混入另一个闭区间模板的更新规则。每次赋值都应能对应到“哪些候选已经有证据被排除”。"
+          },
+          {
+            "title": "逐轮追踪重复值与不存在的答案",
+            "body": "对[2,4,4,9]、X=4，开始(lo,hi)=(0,4)，mid=2且值为4，于是hi=2。接着mid=1仍为4，hi=1；最后mid=0值为2，所以lo=1。两边相遇在1，转换为从1开始的位置2。若X=10，第一次mid=2值4使lo=3，第二次mid=3值9使lo=4，结束在N。此时不存在a[4]，但边界4本身是合法答案，最终输出N+1=5。不要在结束后无条件访问a[lo]；若需要判断是否相等，必须先确认lo<N，再检查a[lo]==X。",
+            "code": "a = [2, 4, 4, 9]\nfor x in [4, 10]:\n    lo, hi = 0, len(a)\n    while lo < hi:\n        mid = (lo + hi) // 2\n        print(x, lo, hi, mid, a[mid])\n        if a[mid] < x:\n            lo = mid + 1\n        else:\n            hi = mid\n    print(\"position\", lo + 1)",
+            "output": "4 0 4 2 4\n4 0 2 1 4\n4 0 1 0 2\nposition 2\n10 0 4 2 4\n10 3 4 3 9\nposition 5\n"
+          },
+          {
+            "title": "为什么一定结束且不会跳过答案",
+            "body": "当lo<hi时，mid总满足lo≤mid<hi。若更新lo=mid+1，新lo严格大于旧lo；若更新hi=mid，新hi严格小于旧hi。因此非负整数长度hi-lo严格减小，循环一定终止。结合左右不变式，结束时lo==hi，左边全部不合格，当前位置以及后面合格或处于数组尾边界，所以这里正是第一个可能合格的位置。写lo=mid会在长度为1且条件为假时停滞，因为mid==lo；这是常见死循环。证明终止与证明结果正确是两件事，两个都要检查。把仅剩一个元素的区间单独手算一次，通常能发现边界更新问题。"
+          },
+          {
+            "title": "库函数与复杂度的适当表达",
+            "body": "bisect_left(a,x)返回第一个不小于x的0起点位置；bisect_right返回第一个严格大于x的位置。二者相减可得到有序数组中x的个数。库函数减少重复实现，但不会检查你的输入是否已经排序，也不会自动把原数组变成有序；前置条件仍由你负责。查找本身需要O(logN)次比较，额外变量O(1)。本练习先读N个整数，所以整体读入加查找仍是O(N)时间和O(N)列表空间；若已有列表上执行Q次查找，查找部分是O(QlogN)。不要把在列表中插入一个元素的移动成本也当成对数，找到插入点与实际搬移元素是不同操作。"
+          },
+          {
+            "title": "单调条件不是“差不多有序”",
+            "body": "二分要求真假条件沿候选方向只改变一次。未排序数组中的a[i]≥X可能真假交替，保留一半就可能丢掉答案；含负数数组的前缀和也未必单调。不要为了套二分把需要保留位置含义的数组任意排序。更一般的“答案二分”是在答案范围上定义可行性，例如能力提高后始终可行的条件，但必须先证明这种单调关系，再设计判定算法。本课先把索引二分练熟：N=1、X比最小值小、等于最小值、等于多个重复值、大于最大值，以及全相同数组都要测试。用一个简单线性扫描找第一个≥X作为小数据正解器，能直接检测off-by-one和重复值错误。"
+          },
+          {
+            "title": "工作坊：用边界性质检验答案",
+            "body": "查找结束得到p之后，不一定要再写一套复杂算法才能验证结果。应同时满足0≤p≤N；若p>0，则a[p-1]<X；若p<N，则a[p]≥X。排序前提成立时，这三条局部边界性质足以说明p是分界线。如果只检查a[p]≥X，就可能接受重复值中的第二个位置，因此左侧条件也必不可少。p=0时没有左邻居，p=N时没有右邻居，要先判断边界再访问。这些检查适合放在小规模调试代码里，帮助你理解返回结果，而不是在正式程序里盲目输出附近元素。\n\n再比较两种问题：“第一个≥X”与“第一个>X”。后一种需要把左半部分定义为≤X，更新条件也相应变成a[mid]≤X时lo=mid+1。对[2,4,4,9]和X=4，两者分别返回下标1和3，差值2正是4的出现次数。不要只修改最终输出加减1来改变比较语义，分界线的定义改变后，循环判定也必须改变。最后用目标恰好落在两值之间、等于多个值、低于全部值、高于全部值这四类输入，重新检查左右不变式。掌握这些边界后，库函数就成为可靠工具，而不再是一个难以解释的黑箱。"
+          }
+        ],
+        "exerciseTitle": "第一个不小于目标值的位置",
+        "task": "给定已按非递减顺序排列的 N 个整数及目标 X。输出第一个满足 Aᵢ ≥ X 的位置（从 1 开始）；若不存在则输出 N + 1。1 ≤ N ≤ 200000，−10⁹ ≤ X,Aᵢ ≤ 10⁹。尝试手写二分。",
+        "input": "第一行 N X；第二行 N 个有序整数。",
+        "output": "输出一个位置，范围为 1 到 N + 1。",
+        "hint": "维护 [lo, hi)，令 hi 初始为 n，最终输出 lo + 1。",
+        "explanation": "初始化lo=0、hi=N，把尚未归类的元素放在半开区间[lo,hi)。每轮取mid，若a[mid]<X，mid及其左侧都不可能成为第一个不小于X的位置，令lo=mid+1；否则mid仍可能是答案，令hi=mid保留该边界。每轮区间严格缩小，结束时lo==hi，左边全都小于X，右边都是不小于X的值，或已经来到数组结尾。返回lo+1完成从0起点边界到题目1起点位置的转换。若所有值都小于X，lo=N并输出N+1，无需访问a[N]。遇到重复X仍向左保留候选，所以找到最左位置。查找O(logN)，额外状态O(1)；包含读入和保存N项后，整个程序时间与空间都是O(N)。",
+        "objectives": [
+          "把查找改写为单调真假边界",
+          "证明更新不丢答案且必定终止",
+          "区分0起点插入位置与1起点输出"
+        ],
+        "checkpoints": [
+          {
+            "question": "a[mid]==X时为何不立即返回？",
+            "answer": "还可能有更靠左的相同值，应该保留mid并继续向左搜索。"
+          },
+          {
+            "question": "lo最终等于N是越界错误吗？",
+            "answer": "作为边界结果合法；只有再访问a[N]才越界。"
+          }
+        ]
+      },
+      "en": {
+        "title": "Binary search as a boundary search",
+        "summary": "Maintain a boundary invariant that handles duplicates and missing answers.",
+        "sections": [
+          {
+            "title": "Search for a boundary rather than any equality",
+            "body": "Returning immediately when a[mid]==X may find an equal value, but it does not guarantee the first occurrence or answer the broader question “first value at least X.” Rewrite the task as a sequence of truth values for a[i]≥X. Sorted input makes it false and then true, as [2,4,4,9] does for X=4. We want the first true position. If every element is false, define the answer as boundary N after the array. This unifies existing and missing answers without an additional full scan. Binary search exploits a monotone condition, not merely the possibility of finding an equal number."
+          },
+          {
+            "title": "State exactly what each side means",
+            "body": "Initialize lo=0 and hi=N. Elements before lo are known to be smaller than X; valid elements at or beyond hi are known to be at least X. Elements in [lo,hi) remain unclassified. The answer boundary belongs to the closed interval [lo,hi], including hi and possibly N. Set mid=(lo+hi)//2. If a[mid]<X, monotonicity excludes mid and everything earlier, so lo=mid+1. Otherwise mid may be the first true position, so preserve that boundary with hi=mid. Do not import hi=mid−1 from a different closed-range template. Every update should correspond to candidates excluded by evidence."
+          },
+          {
+            "title": "Trace duplicates and a missing answer",
+            "body": "For [2,4,4,9] with X=4, start at (lo,hi)=(0,4). Midpoint two has value four, so hi becomes two. Midpoint one also has four, so hi becomes one. Midpoint zero has two, so lo becomes one and the search ends at zero-based index one, output position two. With X=10, midpoints two and three are both too small, leaving lo=N. There is no a[4], but boundary four is a valid result and translates to output five. If you want to test equality after the search, first check lo<N and only then access a[lo].",
+            "code": "a = [2, 4, 4, 9]\nfor x in [4, 10]:\n    lo, hi = 0, len(a)\n    while lo < hi:\n        mid = (lo + hi) // 2\n        print(x, lo, hi, mid, a[mid])\n        if a[mid] < x:\n            lo = mid + 1\n        else:\n            hi = mid\n    print(\"position\", lo + 1)",
+            "output": "4 0 4 2 4\n4 0 2 1 4\n4 0 1 0 2\nposition 2\n10 0 4 2 4\n10 3 4 3 9\nposition 5\n"
+          },
+          {
+            "title": "Prove termination as well as correctness",
+            "body": "When lo<hi, the midpoint satisfies lo≤mid<hi. Updating lo to mid+1 strictly increases lo; updating hi to mid strictly decreases hi. Thus the nonnegative integer length hi−lo strictly decreases and the loop must terminate. At lo==hi, the invariant says everything earlier is false and everything from the boundary onward is true, or the boundary is at the array end. This identifies the first possible valid position. Updating lo=mid can stall on a one-element range because mid equals lo. Termination and answer correctness are separate obligations; manually trace the one-element state to check both."
+          },
+          {
+            "title": "Use library functions without losing the contract",
+            "body": "bisect_left(a,x) returns the first zero-based position whose value is at least x; bisect_right returns the first position strictly greater than x. Their difference counts equal values in a sorted list. These functions remove repetitive implementation, but they do not verify sortedness or sort the input for you. The search itself takes O(log N) comparisons and constant auxiliary state. This exercise first reads N values, so total input-plus-search time and storage are O(N). Q searches on an existing list cost O(Q log N). Finding an insertion position is distinct from inserting into a Python list, which may require shifting many elements."
+          },
+          {
+            "title": "Monotonicity is not approximate sortedness",
+            "body": "Binary search requires the predicate to change truth value at most once in the searched direction. On an unsorted array, a[i]≥X may alternate, so discarding half can discard the answer. Prefix totals with negative entries are not necessarily monotone either. Do not sort away positional meaning just to force a search template. A broader answer-search method defines feasibility over candidate answers, but its monotonicity needs a separate proof. First master index search with N=1, targets below the minimum, equal to repeated values, above the maximum, and all-equal lists. A simple linear first-match scan is an independent oracle for small tests."
+          },
+          {
+            "title": "Workshop: validate the returned boundary",
+            "body": "After obtaining p, check three properties: 0≤p≤N; if p>0 then a[p−1]<X; if p<N then a[p]≥X. Under the sorted-input assumption, these local boundary conditions identify the transition. Checking only a[p]≥X could accept the second of several equal values, so the left condition matters too. At p=0 there is no left neighbor, and at p=N no right neighbor; guard accesses before reading them. Such checks are useful in small debugging programs, not as unexplained extra submission output.\n\nCompare “first at least X” with “first strictly greater than X.” The latter treats values equal to X as belonging to the left side, so the lo-update condition becomes a[mid]≤X. For [2,4,4,9] and X=4, the boundaries are one and three, and their difference two counts the occurrences. Changing output by one cannot change the search semantics; the predicate must change. Retest targets between values, on repeated values, below everything, and above everything. Then the library functions become tools whose contract you can explain."
+          }
+        ],
+        "exerciseTitle": "First value at least the target",
+        "task": "Given N integers already sorted in nondecreasing order and target X, print the first position with Aᵢ ≥ X, counting from 1. If there is none, print N + 1. 1 ≤ N ≤ 200000 and −10⁹ ≤ X,Aᵢ ≤ 10⁹. Try implementing the binary search directly.",
+        "input": "N X on the first line; N sorted integers on the second.",
+        "output": "Print one position from 1 through N + 1.",
+        "hint": "Maintain [lo, hi) with hi initially n, then print lo + 1.",
+        "explanation": "Initialize lo=0 and hi=N around the unclassified half-open element range. At each midpoint, a[mid]<X excludes mid and all earlier indices, so assign lo=mid+1. Otherwise mid can still be the answer; assign hi=mid to preserve that boundary. The range strictly shrinks. At equality, every earlier element is smaller than X and every later valid element is at least X, identifying the first boundary. Print lo+1 to convert it to the requested one-based position. If every value is smaller, lo=N and N+1 is printed without accessing a[N]. Equality continues searching left, preserving the earliest duplicate. Search time is O(log N) with O(1) extra state; reading and storing the full list makes the complete program O(N) time and space.",
+        "objectives": [
+          "Model search as a monotone truth boundary",
+          "Prove updates preserve the answer and terminate",
+          "Separate zero-based boundaries from one-based outputs"
+        ],
+        "checkpoints": [
+          {
+            "question": "Why not return immediately on equality?",
+            "answer": "An earlier equal value may exist, so retain mid and search left."
+          },
+          {
+            "question": "Is a final lo=N an error?",
+            "answer": "It is a valid boundary result; accessing a[N] would be the error."
+          }
+        ]
+      },
+      "ja": {
+        "title": "真偽の境界を探す二分探索",
+        "summary": "重複値と未発見を扱う境界の不変条件を保ちます。",
+        "sections": [
+          {
+            "title": "同値を一つ見つけるのではなく境界を探す",
+            "body": "a[mid]==Xで直ちに返す方法は同じ値を一つ見つけられますが、最初の出現位置や「X以上になる最初」の位置を保証しません。条件a[i]≥Xの真偽列として考え直します。整列済みなので偽の後に真が続き、[2,4,4,9]とX=4なら偽・真・真・真です。求めるのは最初の真です。すべて偽なら配列直後の境界Nを答えと定義します。これで存在する場合と存在しない場合を統一でき、先に存在確認の全走査をする必要がありません。二分探索が利用するのは数値の一致そのものではなく、条件の単調性です。"
+          },
+          {
+            "title": "左右に何が分かっているかを定義する",
+            "body": "lo=0、hi=Nから始めます。loより左はX未満、hi以降の有効要素はX以上と判明しており、[lo,hi)は未分類です。答えとなる境界は閉区間[lo,hi]にあり、hiそのもの、場合によってはNにもなります。mid=(lo+hi)//2を取り、a[mid]<Xなら単調性によってmid以下は答えでないのでlo=mid+1です。それ以外ではmidが最初の真である可能性を残し、hi=midとします。別の閉区間テンプレートで使うhi=mid−1を混ぜてはいけません。各更新について、証拠によってどの候補を除外したかを説明できることが重要です。"
+          },
+          {
+            "title": "重複と未発見を反復ごとに追う",
+            "body": "[2,4,4,9]、X=4なら(lo,hi)=(0,4)からmid=2を調べ、値4なのでhi=2です。次にmid=1も4でhi=1、最後のmid=0は2なのでlo=1になります。両端が1で一致し、1始まりの位置2を出します。X=10ならmid=2の4でlo=3、mid=3の9でlo=4となり、Nで終了します。a[4]は存在しませんが、境界4は合法な結果で、出力はN+1=5です。終了後に無条件でa[lo]へアクセスしないでください。厳密な一致を調べたいなら、まずlo<Nを確認してからa[lo]==Xを判定します。",
+            "code": "a = [2, 4, 4, 9]\nfor x in [4, 10]:\n    lo, hi = 0, len(a)\n    while lo < hi:\n        mid = (lo + hi) // 2\n        print(x, lo, hi, mid, a[mid])\n        if a[mid] < x:\n            lo = mid + 1\n        else:\n            hi = mid\n    print(\"position\", lo + 1)",
+            "output": "4 0 4 2 4\n4 0 2 1 4\n4 0 1 0 2\nposition 2\n10 0 4 2 4\n10 3 4 3 9\nposition 5\n"
+          },
+          {
+            "title": "停止と正しさを別々に証明する",
+            "body": "lo<hiなら必ずlo≤mid<hiです。lo=mid+1はloを厳密に増やし、hi=midはhiを厳密に減らします。したがって非負整数の長さhi−loが毎回小さくなり、必ず停止します。lo==hiでは不変条件によって左側はすべて不合格、境界以降は合格または配列終端です。よってそこが最初に合格し得る位置です。lo=midにすると、長さ1で条件が偽の場合にmid==loとなって進まず、無限ループになります。停止することと正しい位置を返すことは別の証明項目です。候補が一つだけ残った状態を手で追うと、更新規則の多くの誤りを発見できます。"
+          },
+          {
+            "title": "ライブラリでも契約を忘れない",
+            "body": "bisect_left(a,x)はx以上の最初の0始まり位置、bisect_rightはxより厳密に大きい最初の位置を返します。二つの差は整列列にあるxの個数です。ライブラリは反復実装を省けますが、入力が整列済みか検査したり、自動でソートしたりはしません。前提条件を満たす責任は利用側に残ります。探索自体はO(logN)回の比較とO(1)追加状態です。本演習はN個を先に読むので、全体の時間と入力領域はO(N)です。既存リストへQ回探索するなら探索部分はO(QlogN)です。挿入位置を探す操作と、リスト内で後続要素を実際にずらして挿入する操作を区別し、後者まで対数時間だと思わないようにします。"
+          },
+          {
+            "title": "「だいたい整列」は単調性ではない",
+            "body": "二分探索では探索方向に沿って真偽が高々一回しか切り替わらない必要があります。未整列列のa[i]≥Xは真偽が交互になるかもしれず、半分を捨てると答えを失います。負数を含む配列の累積和も単調とは限りません。位置の意味が必要な配列を、テンプレートに合わせるだけで勝手に整列しないでください。発展的な答えの二分探索では候補答えに対して実現可能性を定義しますが、その単調性を別に証明する必要があります。まずN=1、最小値より小さい目標、最小値と同じ、重複値と同じ、最大値より大きい、全値同一を試しましょう。小入力では最初の≥Xを線形走査する正解器で境界のずれを確認できます。"
+          },
+          {
+            "title": "実習：返された境界の性質を検証する",
+            "body": "結果pには三条件を確認できます。0≤p≤N、p>0ならa[p−1]<X、p<Nならa[p]≥Xです。入力が整列済みなら、この局所条件で真偽の境界だと分かります。a[p]≥Xだけでは重複の二番目を誤って受け入れるので、左側も必要です。p=0に左隣、p=Nに右隣はありません。条件分岐してから参照します。小さいデバッグ用コードの検査として使い、正式出力へ理由なく近傍値を追加しないようにします。\n\n「最初の≥X」と「最初の>X」を比べると、後者はXと同値を左側に含めるため、loを進める条件がa[mid]≤Xになります。[2,4,4,9]とX=4では境界は1と3で、その差2が出現回数です。最後の出力に1を足し引きするだけで探索の意味は変えられません。境界の定義が変われば条件式も変える必要があります。値の間、重複値と同じ、全値より小さい、全値より大きいという四種類で不変条件を再確認します。こうして契約を理解すれば、ライブラリ関数も説明できない黒箱ではなく確実な道具になります。"
+          }
+        ],
+        "exerciseTitle": "指定値以上になる最初の位置",
+        "task": "非減少順に並んだ N 個の整数と目標値 X が与えられます。Aᵢ ≥ X を満たす最初の位置を 1 始まりで出力してください。存在しなければ N + 1 を出力してください。1 ≤ N ≤ 200000、−10⁹ ≤ X,Aᵢ ≤ 10⁹ です。まず二分探索を自分で実装してください。",
+        "input": "1 行目に N X、2 行目に整列済みの N 個の整数が与えられます。",
+        "output": "1 以上 N + 1 以下の位置を 1 個出力してください。",
+        "hint": "[lo, hi) を管理し、hi の初期値を n にして、最後に lo + 1 を出力します。",
+        "explanation": "lo=0、hi=Nで未分類の半開区間を管理します。a[mid]<Xならmid以下は最初のX以上になれないのでlo=mid+1、それ以外ならmidも答えになり得るためhi=midとして境界を残します。区間は厳密に縮小し、lo==hiで終了します。その左はすべてX未満、右の有効要素はX以上なので最初の境界が得られます。lo+1を出して1始まりへ変換します。すべて小さければlo=NでN+1を出し、a[N]には触れません。同値でも左側を探索し続けるので最左の重複値です。探索O(logN)、追加状態O(1)、全入力の読み込みと保存を含め全体は時間・領域O(N)です。",
+        "objectives": [
+          "探索を単調な真偽境界に変える",
+          "答え保持と停止を証明する",
+          "0始まり境界と1始まり出力を分ける"
+        ],
+        "checkpoints": [
+          {
+            "question": "等しいとき即時終了しないのは？",
+            "answer": "さらに左に同値があり得るのでmidを残して左を探します。"
+          },
+          {
+            "question": "終了時lo=Nは誤りですか。",
+            "answer": "境界として合法です。a[N]を参照すると範囲外になります。"
+          }
+        ]
+      }
+    },
+    "starter": "n, x = map(int, input().split())\na = list(map(int, input().split()))\n# TODO\n",
+    "solution": "n, x = map(int, input().split())\na = list(map(int, input().split()))\nlo, hi = 0, n\nwhile lo < hi:\n    mid = (lo + hi) // 2\n    if a[mid] < x:\n        lo = mid + 1\n    else:\n        hi = mid\nprint(lo + 1)\n",
+    "tests": [
+      {
+        "input": "1 5\n5\n",
+        "expected": "1\n"
+      },
+      {
+        "input": "4 4\n2 4 4 9\n",
+        "expected": "2\n"
+      },
+      {
+        "input": "3 -9\n-3 0 8\n",
+        "expected": "1\n"
+      },
+      {
+        "input": "3 10\n1 4 9\n",
+        "expected": "4\n"
+      }
+    ]
+  },
+  {
+    "relatedProblems": [
+      "ABC172C",
+      "ABC229D"
+    ],
+    "starter": "n, k = map(int, input().split())\na = list(map(int, input().split()))\n# Find the longest contiguous segment with sum at most k.\n",
+    "solution": "n, k = map(int, input().split())\na = list(map(int, input().split()))\nleft, total, answer = 0, 0, 0\nfor right, x in enumerate(a):\n    total += x\n    while total > k:\n        total -= a[left]\n        left += 1\n    answer = max(answer, right - left + 1)\nprint(answer)\n",
+    "tests": [
+      {
+        "input": "1 0\n1\n",
+        "expected": "0\n"
+      },
+      {
+        "input": "1 3\n3\n",
+        "expected": "1\n"
+      },
+      {
+        "input": "5 3\n1 1 1 1 1\n",
+        "expected": "3\n"
+      },
+      {
+        "input": "5 4\n2 1 1 3 1\n",
+        "expected": "3\n"
+      },
+      {
+        "input": "3 2\n3 4 5\n",
+        "expected": "0\n"
+      },
+      {
+        "input": "4 10\n1 2 3 4\n",
+        "expected": "4\n"
+      }
+    ],
+    "content": {
+      "zh": {
+        "exerciseTitle": "总和受限的最长区间",
+        "task": "给定N个严格正整数和非负整数K，求元素和不超过K的最长连续区间长度。如果没有非空合法区间，输出0。1≤N≤200000，1≤Aᵢ≤10⁹，0≤K≤10¹⁸。",
+        "input": "第一行N K；第二行N个正整数。",
+        "output": "输出最长长度。",
+        "hint": "扩展右端，和超限时重复收缩左端，再更新长度。",
+        "explanation": "total维护当前[left,right]窗口的和。每次加入右端后，反复移除左端直到total≤K。正数保证已删除的更早起点不会重新合法，所以保留的窗口是该右端下最长的合法窗口。遍历所有右端后取最大长度。left和right各前进至多N次，时间O(N)，输入空间O(N)，额外状态O(1)。",
+        "title": "双指针：只向前移动的区间",
+        "summary": "利用正数区间和的单调性维护窗口，并用总移动次数分析复杂度。",
+        "sections": [
+          {
+            "title": "连续区间不能随意重排",
+            "body": "给定正整数数组，要找总和不超过K的最长连续区间。直接枚举左右端点有O(N²)个区间；若每次重新求和还会更慢。这里的连续性由原始位置决定，排序会改变哪些元素能够相邻，因此不能像最小差问题那样先排序。用left和right表示当前区间的左右端点，维护区间总和total。每次只把右端推进一个位置，再根据总和调整左端，尽量复用上一步已经计算的内容。这种思路称为滑动窗口或双指针，但名称不能代替正确性证明。首先要明确为什么一个端点移动以后，另一个端点不需要往回走。"
+          },
+          {
+            "title": "正数前提提供了什么保证",
+            "body": "所有元素严格大于0，所以右端扩展会增加总和，移除左端元素会减少总和。如果当前区间和已经超过K，继续向右加入正数不可能把它变合法，必须丢掉左侧的一些元素。某个更早的left在上一步就因总和过大被排除，那么加入新的正数之后，它仍不可能重新变合法，因此left只需向前。这是算法线性的关键。若允许负数，例如[5,-4]且K=2，第一步会删掉5，但完整区间和为1其实合法，删除后就再也找不到长度2。负数让被排除的起点有机会恢复，破坏本模板的推理。不要只因为题目出现“子数组”就使用双指针。"
+          },
+          {
+            "title": "先恢复合法窗口，再更新答案",
+            "body": "初始化left=0、total=0、answer=0。外层枚举right，把a[right]加入total。只要total>K，就减去a[left]并把left加1。循环结束后，当前窗口和不超过K，它的长度是right-left+1，再用它更新answer。更新答案必须放在缩小完成之后，否则会把不合法的长窗口计入。如果当前单个元素都大于K，while会删掉它，使left=right+1，长度变成0；answer保留0或此前更好的长度。这不是越界错误，而是空窗口的合法表示。因为K≥0，空窗口总和0满足条件，收缩循环到这里必定停止。"
+          },
+          {
+            "title": "用一张窗口轨迹理解执行顺序",
+            "body": "取a=[2,1,1,3,1]、K=4。right=0、1、2时没有超限，窗口依次是[2]、[2,1]、[2,1,1]，长度达到3。right=3加入3后总和变7，先删2得到5，仍超限，再删1得到4，left来到2，窗口是[1,3]。right=4加入1得到5，再删一个1得到4，窗口为[3,1]。最后答案仍为3。注意一次right推进可能导致left连续推进两次，所以需要while而不是单个if。每次删除前total都对应当前窗口；先减a[left]再left+=1，若反过来会减错元素。追踪时把left、right、total和answer四个值都写出。",
+            "code": "a, k = [2, 1, 1, 3, 1], 4\nleft, total, answer = 0, 0, 0\nfor right, x in enumerate(a):\n    total += x\n    while total > k:\n        total -= a[left]\n        left += 1\n    answer = max(answer, right - left + 1)\n    print(left, right, total, answer)\nprint(answer)",
+            "output": "0 0 2 1\n0 1 3 2\n0 2 4 3\n2 3 4 3\n3 4 4 3\n3\n"
+          },
+          {
+            "title": "为何没有漏掉更长的合法区间",
+            "body": "固定某个right时，while停止后的left是当前可以保留的最早起点：更早的起点已经因和过大被移除，而继续向右扩展不会使它们重新有效；更晚的起点可能有效，但长度只会更短。因此当前窗口就是以right结束的最长合法窗口。外层枚举了每一个right，取这些最长窗口的最大值，便覆盖了全局最优解。这个论证同时说明为什么不需要枚举所有合法left。若目标换成最短区间且和至少K，扩展和收缩的时机就不同，不能简单把比较号反过来。每种窗口问题都要重新说清楚“收缩结束时保留的是哪一个最优候选”。"
+          },
+          {
+            "title": "两层循环为什么仍是线性",
+            "body": "外层right从0到N-1，一共前进N次。left只会增加，从0最多到N，所以所有while执行次数合起来至多N，而不是每次right都重新从0开始。因此总加法N次、总减法最多N次，时间O(N)。这是一种按总操作次数的分析，不能看到for里面有while就说O(N²)。保存输入列表占O(N)，窗口本身只有几个变量。测试K=0、所有元素都超限、总和恰好K、全部可取、连续多个相同正数，以及一次需要删除多项的情况。对小数组可枚举所有区间并直接求和，作为独立校验器；额外用负数反例提醒自己该算法的前提，不能把超出题目约束的正确性当作承诺。"
+          },
+          {
+            "title": "工作坊：窗口模板不是万能公式",
+            "body": "在本题中，窗口太大是指“和超过K”，合法候选中希望长度尽量长，所以先缩到合法，再记录长度。若换成“和至少K的最短区间”，在窗口已经满足条件时应记录候选并尝试收缩，直到不满足为止；若换成“最多K种不同值”，total就不足以表达状态，要维护频率表及非零频率种类数。三类问题都可能使用双指针，但合法条件、更新时机和状态含义不同。照抄同一段代码只改比较号，极容易把这些差别掩盖。\n\n可以用一个小的朴素检验程序比较：固定左端l，令sum=0，依次向右加入元素，遇到sum≤K时更新最大长度。这个版本是O(N²)，但在N≤8时很适合列出全部候选，并与线性版本核对。选择多个合法的正数数组和不同K，把每一个right对应的最长长度都对比，而不只是最后答案。还要观察left不会回退，total始终等于当前窗口直接求和，answer不会减小。这三条是不同层面的检查，能分别发现端点更新、和的维护、最优值汇总方面的错误。正式大输入不应每轮重新求和；这些额外工作只用于小数据调试。"
+          }
+        ],
+        "objectives": [
+          "证明正数窗口的单调性",
+          "维护合法窗口并处理空窗口",
+          "用双端点总移动次数证明线性"
+        ],
+        "checkpoints": [
+          {
+            "question": "为什么收缩必须用while？",
+            "answer": "一次新增元素可能需要移除多个旧元素才能恢复合法。"
+          },
+          {
+            "question": "负数会在哪里破坏推理？",
+            "answer": "被舍弃的早起点可能在加入负数后重新合法，left便不能保证只前进。"
+          }
+        ]
+      },
+      "en": {
+        "exerciseTitle": "Longest bounded-sum segment",
+        "task": "Given N strictly positive integers and nonnegative K, find the longest contiguous segment whose sum is at most K. Output 0 if no nonempty segment qualifies. 1≤N≤200000, 1≤Aᵢ≤10⁹, 0≤K≤10¹⁸.",
+        "input": "N K, then N positive integers.",
+        "output": "Print the maximum length.",
+        "hint": "Extend right, repeatedly shrink left while over the limit, then update the length.",
+        "explanation": "Maintain the sum of [left,right]. After adding the rightmost value, remove leftmost values until the sum is at most K. Positivity guarantees earlier discarded starts never become valid again, so this is the longest valid segment ending at right. Maximize over all endpoints. Each pointer advances at most N times: O(N) time, O(N) input storage, O(1) additional state.",
+        "title": "Two pointers and a forward-moving window",
+        "summary": "Use positive-sum monotonicity and count total movements rather than nested loops.",
+        "sections": [
+          {
+            "title": "Contiguity belongs to the original order",
+            "body": "Given a positive-integer array, seek the longest contiguous segment with sum at most K. Enumerating both endpoints gives O(N²) intervals, and resumming each interval costs even more. Contiguity is defined by the original positions: sorting changes which elements are neighbors, so the minimum-difference trick does not apply. Maintain left and right endpoints and a running total. Extend the right endpoint by one item, then adjust the left endpoint while reusing previous work. This is called a sliding window or two-pointer method, but its name is not a proof. Explain why neither endpoint ever needs to move backward."
+          },
+          {
+            "title": "What positivity guarantees",
+            "body": "Every element is strictly positive. Extending right increases the sum; removing the leftmost item decreases it. If the current sum exceeds K, adding further positive values cannot repair it, so some leftmost items must be removed. A start discarded earlier for excessive sum remains invalid after another positive value is added. Hence left never needs to retreat. Negative values break this reasoning: with [5,−4] and K=2, the method discards five immediately even though the full sum is one and length two is valid. A rejected start can become useful again when negatives arrive. The word “subarray” alone does not justify this template."
+          },
+          {
+            "title": "Restore validity before updating the answer",
+            "body": "Initialize left=0, total=0, and answer=0. For each right, add a[right]. While total>K, subtract a[left] and increment left. Only after the loop restores a legal window should you maximize answer with right−left+1. Updating earlier would count an invalid oversized segment. If one element alone exceeds K, the loop removes it and leaves left=right+1, representing an empty window of length zero. That is intentional, not an indexing error. Since K is nonnegative, the empty sum zero is valid and contraction must stop there. The stored best length remains zero or a better value from an earlier endpoint."
+          },
+          {
+            "title": "Read the window trace in execution order",
+            "body": "Use a=[2,1,1,3,1], K=4. At right=0,1,2, the windows are [2], [2,1], and [2,1,1], reaching length three. Adding the next three makes total seven: remove two to get five, then remove one to get four, leaving [1,3]. Adding the final one again exceeds the limit, so remove the first one and keep [3,1]. The best length stays three. One right step can require several left steps, so contraction needs while rather than if. Subtract a[left] before incrementing left; reversing those statements removes the wrong element. Trace all four state variables.",
+            "code": "a, k = [2, 1, 1, 3, 1], 4\nleft, total, answer = 0, 0, 0\nfor right, x in enumerate(a):\n    total += x\n    while total > k:\n        total -= a[left]\n        left += 1\n    answer = max(answer, right - left + 1)\n    print(left, right, total, answer)\nprint(answer)",
+            "output": "0 0 2 1\n0 1 3 2\n0 2 4 3\n2 3 4 3\n3 4 4 3\n3\n"
+          },
+          {
+            "title": "Explain why a longer valid segment is not missed",
+            "body": "For a fixed right endpoint, the left value after contraction is the earliest start that can remain. Earlier starts were removed because their sums were excessive and cannot become valid after further positive additions. Later starts may also be valid, but they yield shorter intervals. The current window is therefore the longest legal interval ending at right. The outer loop visits every right endpoint, so maximizing these candidates finds the global optimum without enumerating all starts. A shortest-segment problem with sum at least K has different expansion and contraction timing; simply reversing the comparison is not a justified adaptation. Re-establish what optimum the maintained window represents."
+          },
+          {
+            "title": "Nested loops can still perform linear total work",
+            "body": "Right advances N times. Left only increases, from zero to at most N, so all while-loop iterations together total at most N. Left does not restart at zero for every right. There are N additions and at most N subtractions, giving O(N) time despite nested syntax. Input storage is O(N), while the window state uses only a few variables. Test K=0, every element exceeding the bound, an exact-limit sum, an entirely valid array, repeated positive values, and a step requiring multiple removals. On short arrays, enumerate all intervals as an independent oracle. Keep a negative-value counterexample to remember the assumptions, not to promise unsupported behavior."
+          },
+          {
+            "title": "Workshop: a window is not a universal formula",
+            "body": "In this task, an oversized window means its sum exceeds K, and we want maximum length among valid candidates. Shrink until valid, then record the length. For a shortest segment with sum at least K, record while the condition is satisfied and try shrinking until it fails. For at most K distinct values, a total is insufficient; maintain frequencies and the number of nonzero-frequency keys. All may use two pointers, but their legality conditions, state, and update timing differ. Copying one template and changing only a comparison hides these distinctions.\n\nBuild a small oracle by fixing each left endpoint and accumulating sums while extending right. It is quadratic but practical for arrays of length at most eight. Compare the longest valid length at every right endpoint, not only the final optimum. Also verify that left never retreats, total equals a direct sum of the maintained window, and answer never decreases. These checks isolate endpoint, sum-maintenance, and aggregation errors respectively. Recomputing window sums is diagnostic work for tiny tests, not part of the final linear implementation."
+          }
+        ],
+        "objectives": [
+          "Prove the positive-window monotonicity",
+          "Maintain validity including the empty window",
+          "Bound total pointer movements linearly"
+        ],
+        "checkpoints": [
+          {
+            "question": "Why use while for contraction?",
+            "answer": "One new element may require removing several old elements."
+          },
+          {
+            "question": "Where do negative values break the proof?",
+            "answer": "An earlier discarded start may become valid after a negative addition."
+          }
+        ]
+      },
+      "ja": {
+        "exerciseTitle": "和が上限以下の最長区間",
+        "task": "N個の正整数と非負整数Kから、和がK以下の最長連続区間の長さを求めます。非空の合法区間がなければ0。1≤N≤200000、1≤Aᵢ≤10⁹、0≤K≤10¹⁸。",
+        "input": "1行目N K、2行目N個の正整数。",
+        "output": "最大の長さを出力。",
+        "hint": "右端を広げ、上限超過中は左端を縮め、その後で長さを更新。",
+        "explanation": "totalは[left,right]の和です。右端を追加後、K以下になるまで左端を除きます。正数なので捨てた古い開始位置は復活せず、残る窓がその右端で最長です。全右端で最大を取ります。両ポインタは各最大N回進むため、時間O(N)、入力領域O(N)、追加状態O(1)です。",
+        "title": "前へだけ動く二つのポインタ",
+        "summary": "正の数の和の単調性を使い、全移動回数で計算量を評価します。",
+        "sections": [
+          {
+            "title": "連続性は元の順番で決まる",
+            "body": "正整数配列で、合計がK以下となる最長の連続部分を求めます。両端を列挙するとO(N²)区間になり、毎回和を計算し直せばさらに遅くなります。連続性は元の位置関係で決まるため、最小差問題のように先にソートすると、隣接できる要素を変えてしまいます。leftとrightで現在の区間を表し、その和totalを保存します。右端を一つ進めてから必要に応じて左端を調整し、以前の計算を再利用します。スライディングウィンドウや尺取り法という名前だけでは正しさを説明できません。一方の端を動かしたとき、もう一方を後ろへ戻す必要がない理由をまず明らかにします。"
+          },
+          {
+            "title": "正数という前提が与える保証",
+            "body": "すべての要素が厳密に正なので、右へ拡張すると和が増え、左端を取り除くと和が減ります。現在の和がKを超えたら、さらに正数を足しても合法には戻らず、左側の要素を除く必要があります。以前に和が大きすぎて捨てた開始位置は、新しい正数を足した後でも合法になりません。したがってleftを戻す必要がないことが線形性の鍵です。負数を許すと、[5,-4]、K=2では最初に5を捨てる一方、全体の和1は合法で長さ2が答えです。一度捨てた開始位置が後から復活し得るため、このテンプレートの根拠が壊れます。「部分配列」という言葉だけで尺取り法を選んではいけません。"
+          },
+          {
+            "title": "合法な窓へ戻してから答えを更新する",
+            "body": "left=0、total=0、answer=0で始めます。rightを一つ進めてa[right]を足し、total>Kの間はa[left]を引いてleftを1増やします。この縮小が終わって初めてright−left+1でanswerを更新します。先に更新すると、長いが不合法な区間を答えに含めてしまいます。単独の要素でもKを超える場合はその要素まで削除し、left=right+1、長さ0の空窓になります。これは意図した表現で、添字の誤りではありません。K≥0なので空の和0は必ず合法となり、縮小はそこで停止します。過去により良い区間があればanswerはそれを保持し、なければ0のままです。"
+          },
+          {
+            "title": "窓の軌跡を実行順に読む",
+            "body": "a=[2,1,1,3,1]、K=4で追います。right=0、1、2の窓は[2]、[2,1]、[2,1,1]で、長さ3まで伸びます。次の3を足すと和7なので、2を除いて5、さらに1を除いて4となり、left=2の[1,3]を残します。最後の1を足すと5なので先頭の1を除き、[3,1]で和4です。最良の長さは3のままです。rightの一回の前進でleftが二回以上動く場合があるため、ifではなくwhileが必要です。減算時のtotalは現在窓に対応します。a[left]を引いてからleftを進め、逆順で別の要素を引かないようにします。left、right、total、answerの四変数を表に書くと理解できます。",
+            "code": "a, k = [2, 1, 1, 3, 1], 4\nleft, total, answer = 0, 0, 0\nfor right, x in enumerate(a):\n    total += x\n    while total > k:\n        total -= a[left]\n        left += 1\n    answer = max(answer, right - left + 1)\n    print(left, right, total, answer)\nprint(answer)",
+            "output": "0 0 2 1\n0 1 3 2\n0 2 4 3\n2 3 4 3\n3 4 4 3\n3\n"
+          },
+          {
+            "title": "より長い合法区間を落としていない理由",
+            "body": "rightを固定すると、縮小後のleftは残せる最も早い開始位置です。それ以前の開始位置は和が大きすぎて削除され、正数をさらに足しても復活しません。それ以降の開始位置も合法かもしれませんが、長さは短くなります。つまり現在窓はrightで終わる最長の合法区間です。外側で全rightを調べてその最大を取れば、全体の最適解を覆えます。この説明により全leftを列挙しなくてよいことが分かります。和がK以上の最短区間を求める問題では拡張と縮小のタイミングが異なり、比較記号を逆にするだけでは正当化できません。窓がどの最適候補を代表するのかを問題ごとに説明し直す必要があります。"
+          },
+          {
+            "title": "二重の構文でも総計は線形",
+            "body": "rightは0からN−1へN回進みます。leftは増えるだけで、0から最大Nまでなので、すべてのwhile反復を合計しても高々N回です。rightが変わるたびにleftを0へ戻すのではありません。加算N回、減算最大N回となり、時間はO(N)です。forの中にwhileがあるという構文だけでO(N²)と判断せず、総操作数で評価します。入力リストはO(N)領域、窓の状態は少数変数です。K=0、全要素が上限超過、ちょうどK、全体を取れる、同じ正数が連続、一度に複数削除する場合を確認します。小配列では全区間を列挙して独立に検証できます。負数の反例は前提を忘れないために残し、制約外まで正しいという保証にはしません。"
+          },
+          {
+            "title": "実習：窓の型は万能な公式ではない",
+            "body": "本課題では和がKを超えたら不合法で、合法候補の長さを最大にしたいので、合法になるまで縮めてから記録します。和がK以上の最短区間なら、満たしている間に候補を記録し、さらに縮めて満たさなくなるまで試します。異なる値が高々K種類なら、totalだけでは状態を表せず、頻度と正の頻度を持つ種類数を管理します。どれも二ポインタを使える場合がありますが、合法条件、状態の意味、更新順は違います。同じテンプレートで比較だけ変えると、この相違を見失います。\n\n小さい正解器として左端を固定し、右へ加算しながら全区間を調べます。O(N²)でもN≤8なら全候補を確認できます。最終答えだけでなく、各rightに対する最長長さを線形版と比較しましょう。leftが戻らないこと、totalが現在窓の直接和と一致すること、answerが減らないことも別々に確認します。それぞれ端点、和の維持、最良値の集計の誤りを分けて見つけられます。直接和の再計算は小入力での診断に限り、正式な線形実装へ残さないようにします。"
+          }
+        ],
+        "objectives": [
+          "正数窓の単調性を証明する",
+          "空窓を含め合法性を保つ",
+          "両端の総移動で線形性を示す"
+        ],
+        "checkpoints": [
+          {
+            "question": "縮小にwhileが必要なのは？",
+            "answer": "新要素一つで複数の旧要素を取り除く必要があるためです。"
+          },
+          {
+            "question": "負数はどこで根拠を壊しますか。",
+            "answer": "捨てた開始位置が負数の追加で再び合法になり得ます。"
+          }
+        ]
+      }
+    },
+    "id": "two-pointers",
+    "order": 16,
+    "stage": "sequences",
+    "minutes": 50,
+    "prerequisiteIds": [
+      "binary-search"
+    ]
+  }
+]
