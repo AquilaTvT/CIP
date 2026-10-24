@@ -1,0 +1,16 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+build/
+dist/
+release/
+*.log
+.cache/
+ci-practice-backup-*.json
+
+# Local research documents are outside this application repository.
+/output/
+/research/
+/tmp/

@@ -1,0 +1,614 @@
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>C - Takahashi Gets Lost</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="Content-Language" content="ja">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="google-site-verification" content="nXGC_JxO0yoP1qBzMnYD_xgufO6leSLw1kyNo2HZltM" />
+	<meta name="robots" content="noai, noimageai">
+
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-RC512FD18N"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+		gtag('set', 'user_properties', {
+			
+				'login_status': 'logged_out',
+			
+		});
+		gtag('config', 'G-RC512FD18N');
+	</script>
+
+	
+	<meta name="description" content="プログラミング初級者から上級者まで楽しめる、競技プログラミングコンテストサイト「AtCoder」。オンラインで毎週開催プログラミングコンテストを開催しています。競技プログラミングを用いて、客観的に自分のスキルを計ることのできるサービスです。">
+	<meta name="author" content="AtCoder Inc.">
+
+	<meta property="og:site_name" content="AtCoder">
+	
+	<meta property="og:title" content="C - Takahashi Gets Lost" />
+	<meta property="og:description" content="プログラミング初級者から上級者まで楽しめる、競技プログラミングコンテストサイト「AtCoder」。オンラインで毎週開催プログラミングコンテストを開催しています。競技プログラミングを用いて、客観的に自分のスキルを計ることのできるサービスです。" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://atcoder.jp/contests/abc341/tasks/abc341_c?lang=ja" />
+	<meta property="og:image" content="https://img.atcoder.jp/assets/atcoder.png" />
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:site" content="@atcoder" />
+	
+	<meta property="twitter:title" content="C - Takahashi Gets Lost" />
+
+	<link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" type="text/css" href="//img.atcoder.jp/public/4135445/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="//img.atcoder.jp/public/4135445/css/base.css">
+	<link rel="shortcut icon" type="image/png" href="//img.atcoder.jp/assets/favicon.png">
+	<link rel="apple-touch-icon" href="//img.atcoder.jp/assets/atcoder.png">
+	<script src="//img.atcoder.jp/public/4135445/js/lib/jquery-1.9.1.min.js"></script>
+	<script src="//img.atcoder.jp/public/4135445/js/lib/bootstrap.min.js"></script>
+	<script src="//img.atcoder.jp/public/4135445/js/cdn/js.cookie.min.js"></script>
+	<script src="//img.atcoder.jp/public/4135445/js/cdn/moment.min.js"></script>
+	<script src="//img.atcoder.jp/public/4135445/js/cdn/moment_js-ja.js"></script>
+	<script>
+		var LANG = "ja";
+		var userScreenName = "";
+		var csrfToken = "s1ZTEf1Y8/0e20MKnCGidXkPWHwGO5c8otSF3aJdCTQ="
+	</script>
+	<script src="//img.atcoder.jp/public/4135445/js/utils.js"></script>
+	
+	
+		<script src="//img.atcoder.jp/public/4135445/js/contest.js"></script>
+		<link href="//img.atcoder.jp/public/4135445/css/contest.css" rel="stylesheet" />
+		<script>
+			var contestScreenName = "abc341";
+			var remainingText = "残り時間";
+			var countDownText = "開始まであと";
+			var startTime = moment("2024-02-17T21:00:00+09:00");
+			var endTime = moment("2024-02-17T22:40:00+09:00");
+		</script>
+		<style></style>
+	
+	
+		<link href="//img.atcoder.jp/public/4135445/css/cdn/select2.min.css" rel="stylesheet" />
+		<link href="//img.atcoder.jp/public/4135445/css/cdn/select2-bootstrap.min.css" rel="stylesheet" />
+		<script src="//img.atcoder.jp/public/4135445/js/lib/select2.min.js"></script>
+	
+	
+		<script src="//img.atcoder.jp/public/4135445/js/ace/ace.js"></script>
+		<script src="//img.atcoder.jp/public/4135445/js/ace/ext-language_tools.js"></script>
+	
+	
+		<script src="//img.atcoder.jp/public/4135445/js/cdn/run_prettify.js"></script>
+	
+	
+		<link rel="stylesheet" href="//img.atcoder.jp/public/4135445/css/cdn/katex.min.css">
+		<script defer src="//img.atcoder.jp/public/4135445/js/cdn/katex.min.js"></script>
+		<script defer src="//img.atcoder.jp/public/4135445/js/cdn/auto-render.min.js"></script>
+		<script>$(function(){$('var').each(function(){var html=$(this).html().replace(/<sub>/g,'_{').replace(/<\/sub>/g,'}');$(this).html('\\('+html+'\\)');});});</script>
+		<script>
+			var katexOptions = {
+				delimiters: [
+					{left: "$$", right: "$$", display: true},
+					
+					{left: "\\(", right: "\\)", display: false},
+					{left: "\\[", right: "\\]", display: true}
+				],
+      	ignoredTags: ["script", "noscript", "style", "textarea", "code", "option"],
+				ignoredClasses: ["prettyprint", "source-code-for-copy"],
+				throwOnError: false
+			};
+			document.addEventListener("DOMContentLoaded", function() { renderMathInElement(document.body, katexOptions);});
+		</script>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<script src="//img.atcoder.jp/public/4135445/js/base.js"></script>
+</head>
+
+<body>
+
+<div id="modal-contest-start" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">コンテスト開始</h4>
+			</div>
+			<div class="modal-body">
+				<p>トヨタ自動車プログラミングコンテスト2024#2（AtCoder Beginner Contest 341）が開始されました。</p>
+			</div>
+			<div class="modal-footer">
+				
+					<button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+				
+			</div>
+		</div>
+	</div>
+</div>
+<div id="modal-contest-end" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">コンテスト終了</h4>
+			</div>
+			<div class="modal-body">
+				<p>トヨタ自動車プログラミングコンテスト2024#2（AtCoder Beginner Contest 341）は終了しました。</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="main-div" class="float-container">
+
+
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+					<span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="/home"></a>
+			</div>
+			<div class="collapse navbar-collapse" id="navbar-collapse">
+				<ul class="nav navbar-nav">
+				
+					<li><a class="contest-title" href="/contests/abc341">トヨタ自動車プログラミングコンテスト2024#2（AtCoder Beginner Contest 341）</a></li>
+				
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+							<img src='//img.atcoder.jp/assets/top/img/flag-lang/ja.png'> 日本語 <span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu">
+							<li><a href="/contests/abc341/tasks/abc341_c?lang=ja"><img src='//img.atcoder.jp/assets/top/img/flag-lang/ja.png'> 日本語</a></li>
+							<li><a href="/contests/abc341/tasks/abc341_c?lang=en"><img src='//img.atcoder.jp/assets/top/img/flag-lang/en.png'> English</a></li>
+						</ul>
+					</li>
+					
+					
+						<li><a href="/register?continue=https%3A%2F%2Fatcoder.jp%2Fcontests%2Fabc341%2Ftasks%2Fabc341_c%3Flang%3Dja">新規登録</a></li>
+						<li><a href="/login?continue=https%3A%2F%2Fatcoder.jp%2Fcontests%2Fabc341%2Ftasks%2Fabc341_c%3Flang%3Dja">ログイン</a></li>
+					
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<form method="POST" name="form_logout" action="/logout?continue=https%3A%2F%2Fatcoder.jp%2Fcontests%2Fabc341%2Ftasks%2Fabc341_c%3Flang%3Dja">
+		<input type="hidden" name="csrf_token" value="s1ZTEf1Y8/0e20MKnCGidXkPWHwGO5c8otSF3aJdCTQ=" />
+	</form>
+	<div id="main-container" class="container"
+		 	style="padding-top:50px;">
+		
+
+
+<div class="row">
+	<div id="contest-nav-tabs" class="col-sm-12 mb-2 cnvtb-fixed">
+	<div>
+		<small class="contest-duration">
+			
+				コンテスト時間:
+				<a href='http://www.timeanddate.com/worldclock/fixedtime.html?iso=20240217T2100&p1=248' target='blank'><time class='fixtime fixtime-full'>2024-02-17 21:00:00+0900</time></a> ~ <a href='http://www.timeanddate.com/worldclock/fixedtime.html?iso=20240217T2240&p1=248' target='blank'><time class='fixtime fixtime-full'>2024-02-17 22:40:00+0900</time></a> 
+				(100分)
+			
+		</small>
+		<small class="back-to-home pull-right"><a href="/home">AtCoderホームへ戻る</a></small>
+	</div>
+	<ul class="nav nav-tabs">
+		<li><a href="/contests/abc341"><span class="glyphicon glyphicon-home" aria-hidden="true"></span> トップ</a></li>
+		
+			<li class="active"><a href="/contests/abc341/tasks"><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span> 問題</a></li>
+		
+
+		
+			<li><a href="/contests/abc341/clarifications"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span> 質問 <span id="clar-badge" class="badge" ></span></a></li>
+		
+
+		
+
+		
+			<li>
+				<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-list" aria-hidden="true"></span> 提出結果<span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li><a href="/contests/abc341/submissions"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> すべての提出</a></li>
+					
+				</ul>
+			</li>
+		
+
+		
+			
+				
+					<li><a href="/contests/abc341/standings"><span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span> 順位表</a></li>
+				
+			
+				
+					<li><a href="/contests/abc341/standings/virtual"><span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span> バーチャル順位表</a></li>
+				
+			
+		
+
+		
+
+		
+			<li><a href="/contests/abc341/editorial"><span class="glyphicon glyphicon-book" aria-hidden="true"></span> 解説</a></li>
+		
+		
+
+		<li class="pull-right"><a id="fix-cnvtb" href="javascript:void(0)"><span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span></a></li>
+	</ul>
+</div>
+	<div class="col-sm-12">
+		<span class="h2">
+			C - Takahashi Gets Lost
+			<a class="btn btn-default btn-sm" href="/contests/abc341/tasks/abc341_c/editorial">解説</a>
+		</span>
+		<span id="task-lang-btn" class="pull-right"><span data-lang="ja"><img src='//img.atcoder.jp/assets/top/img/flag-lang/ja.png'></span> / <span data-lang="en"><img src='//img.atcoder.jp/assets/top/img/flag-lang/en.png'></span></span>
+		<script>
+			$(function() {
+				var ts = $('#task-statement span.lang');
+				if (ts.children('span').size() <= 1) {
+					$('#task-lang-btn').hide();
+					ts.children('span').show();
+					return;
+				}
+
+				var REMEMBER_LB = 5;
+				var LS_KEY = 'task_lang';
+				var taskLang = getLS(LS_KEY) || '';
+				function isTaskLangSet(taskLang) { return taskLang === 'ja' || taskLang === 'en';}
+				if (isTaskLangSet(taskLang)) {
+					const params = new URLSearchParams(window.location.search);
+					if (params.get('lang')) {
+						setLS(LS_KEY, REMEMBER_LB);
+						taskLang = LANG;
+					}
+				} else {
+					taskLang = LANG;
+				}
+				ts.children('span.lang-' + taskLang).show();
+
+				$('#task-lang-btn span').click(function() {
+					var l = $(this).data('lang');
+					ts.children('span').hide();
+					ts.children('span.lang-' + l).show();
+
+					taskLang = getLS(LS_KEY) || '';
+					let changeTimes = 0;
+					if (isTaskLangSet(taskLang)) {
+						changeTimes = REMEMBER_LB;
+					} else {
+						changeTimes = parseInt(taskLang, 10);
+						if (isNaN(changeTimes)) changeTimes = 0;
+						changeTimes++;
+					}
+					if (changeTimes < REMEMBER_LB) setLS(LS_KEY, changeTimes);
+					else setLS(LS_KEY, l);
+				});
+			});
+		</script>
+		<hr/>
+		<p>
+			実行時間制限: 3 sec / メモリ制限: 1024 MiB
+			
+			
+		</p>
+
+		<div id="task-statement">
+			
+
+
+	
+	
+
+			
+			<span class="lang">
+<span class="lang-ja">
+<p>配点 : <var>250</var> 点</p>
+
+<div class="part">
+<section>
+<h3>問題文</h3><p><var>H</var> 行 <var>W</var> 列のグリッドがあります。</p>
+<p>グリッドの各マスは<strong>陸</strong>か<strong>海</strong>のどちらかであり、
+その情報は <var>H</var> 個の長さ <var>W</var> の文字列 <var>S_1, S_2, \ldots, S_H</var> で与えられます。
+上から <var>i</var> 行目、左から <var>j</var> 列目のマスを <var>(i, j)</var> で表すと、
+<var>S_i</var> の <var>j</var> 文字目が <code>.</code> のときマス <var>(i, j)</var> は陸であり、<code>#</code> のときマス <var>(i, j)</var> は海です。</p>
+<p>ここで、グリッドの外周のマス（すなわち、<var>i = 1</var> 、<var>i = H</var> 、<var>j = 1</var> 、<var>j = W</var> のうち少なくとも <var>1</var> 個以上を満たすマス <var>(i, j)</var> ）については、すべて海であることが制約として保証されます。</p>
+<p>高橋君が乗った宇宙船が、グリッド上のあるマスに不時着してしまいました。
+その後、高橋君は <code>L</code> 、<code>R</code> 、<code>U</code> 、<code>D</code> のみからなる長さ <var>N</var> の文字列 <var>T</var> で表される手順に沿って、グリッド上を <var>N</var> 回移動しました。
+<var>i = 1, 2, \ldots, N</var> について、<var>T</var> の <var>i</var> 文字目は <var>i</var> 回目の移動の内容を下記の通り表します。</p>
+<ul>
+<li><code>L</code> のとき、左に <var>1</var> マス移動したことを表す。すなわち、移動前のマスを <var>(i, j)</var> とするとき、移動後のマスは <var>(i, j-1)</var> である。</li>
+<li><code>R</code> のとき、右に <var>1</var> マス移動したことを表す。すなわち、移動前のマスを <var>(i, j)</var> とするとき、移動後のマスは <var>(i, j+1)</var> である。</li>
+<li><code>U</code> のとき、上に <var>1</var> マス移動したことを表す。すなわち、移動前のマスを <var>(i, j)</var> とするとき、移動後のマスは <var>(i-1, j)</var> である。</li>
+<li><code>D</code> のとき、下に <var>1</var> マス移動したことを表す。すなわち、移動前のマスを <var>(i, j)</var> とするとき、移動後のマスは <var>(i+1, j)</var> である。</li>
+</ul>
+<p>高橋君の移動経路上のマス（不時着したマスおよび現在いるマスを含む）はいずれも海でないことがわかっています。
+高橋君が現在いるマスとしてあり得るものの個数を出力してください。</p>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>制約</h3><ul>
+<li><var>H, W, N</var> は整数</li>
+<li><var>3 \leq H, W \leq 500</var></li>
+<li><var>1 \leq N \leq 500</var></li>
+<li><var>T</var> は <code>L</code> 、<code>R</code> 、<code>U</code> 、<code>D</code> のみからなる長さ <var>N</var> の文字列</li>
+<li><var>S_i</var> は <code>.</code> と <code>#</code> のみからなる長さ <var>W</var> の文字列</li>
+<li>高橋君が現在いるマスとしてあり得るものが少なくとも <var>1</var> 個存在する。</li>
+<li>グリッドの外周のマスはすべて海である。</li>
+</ul>
+</section>
+</div>
+
+<hr />
+<div class="io-style">
+<div class="part">
+<section>
+<h3>入力</h3><p>入力は以下の形式で標準入力から与えられる。</p>
+<pre><var>H</var> <var>W</var> <var>N</var>
+<var>T</var>
+<var>S_1</var>
+<var>S_2</var>
+<var>\vdots</var>
+<var>S_H</var>
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>出力</h3><p>答えを出力せよ。</p>
+</section>
+</div>
+</div>
+
+<hr />
+<div class="part">
+<section>
+<h3>入力例 1</h3><pre>6 7 5
+LULDR
+#######
+#...#.#
+##...##
+#.#...#
+#...#.#
+#######
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>出力例 1</h3><pre>2
+</pre>
+<p>下記の <var>2</var> つの場合がありえるため、高橋君が現在いるマスとしてあり得るものは <var>(3, 4)</var> と <var>(4, 5)</var> の <var>2</var> 個です。</p>
+<ul>
+<li>マス <var>(3, 5)</var> に不時着し、<var>(3, 5) \rightarrow (3, 4) \rightarrow (2, 4) \rightarrow (2, 3) \rightarrow (3, 3) \rightarrow (3, 4)</var> と移動した場合</li>
+<li>マス <var>(4, 6)</var> に不時着し、<var>(4, 6) \rightarrow (4, 5) \rightarrow (3, 5) \rightarrow (3, 4) \rightarrow (4, 4) \rightarrow (4, 5)</var> と移動した場合</li>
+</ul>
+</section>
+</div>
+
+<hr />
+<div class="part">
+<section>
+<h3>入力例 2</h3><pre>13 16 9
+ULURDLURD
+################
+##..##.#..####.#
+###.#..#.....#.#
+#..##..#####.###
+#...#..#......##
+###.##.#..#....#
+##.#####....##.#
+###.###.#.#.#..#
+######.....##..#
+#...#.#.######.#
+##..###..#..#.##
+#...#.#.#...#..#
+################
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>出力例 2</h3><pre>6
+</pre></section>
+</div>
+</span>
+<span class="lang-en">
+<p>Score: <var>250</var> points</p>
+
+<div class="part">
+<section>
+<h3>Problem Statement</h3><p>There is a grid with <var>H</var> rows and <var>W</var> columns.</p>
+<p>Each cell of the grid is <strong>land</strong> or <strong>sea</strong>, which is represented by <var>H</var> strings <var>S_1, S_2, \ldots, S_H</var> of length <var>W</var>. Let <var>(i, j)</var> denote the cell at the <var>i</var>-th row from the top and <var>j</var>-th column from the left, and <var>(i, j)</var> is land if the <var>j</var>-th character of <var>S_i</var> is <code>.</code>, and <var>(i, j)</var> is sea if the character is <code>#</code>.</p>
+<p>The constraints guarantee that all cells on the perimeter of the grid (that is, the cells <var>(i, j)</var> that satisfy at least one of <var>i = 1</var>, <var>i = H</var>, <var>j = 1</var>, <var>j = W</var>) are sea.</p>
+<p>Takahashi's spaceship has crash-landed on a cell in the grid. Afterward, he moved <var>N</var> times on the grid following the instructions represented by a string <var>T</var> of length <var>N</var> consisting of <code>L</code>, <code>R</code>, <code>U</code>, and <code>D</code>. For <var>i = 1, 2, \ldots, N</var>, the <var>i</var>-th character of <var>T</var> describes the <var>i</var>-th move as follows:</p>
+<ul>
+<li><code>L</code> indicates a move of one cell to the left. That is, if he is at <var>(i, j)</var> before the move, he will be at <var>(i, j-1)</var> after the move.</li>
+<li><code>R</code> indicates a move of one cell to the right. That is, if he is at <var>(i, j)</var> before the move, he will be at <var>(i, j+1)</var> after the move.</li>
+<li><code>U</code> indicates a move of one cell up. That is, if he is at <var>(i, j)</var> before the move, he will be at <var>(i-1, j)</var> after the move.</li>
+<li><code>D</code> indicates a move of one cell down. That is, if he is at <var>(i, j)</var> before the move, he will be at <var>(i+1, j)</var> after the move.</li>
+</ul>
+<p>It is known that all cells along his path (including the cell where he crash-landed and the cell he is currently on) are not sea. Print the number of cells that could be his current position.</p>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>Constraints</h3><ul>
+<li><var>H</var>, <var>W</var>, and <var>N</var> are integers.</li>
+<li><var>3 \leq H, W \leq 500</var></li>
+<li><var>1 \leq N \leq 500</var></li>
+<li><var>T</var> is a string of length <var>N</var> consisting of <code>L</code>, <code>R</code>, <code>U</code>, and <code>D</code>.</li>
+<li><var>S_i</var> is a string of length <var>W</var> consisting of <code>.</code> and <code>#</code>.</li>
+<li>There is at least one cell that could be Takahashi's current position.</li>
+<li>All cells on the perimeter of the grid are sea.</li>
+</ul>
+</section>
+</div>
+
+<hr />
+<div class="io-style">
+<div class="part">
+<section>
+<h3>Input</h3><p>The input is given from Standard Input in the following format:</p>
+<pre><var>H</var> <var>W</var> <var>N</var>
+<var>T</var>
+<var>S_1</var>
+<var>S_2</var>
+<var>\vdots</var>
+<var>S_H</var>
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>Output</h3><p>Print the answer.</p>
+</section>
+</div>
+</div>
+
+<hr />
+<div class="part">
+<section>
+<h3>Sample Input 1</h3><pre>6 7 5
+LULDR
+#######
+#...#.#
+##...##
+#.#...#
+#...#.#
+#######
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>Sample Output 1</h3><pre>2
+</pre>
+<p>The following two cases are possible, so there are two cells that could be Takahashi's current position: <var>(3, 4)</var> and <var>(4, 5)</var>.</p>
+<ul>
+<li>He crash-landed on cell <var>(3, 5)</var> and moved <var>(3, 5) \rightarrow (3, 4) \rightarrow (2, 4) \rightarrow (2, 3) \rightarrow (3, 3) \rightarrow (3, 4)</var>.</li>
+<li>He crash-landed on cell <var>(4, 6)</var> and moved <var>(4, 6) \rightarrow (4, 5) \rightarrow (3, 5) \rightarrow (3, 4) \rightarrow (4, 4) \rightarrow (4, 5)</var>.</li>
+</ul>
+</section>
+</div>
+
+<hr />
+<div class="part">
+<section>
+<h3>Sample Input 2</h3><pre>13 16 9
+ULURDLURD
+################
+##..##.#..####.#
+###.#..#.....#.#
+#..##..#####.###
+#...#..#......##
+###.##.#..#....#
+##.#####....##.#
+###.###.#.#.#..#
+######.....##..#
+#...#.#.######.#
+##..###..#..#.##
+#...#.#.#...#..#
+################
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>Sample Output 2</h3><pre>6
+</pre></section>
+</div>
+</span>
+</span>
+
+		</div>
+
+		
+
+		
+	</div>
+</div>
+
+
+
+
+		
+			<hr>
+			
+			
+			
+<div class="a2a_kit a2a_kit_size_20 a2a_default_style pull-right" data-a2a-url="https://atcoder.jp/contests/abc341/tasks/abc341_c?lang=ja" data-a2a-title="C - Takahashi Gets Lost">
+	<a class="a2a_button_facebook"></a>
+	<a class="a2a_button_twitter"></a>
+	
+		<a class="a2a_button_hatena"></a>
+	
+	<a class="a2a_dd" href="https://www.addtoany.com/share"></a>
+</div>
+
+		
+		<script async src="//static.addtoany.com/menu/page.js"></script>
+		
+	</div> 
+	<hr>
+</div> 
+
+	<div class="container" style="margin-bottom: 80px;">
+			<footer class="footer">
+			
+				<ul>
+					<li><a href="/contests/abc341/rules">ルール</a></li>
+					<li><a href="/contests/abc341/glossary">用語集</a></li>
+					
+				</ul>
+			
+			<ul>
+				<li><a href="/tos">利用規約</a></li>
+				<li><a href="/privacy">プライバシーポリシー</a></li>
+				<li><a href="/personal">個人情報保護方針</a></li>
+				<li><a href="/company">企業情報</a></li>
+				<li><a href="/faq">よくある質問</a></li>
+				<li><a href="/contact">お問い合わせ</a></li>
+				<li><a href="/documents/request">資料請求</a></li>
+			</ul>
+			<div class="text-center">
+					<small id="copyright">Copyright Since 2012 &copy;<a href="http://atcoder.co.jp">AtCoder Inc.</a> All rights reserved.</small>
+			</div>
+			</footer>
+	</div>
+	<p id="fixed-server-timer" class="contest-timer"></p>
+	<div id="scroll-page-top" style="display:none;"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span> ページトップ</div>
+
+</body>
+</html>
+
+

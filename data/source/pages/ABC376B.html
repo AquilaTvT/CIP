@@ -1,0 +1,656 @@
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>B - Hands on Ring (Easy)</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="Content-Language" content="ja">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="google-site-verification" content="nXGC_JxO0yoP1qBzMnYD_xgufO6leSLw1kyNo2HZltM" />
+	<meta name="robots" content="noai, noimageai">
+
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-RC512FD18N"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+		gtag('set', 'user_properties', {
+			
+				'login_status': 'logged_out',
+			
+		});
+		gtag('config', 'G-RC512FD18N');
+	</script>
+
+	
+	<meta name="description" content="プログラミング初級者から上級者まで楽しめる、競技プログラミングコンテストサイト「AtCoder」。オンラインで毎週開催プログラミングコンテストを開催しています。競技プログラミングを用いて、客観的に自分のスキルを計ることのできるサービスです。">
+	<meta name="author" content="AtCoder Inc.">
+
+	<meta property="og:site_name" content="AtCoder">
+	
+	<meta property="og:title" content="B - Hands on Ring (Easy)" />
+	<meta property="og:description" content="プログラミング初級者から上級者まで楽しめる、競技プログラミングコンテストサイト「AtCoder」。オンラインで毎週開催プログラミングコンテストを開催しています。競技プログラミングを用いて、客観的に自分のスキルを計ることのできるサービスです。" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://atcoder.jp/contests/abc376/tasks/abc376_b?lang=ja" />
+	<meta property="og:image" content="https://img.atcoder.jp/assets/atcoder.png" />
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:site" content="@atcoder" />
+	
+	<meta property="twitter:title" content="B - Hands on Ring (Easy)" />
+
+	<link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" type="text/css" href="//img.atcoder.jp/public/4135445/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="//img.atcoder.jp/public/4135445/css/base.css">
+	<link rel="shortcut icon" type="image/png" href="//img.atcoder.jp/assets/favicon.png">
+	<link rel="apple-touch-icon" href="//img.atcoder.jp/assets/atcoder.png">
+	<script src="//img.atcoder.jp/public/4135445/js/lib/jquery-1.9.1.min.js"></script>
+	<script src="//img.atcoder.jp/public/4135445/js/lib/bootstrap.min.js"></script>
+	<script src="//img.atcoder.jp/public/4135445/js/cdn/js.cookie.min.js"></script>
+	<script src="//img.atcoder.jp/public/4135445/js/cdn/moment.min.js"></script>
+	<script src="//img.atcoder.jp/public/4135445/js/cdn/moment_js-ja.js"></script>
+	<script>
+		var LANG = "ja";
+		var userScreenName = "";
+		var csrfToken = "OUFRl/Xao25ns6FMlybsBvgaeYdHUT3PlJwp8hCh4A0="
+	</script>
+	<script src="//img.atcoder.jp/public/4135445/js/utils.js"></script>
+	
+	
+		<script src="//img.atcoder.jp/public/4135445/js/contest.js"></script>
+		<link href="//img.atcoder.jp/public/4135445/css/contest.css" rel="stylesheet" />
+		<script>
+			var contestScreenName = "abc376";
+			var remainingText = "残り時間";
+			var countDownText = "開始まであと";
+			var startTime = moment("2024-10-19T21:00:00+09:00");
+			var endTime = moment("2024-10-19T22:40:00+09:00");
+		</script>
+		<style></style>
+	
+	
+		<link href="//img.atcoder.jp/public/4135445/css/cdn/select2.min.css" rel="stylesheet" />
+		<link href="//img.atcoder.jp/public/4135445/css/cdn/select2-bootstrap.min.css" rel="stylesheet" />
+		<script src="//img.atcoder.jp/public/4135445/js/lib/select2.min.js"></script>
+	
+	
+		<script src="//img.atcoder.jp/public/4135445/js/ace/ace.js"></script>
+		<script src="//img.atcoder.jp/public/4135445/js/ace/ext-language_tools.js"></script>
+	
+	
+		<script src="//img.atcoder.jp/public/4135445/js/cdn/run_prettify.js"></script>
+	
+	
+		<link rel="stylesheet" href="//img.atcoder.jp/public/4135445/css/cdn/katex.min.css">
+		<script defer src="//img.atcoder.jp/public/4135445/js/cdn/katex.min.js"></script>
+		<script defer src="//img.atcoder.jp/public/4135445/js/cdn/auto-render.min.js"></script>
+		<script>$(function(){$('var').each(function(){var html=$(this).html().replace(/<sub>/g,'_{').replace(/<\/sub>/g,'}');$(this).html('\\('+html+'\\)');});});</script>
+		<script>
+			var katexOptions = {
+				delimiters: [
+					{left: "$$", right: "$$", display: true},
+					
+					{left: "\\(", right: "\\)", display: false},
+					{left: "\\[", right: "\\]", display: true}
+				],
+      	ignoredTags: ["script", "noscript", "style", "textarea", "code", "option"],
+				ignoredClasses: ["prettyprint", "source-code-for-copy"],
+				throwOnError: false
+			};
+			document.addEventListener("DOMContentLoaded", function() { renderMathInElement(document.body, katexOptions);});
+		</script>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<script src="//img.atcoder.jp/public/4135445/js/base.js"></script>
+</head>
+
+<body>
+
+<div id="modal-contest-start" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">コンテスト開始</h4>
+			</div>
+			<div class="modal-body">
+				<p>AtCoder Beginner Contest 376（Promotion of AtCoder Career Design DAY）が開始されました。</p>
+			</div>
+			<div class="modal-footer">
+				
+					<button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+				
+			</div>
+		</div>
+	</div>
+</div>
+<div id="modal-contest-end" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">コンテスト終了</h4>
+			</div>
+			<div class="modal-body">
+				<p>AtCoder Beginner Contest 376（Promotion of AtCoder Career Design DAY）は終了しました。</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="main-div" class="float-container">
+
+
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+					<span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="/home"></a>
+			</div>
+			<div class="collapse navbar-collapse" id="navbar-collapse">
+				<ul class="nav navbar-nav">
+				
+					<li><a class="contest-title" href="/contests/abc376">AtCoder Beginner Contest 376（Promotion of AtCoder Career Design DAY）</a></li>
+				
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+							<img src='//img.atcoder.jp/assets/top/img/flag-lang/ja.png'> 日本語 <span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu">
+							<li><a href="/contests/abc376/tasks/abc376_b?lang=ja"><img src='//img.atcoder.jp/assets/top/img/flag-lang/ja.png'> 日本語</a></li>
+							<li><a href="/contests/abc376/tasks/abc376_b?lang=en"><img src='//img.atcoder.jp/assets/top/img/flag-lang/en.png'> English</a></li>
+						</ul>
+					</li>
+					
+					
+						<li><a href="/register?continue=https%3A%2F%2Fatcoder.jp%2Fcontests%2Fabc376%2Ftasks%2Fabc376_b%3Flang%3Dja">新規登録</a></li>
+						<li><a href="/login?continue=https%3A%2F%2Fatcoder.jp%2Fcontests%2Fabc376%2Ftasks%2Fabc376_b%3Flang%3Dja">ログイン</a></li>
+					
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<form method="POST" name="form_logout" action="/logout?continue=https%3A%2F%2Fatcoder.jp%2Fcontests%2Fabc376%2Ftasks%2Fabc376_b%3Flang%3Dja">
+		<input type="hidden" name="csrf_token" value="OUFRl/Xao25ns6FMlybsBvgaeYdHUT3PlJwp8hCh4A0=" />
+	</form>
+	<div id="main-container" class="container"
+		 	style="padding-top:50px;">
+		
+
+
+<div class="row">
+	<div id="contest-nav-tabs" class="col-sm-12 mb-2 cnvtb-fixed">
+	<div>
+		<small class="contest-duration">
+			
+				コンテスト時間:
+				<a href='http://www.timeanddate.com/worldclock/fixedtime.html?iso=20241019T2100&p1=248' target='blank'><time class='fixtime fixtime-full'>2024-10-19 21:00:00+0900</time></a> ~ <a href='http://www.timeanddate.com/worldclock/fixedtime.html?iso=20241019T2240&p1=248' target='blank'><time class='fixtime fixtime-full'>2024-10-19 22:40:00+0900</time></a> 
+				(100分)
+			
+		</small>
+		<small class="back-to-home pull-right"><a href="/home">AtCoderホームへ戻る</a></small>
+	</div>
+	<ul class="nav nav-tabs">
+		<li><a href="/contests/abc376"><span class="glyphicon glyphicon-home" aria-hidden="true"></span> トップ</a></li>
+		
+			<li class="active"><a href="/contests/abc376/tasks"><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span> 問題</a></li>
+		
+
+		
+			<li><a href="/contests/abc376/clarifications"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span> 質問 <span id="clar-badge" class="badge" ></span></a></li>
+		
+
+		
+
+		
+			<li>
+				<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-list" aria-hidden="true"></span> 提出結果<span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li><a href="/contests/abc376/submissions"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> すべての提出</a></li>
+					
+				</ul>
+			</li>
+		
+
+		
+			
+				
+					<li><a href="/contests/abc376/standings"><span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span> 順位表</a></li>
+				
+			
+				
+					<li><a href="/contests/abc376/standings/virtual"><span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span> バーチャル順位表</a></li>
+				
+			
+		
+
+		
+
+		
+			<li><a href="/contests/abc376/editorial"><span class="glyphicon glyphicon-book" aria-hidden="true"></span> 解説</a></li>
+		
+		
+
+		<li class="pull-right"><a id="fix-cnvtb" href="javascript:void(0)"><span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span></a></li>
+	</ul>
+</div>
+	<div class="col-sm-12">
+		<span class="h2">
+			B - Hands on Ring (Easy)
+			<a class="btn btn-default btn-sm" href="/contests/abc376/tasks/abc376_b/editorial">解説</a>
+		</span>
+		<span id="task-lang-btn" class="pull-right"><span data-lang="ja"><img src='//img.atcoder.jp/assets/top/img/flag-lang/ja.png'></span> / <span data-lang="en"><img src='//img.atcoder.jp/assets/top/img/flag-lang/en.png'></span></span>
+		<script>
+			$(function() {
+				var ts = $('#task-statement span.lang');
+				if (ts.children('span').size() <= 1) {
+					$('#task-lang-btn').hide();
+					ts.children('span').show();
+					return;
+				}
+
+				var REMEMBER_LB = 5;
+				var LS_KEY = 'task_lang';
+				var taskLang = getLS(LS_KEY) || '';
+				function isTaskLangSet(taskLang) { return taskLang === 'ja' || taskLang === 'en';}
+				if (isTaskLangSet(taskLang)) {
+					const params = new URLSearchParams(window.location.search);
+					if (params.get('lang')) {
+						setLS(LS_KEY, REMEMBER_LB);
+						taskLang = LANG;
+					}
+				} else {
+					taskLang = LANG;
+				}
+				ts.children('span.lang-' + taskLang).show();
+
+				$('#task-lang-btn span').click(function() {
+					var l = $(this).data('lang');
+					ts.children('span').hide();
+					ts.children('span.lang-' + l).show();
+
+					taskLang = getLS(LS_KEY) || '';
+					let changeTimes = 0;
+					if (isTaskLangSet(taskLang)) {
+						changeTimes = REMEMBER_LB;
+					} else {
+						changeTimes = parseInt(taskLang, 10);
+						if (isNaN(changeTimes)) changeTimes = 0;
+						changeTimes++;
+					}
+					if (changeTimes < REMEMBER_LB) setLS(LS_KEY, changeTimes);
+					else setLS(LS_KEY, l);
+				});
+			});
+		</script>
+		<hr/>
+		<p>
+			実行時間制限: 2 sec / メモリ制限: 1024 MiB
+			
+			
+		</p>
+
+		<div id="task-statement">
+			
+
+
+	
+	
+
+			
+			<span class="lang">
+<span class="lang-ja">
+<p>配点 : <var>250</var> 点</p>
+
+<div class="part">
+<section>
+<h3>問題文</h3><p><strong>注：この問題は F 問題とほぼ同じ設定です。本文中で太字で示されている部分および制約のみが異なります。</strong></p>
+<p>あなたはあるリングを両手で握っています。
+このリングは <var>N\ (N\geq 3)</var> 個のパーツ <var>1,2,\dots,N</var> によって構成されており、パーツ <var>i</var> とパーツ <var>i+1</var> (<var>1\leq i\leq N-1</var>)、およびパーツ <var>1</var> とパーツ <var>N</var> がそれぞれ隣接しています。</p>
+<p>最初、左手はパーツ <var>1</var> を、右手はパーツ <var>2</var> を握っています。
+あなたは、<var>1</var> 回の <em>操作</em> で以下のことを行えます。</p>
+<ul>
+<li>片方の手を、今握っているパーツに隣接するいずれかのパーツに移動する。ただし、移動先にもう一方の手がない場合に限る。</li>
+</ul>
+<p>以下の図は、初期状態およびそこから行える操作と行えない操作の例を示したもので、リングの各パーツに書き込まれた数はそのパーツの番号を、L と書かれた丸は左手を、R と書かれた丸は右手を示しています。</p>
+<p><img src="https://img.atcoder.jp/abc376/bb6691e1c7281e4794b3fd94b256ba66.png" class="center-block" height="400"></p>
+<p>あなたは今から与えられる <var>Q</var> 個の指示に順番に従う必要があります。
+<var>i\ (1\leq i\leq Q)</var> 個目の指示は文字 <var>H_i</var> および整数 <var>T_i</var> によって表され、その意味は以下の通りです：</p>
+<ul>
+<li>操作を何回か（<var>0</var> 回でもよい）行うことで、<var>H_i</var> が <code>L</code> ならば左手、<code>R</code> ならば右手が、パーツ <var>T_i</var> を握っている状態にする。
+  このとき、<var>H_i</var> によって指定された手ではない方の手を <strong>動かしてはならない</strong>。</li>
+</ul>
+<p><strong>なお、達成可能な指示しか与えられないことが保証されます。</strong></p>
+<details>
+<summary>詳細</summary>
+この問題の設定の下では、各 <var>i</var> について、<var>i</var> 個目の指示に従う直前でのそれぞれの手の位置が一意に定まることが証明できます。
+このとき、左手の位置をパーツ <var>l_i</var>、右手の位置をパーツ <var>r_i</var> とおくと、<var>H_i=</var> <code>L</code> ならば <var>T_i\neq r_i</var> が、<var>H_i=</var> <code>R</code> ならば <var>T_i\neq l_i</var> がそれぞれ保証されます。
+</details>
+
+<p><br>
+すべての指示に従うために必要な操作回数の合計の最小値を求めてください。</p>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>制約</h3><ul>
+<li><var>3\leq N \leq 100</var></li>
+<li><var>1\leq Q \leq 100</var></li>
+<li><var>H_i</var> は <code>L</code> または <code>R</code></li>
+<li><var>1\leq T_i\leq N</var></li>
+<li><var>N,Q,T_i</var> は整数</li>
+<li>達成可能な指示しか与えられない（詳細は問題文を参照してください）</li>
+</ul>
+</section>
+</div>
+
+<hr />
+<div class="io-style">
+<div class="part">
+<section>
+<h3>入力</h3><p>入力は以下の形式で標準入力から与えられる。</p>
+<pre><var>N</var> <var>Q</var>
+<var>H_1</var> <var>T_1</var>
+<var>H_2</var> <var>T_2</var>
+<var>\vdots</var>
+<var>H_Q</var> <var>T_Q</var>
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>出力</h3><p>すべての指示に従うために必要な操作回数の合計の最小値を出力せよ。</p>
+</section>
+</div>
+</div>
+
+<hr />
+<div class="part">
+<section>
+<h3>入力例 1</h3><pre>6 3
+R 4
+L 5
+R 6
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>出力例 1</h3><pre>8
+</pre>
+<p><img src="https://img.atcoder.jp/abc376/367efd733280195fad534ad518cca09d.png" class="center-block" height="200"></p>
+<p>以下のように操作を行うことで、<var>Q</var> 個の指示すべてに順番に従うことができます。</p>
+<ol>
+<li>右手をパーツ <var>2\rightarrow 3\rightarrow 4</var> と移動させることで、<var>1</var> 番目の指示に従う。</li>
+<li>左手をパーツ <var>1\rightarrow 6\rightarrow 5</var> と移動させることで、<var>2</var> 番目の指示に従う。</li>
+<li>右手をパーツ <var>4\rightarrow 3\rightarrow 2\rightarrow 1\rightarrow 6</var> と移動させることで、<var>3</var> 番目の指示に従う。</li>
+</ol>
+<p>このとき行う操作回数の合計は <var>2+2+4=8</var> であり、これが最小です。
+（<var>3</var> 番目の指示に従う際に右手をパーツ <var>4\rightarrow 5\rightarrow 6</var> と移動させることはできないことに注意してください。）</p>
+</section>
+</div>
+
+<hr />
+<div class="part">
+<section>
+<h3>入力例 2</h3><pre>100 2
+L 1
+R 2
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>出力例 2</h3><pre>0
+</pre>
+<p>操作を <var>1</var> 度も行わずに指示に従うことができる場合もあります。</p>
+</section>
+</div>
+
+<hr />
+<div class="part">
+<section>
+<h3>入力例 3</h3><pre>30 8
+R 23
+R 26
+R 29
+L 20
+R 29
+R 19
+L 7
+L 16
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>出力例 3</h3><pre>92
+</pre></section>
+</div>
+</span>
+<span class="lang-en">
+<p>Score : <var>250</var> points</p>
+
+<div class="part">
+<section>
+<h3>Problem Statement</h3><p><strong>Note: This problem has almost the same setting as Problem F. Only the parts in bold in the main text and constraints differ.</strong></p>
+<p>You are holding a ring with both hands.
+This ring consists of <var>N\ (N \geq 3)</var> parts numbered <var>1,2,\dots,N</var>, where parts <var>i</var> and <var>i+1</var> (<var>1 \leq i \leq N-1</var>) are adjacent, and parts <var>1</var> and <var>N</var> are also adjacent.</p>
+<p>Initially, your left hand is holding part <var>1</var>, and your right hand is holding part <var>2</var>.
+In one <em>operation</em>, you can do the following:</p>
+<ul>
+<li>Move one of your hands to an adjacent part of the part it is currently holding. However, you can do this only if the other hand is not on the destination part.</li>
+</ul>
+<p>The following figure shows the initial state and examples of operations that can and cannot be made from there. The number written on each part of the ring represents the part number, and the circles labeled L and R represent your left and right hands, respectively.</p>
+<p><img src="https://img.atcoder.jp/abc376/bb6691e1c7281e4794b3fd94b256ba66.png" class="center-block" height="400"></p>
+<p>You need to follow <var>Q</var> instructions given to you in order.
+The <var>i</var>-th (<var>1 \leq i \leq Q</var>) instruction is represented by a character <var>H_i</var> and an integer <var>T_i</var>, meaning the following:</p>
+<ul>
+<li>Perform some number of operations (possibly zero) so that your left hand (if <var>H_i</var> is <code>L</code>) or your right hand (if <var>H_i</var> is <code>R</code>) is holding part <var>T_i</var>.
+  Here, you <strong>must not</strong> move the other hand not specified by <var>H_i</var>.</li>
+</ul>
+<p><strong>It is guaranteed that only achievable instructions are given.</strong></p>
+<details>
+<summary>Details</summary>
+Under the settings of this problem, it can be proved that the positions of both hands are uniquely determined just before following the <var>i</var>-th instruction for each <var>i</var>.
+At that time, if we denote the positions of the left and right hands as parts <var>l_i</var> and <var>r_i</var>, respectively, it is guaranteed that <var>T_i \neq r_i</var> when <var>H_i</var> is <code>L</code>, and <var>T_i \neq l_i</var> when <var>H_i</var> is <code>R</code>.
+</details>
+
+<p><br>
+Find the minimum total number of operations required to follow all the instructions.</p>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>Constraints</h3><ul>
+<li><var>3 \leq N \leq 100</var></li>
+<li><var>1 \leq Q \leq 100</var></li>
+<li><var>H_i</var> is <code>L</code> or <code>R</code>.</li>
+<li><var>1 \leq T_i \leq N</var></li>
+<li><var>N</var>, <var>Q</var>, and <var>T_i</var> are integers.</li>
+<li>Only achievable instructions are given (see the problem statement for details).</li>
+</ul>
+</section>
+</div>
+
+<hr />
+<div class="io-style">
+<div class="part">
+<section>
+<h3>Input</h3><p>The Input is given from Standard Input in the following format:</p>
+<pre><var>N</var> <var>Q</var>
+<var>H_1</var> <var>T_1</var>
+<var>H_2</var> <var>T_2</var>
+<var>\vdots</var>
+<var>H_Q</var> <var>T_Q</var>
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>Output</h3><p>Print the minimum total number of operations required to follow all the instructions.</p>
+</section>
+</div>
+</div>
+
+<hr />
+<div class="part">
+<section>
+<h3>Sample Input 1</h3><pre>6 3
+R 4
+L 5
+R 6
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>Sample Output 1</h3><pre>8
+</pre>
+<p><img src="https://img.atcoder.jp/abc376/367efd733280195fad534ad518cca09d.png" class="center-block" height="200"></p>
+<p>By performing the following operations, you can follow all <var>Q</var> instructions in order.</p>
+<ol>
+<li>Move your right hand as part <var>2 \rightarrow 3 \rightarrow 4</var> to follow the first instruction.</li>
+<li>Move your left hand as part <var>1 \rightarrow 6 \rightarrow 5</var> to follow the second instruction.</li>
+<li>Move your right hand as part <var>4 \rightarrow 3 \rightarrow 2 \rightarrow 1 \rightarrow 6</var> to follow the third instruction.</li>
+</ol>
+<p>In this case, the total number of operations is <var>2+2+4=8</var>, which is the minimum.
+(Note that when following the third instruction, you cannot move your right hand as part <var>4 \rightarrow 5 \rightarrow 6</var>.)</p>
+</section>
+</div>
+
+<hr />
+<div class="part">
+<section>
+<h3>Sample Input 2</h3><pre>100 2
+L 1
+R 2
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>Sample Output 2</h3><pre>0
+</pre>
+<p>There are cases where you can follow the instructions without performing any operations.</p>
+</section>
+</div>
+
+<hr />
+<div class="part">
+<section>
+<h3>Sample Input 3</h3><pre>30 8
+R 23
+R 26
+R 29
+L 20
+R 29
+R 19
+L 7
+L 16
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>Sample Output 3</h3><pre>92
+</pre></section>
+</div>
+</span>
+</span>
+
+		</div>
+
+		
+
+		
+	</div>
+</div>
+
+
+
+
+		
+			<hr>
+			
+			
+			
+<div class="a2a_kit a2a_kit_size_20 a2a_default_style pull-right" data-a2a-url="https://atcoder.jp/contests/abc376/tasks/abc376_b?lang=ja" data-a2a-title="B - Hands on Ring (Easy)">
+	<a class="a2a_button_facebook"></a>
+	<a class="a2a_button_twitter"></a>
+	
+		<a class="a2a_button_hatena"></a>
+	
+	<a class="a2a_dd" href="https://www.addtoany.com/share"></a>
+</div>
+
+		
+		<script async src="//static.addtoany.com/menu/page.js"></script>
+		
+	</div> 
+	<hr>
+</div> 
+
+	<div class="container" style="margin-bottom: 80px;">
+			<footer class="footer">
+			
+				<ul>
+					<li><a href="/contests/abc376/rules">ルール</a></li>
+					<li><a href="/contests/abc376/glossary">用語集</a></li>
+					
+				</ul>
+			
+			<ul>
+				<li><a href="/tos">利用規約</a></li>
+				<li><a href="/privacy">プライバシーポリシー</a></li>
+				<li><a href="/personal">個人情報保護方針</a></li>
+				<li><a href="/company">企業情報</a></li>
+				<li><a href="/faq">よくある質問</a></li>
+				<li><a href="/contact">お問い合わせ</a></li>
+				<li><a href="/documents/request">資料請求</a></li>
+			</ul>
+			<div class="text-center">
+					<small id="copyright">Copyright Since 2012 &copy;<a href="http://atcoder.co.jp">AtCoder Inc.</a> All rights reserved.</small>
+			</div>
+			</footer>
+	</div>
+	<p id="fixed-server-timer" class="contest-timer"></p>
+	<div id="scroll-page-top" style="display:none;"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span> ページトップ</div>
+
+</body>
+</html>
+
+

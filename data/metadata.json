@@ -1,0 +1,1491 @@
+{
+  "APG4bPython EX5": {
+    "id": "APG4bPython_cr",
+    "name": "A足すB問題",
+    "point": null,
+    "difficulty": null
+  },
+  "APG4bPython EX6": {
+    "id": "APG4bPython_cq",
+    "name": "電卓をつくろう",
+    "point": null,
+    "difficulty": null
+  },
+  "APG4bPython EX8": {
+    "id": "APG4bPython_co",
+    "name": "たくさんのA足すB問題",
+    "point": null,
+    "difficulty": null
+  },
+  "APG4bPython EX9": {
+    "id": "APG4bPython_cn",
+    "name": "電卓をつくろう2",
+    "point": null,
+    "difficulty": null
+  },
+  "APG4bPython EX10": {
+    "id": "APG4bPython_cm",
+    "name": "平均との差",
+    "point": null,
+    "difficulty": null
+  },
+  "APG4bPython EX11": {
+    "id": "APG4bPython_cl",
+    "name": "足したり引いたり",
+    "point": null,
+    "difficulty": null
+  },
+  "APG4bPython EX12": {
+    "id": "APG4bPython_ck",
+    "name": "最速のランナーを見つけよう",
+    "point": null,
+    "difficulty": null
+  },
+  "APG4bPython EX13": {
+    "id": "APG4bPython_cj",
+    "name": "三人兄弟へのプレゼント",
+    "point": null,
+    "difficulty": null
+  },
+  "PracticeA": {
+    "id": "practice_1",
+    "name": "Welcome to AtCoder",
+    "point": null,
+    "difficulty": null
+  },
+  "ABC086A": {
+    "id": "abc086_a",
+    "name": "Product",
+    "point": 100,
+    "difficulty": -864,
+    "pointSource": "https://atcoder.jp/contests/abc086/tasks/abc086_a"
+  },
+  "ABC081A": {
+    "id": "abc081_a",
+    "name": "Placing Marbles",
+    "point": 100,
+    "difficulty": -418,
+    "pointSource": "https://atcoder.jp/contests/abc081/tasks/abc081_a"
+  },
+  "ABC302A": {
+    "id": "abc302_a",
+    "name": "Attack",
+    "point": 100,
+    "difficulty": -723,
+    "pointSource": "https://atcoder.jp/contests/abc302/tasks/abc302_a"
+  },
+  "ABC300A": {
+    "id": "abc300_a",
+    "name": "N-choice question",
+    "point": 100,
+    "difficulty": -1147,
+    "pointSource": "https://atcoder.jp/contests/abc300/tasks/abc300_a"
+  },
+  "ABC289A": {
+    "id": "abc289_a",
+    "name": "flip",
+    "point": 100,
+    "difficulty": -952,
+    "pointSource": "https://atcoder.jp/contests/abc289/tasks/abc289_a"
+  },
+  "ABC287A": {
+    "id": "abc287_a",
+    "name": "Majority",
+    "point": 100,
+    "difficulty": -1023,
+    "pointSource": "https://atcoder.jp/contests/abc287/tasks/abc287_a"
+  },
+  "ABC282A": {
+    "id": "abc282_a",
+    "name": "Generalized ABC",
+    "point": 100,
+    "difficulty": -1239,
+    "pointSource": "https://atcoder.jp/contests/abc282/tasks/abc282_a"
+  },
+  "ABC281A": {
+    "id": "abc281_a",
+    "name": "Count Down",
+    "point": 100,
+    "difficulty": -1303,
+    "pointSource": "https://atcoder.jp/contests/abc281/tasks/abc281_a"
+  },
+  "ABC264A": {
+    "id": "abc264_a",
+    "name": "\"atcoder\".substr()",
+    "point": 100,
+    "difficulty": -1180,
+    "pointSource": "https://atcoder.jp/contests/abc264/tasks/abc264_a"
+  },
+  "ABC185A": {
+    "id": "abc185_a",
+    "name": "ABC Preparation",
+    "point": 100,
+    "difficulty": -1216,
+    "pointSource": "https://atcoder.jp/contests/abc185/tasks/abc185_a"
+  },
+  "ABC183A": {
+    "id": "abc183_a",
+    "name": "ReLU",
+    "point": 100,
+    "difficulty": -1280,
+    "pointSource": "https://atcoder.jp/contests/abc183/tasks/abc183_a"
+  },
+  "ABC181A": {
+    "id": "abc181_a",
+    "name": "Heavy Rotation",
+    "point": 100,
+    "difficulty": -1179,
+    "pointSource": "https://atcoder.jp/contests/abc181/tasks/abc181_a"
+  },
+  "ABC176A": {
+    "id": "abc176_a",
+    "name": "Takoyaki",
+    "point": 100,
+    "difficulty": -857,
+    "pointSource": "https://atcoder.jp/contests/abc176/tasks/abc176_a"
+  },
+  "ABC172A": {
+    "id": "abc172_a",
+    "name": "Calc",
+    "point": 100,
+    "difficulty": -1208,
+    "pointSource": "https://atcoder.jp/contests/abc172/tasks/abc172_a"
+  },
+  "ABC157A": {
+    "id": "abc157_a",
+    "name": "Duplex Printing",
+    "point": 100,
+    "difficulty": -1070,
+    "pointSource": "https://atcoder.jp/contests/abc157/tasks/abc157_a"
+  },
+  "ABC141A": {
+    "id": "abc141_a",
+    "name": "Weather Prediction ",
+    "point": 100,
+    "difficulty": -891,
+    "pointSource": "https://atcoder.jp/contests/abc141/tasks/abc141_a"
+  },
+  "ABC138A": {
+    "id": "abc138_a",
+    "name": "Red or Not",
+    "point": 100,
+    "difficulty": -848,
+    "pointSource": "https://atcoder.jp/contests/abc138/tasks/abc138_a"
+  },
+  "ABC303A": {
+    "id": "abc303_a",
+    "name": "Similar String",
+    "point": 100,
+    "difficulty": -763,
+    "pointSource": "https://atcoder.jp/contests/abc303/tasks/abc303_a"
+  },
+  "ABC301A": {
+    "id": "abc301_a",
+    "name": "Overall Winner",
+    "point": 100,
+    "difficulty": -821,
+    "pointSource": "https://atcoder.jp/contests/abc301/tasks/abc301_a"
+  },
+  "ABC286A": {
+    "id": "abc286_a",
+    "name": "Range Swap",
+    "point": 100,
+    "difficulty": -640,
+    "pointSource": "https://atcoder.jp/contests/abc286/tasks/abc286_a"
+  },
+  "ABC263A": {
+    "id": "abc263_a",
+    "name": "Full House",
+    "point": 100,
+    "difficulty": -679,
+    "pointSource": "https://atcoder.jp/contests/abc263/tasks/abc263_a"
+  },
+  "ABC233B": {
+    "id": "abc233_b",
+    "name": "A Reverse",
+    "point": 200,
+    "difficulty": -748,
+    "pointSource": "https://atcoder.jp/contests/abc233/tasks/abc233_b"
+  },
+  "ABC229B": {
+    "id": "abc229_b",
+    "name": "Hard Calculation",
+    "point": 200,
+    "difficulty": -501,
+    "pointSource": "https://atcoder.jp/contests/abc229/tasks/abc229_b"
+  },
+  "ABC228A": {
+    "id": "abc228_a",
+    "name": "On and Off",
+    "point": 100,
+    "difficulty": -395,
+    "pointSource": "https://atcoder.jp/contests/abc228/tasks/abc228_a"
+  },
+  "ABC218B": {
+    "id": "abc218_b",
+    "name": "qwerty",
+    "point": 200,
+    "difficulty": -929,
+    "pointSource": "https://atcoder.jp/contests/abc218/tasks/abc218_b"
+  },
+  "ABC217C": {
+    "id": "abc217_c",
+    "name": "Inverse of Permutation",
+    "point": 300,
+    "difficulty": -439,
+    "pointSource": "https://atcoder.jp/contests/abc217/tasks/abc217_c"
+  },
+  "ABC216B": {
+    "id": "abc216_b",
+    "name": "Same Name",
+    "point": 200,
+    "difficulty": -537,
+    "pointSource": "https://atcoder.jp/contests/abc216/tasks/abc216_b"
+  },
+  "ABC209B": {
+    "id": "abc209_b",
+    "name": "Can you buy them all?",
+    "point": 200,
+    "difficulty": -978,
+    "pointSource": "https://atcoder.jp/contests/abc209/tasks/abc209_b"
+  },
+  "ABC203B": {
+    "id": "abc203_b",
+    "name": "AtCoder Condominium",
+    "point": 200,
+    "difficulty": -997,
+    "pointSource": "https://atcoder.jp/contests/abc203/tasks/abc203_b"
+  },
+  "ABC201B": {
+    "id": "abc201_b",
+    "name": "Do you know the second highest mountain?",
+    "point": 200,
+    "difficulty": -614,
+    "pointSource": "https://atcoder.jp/contests/abc201/tasks/abc201_b"
+  },
+  "ABC200B": {
+    "id": "abc200_b",
+    "name": "200th ABC-200",
+    "point": 200,
+    "difficulty": -804,
+    "pointSource": "https://atcoder.jp/contests/abc200/tasks/abc200_b"
+  },
+  "ABC116A": {
+    "id": "abc116_a",
+    "name": "Right Triangle",
+    "point": 100,
+    "difficulty": -1030,
+    "pointSource": "https://atcoder.jp/contests/abc116/tasks/abc116_a"
+  },
+  "ABC081B": {
+    "id": "abc081_b",
+    "name": "Shift only",
+    "point": 200,
+    "difficulty": -12,
+    "pointSource": "https://atcoder.jp/contests/abc081/tasks/abc081_b"
+  },
+  "ABC087B": {
+    "id": "abc087_b",
+    "name": "Coins",
+    "point": 200,
+    "difficulty": 161,
+    "pointSource": "https://atcoder.jp/contests/abc087/tasks/abc087_b"
+  },
+  "ABC083B": {
+    "id": "abc083_b",
+    "name": "Some Sums",
+    "point": 200,
+    "difficulty": 62,
+    "pointSource": "https://atcoder.jp/contests/abc083/tasks/abc083_b"
+  },
+  "ABC088B": {
+    "id": "abc088_b",
+    "name": "Card Game for Two",
+    "point": 200,
+    "difficulty": -182,
+    "pointSource": "https://atcoder.jp/contests/abc088/tasks/abc088_b"
+  },
+  "ABC085B": {
+    "id": "abc085_b",
+    "name": "Kagami Mochi",
+    "point": 200,
+    "difficulty": -106,
+    "pointSource": "https://atcoder.jp/contests/abc085/tasks/abc085_b"
+  },
+  "ABC049C": {
+    "id": "arc065_a",
+    "name": "Daydream",
+    "point": 300,
+    "difficulty": 930,
+    "pointSource": "https://atcoder.jp/contests/abc049/tasks/arc065_a"
+  },
+  "ABC344A": {
+    "id": "abc344_a",
+    "name": "Spoiler",
+    "point": 150,
+    "difficulty": -793,
+    "pointSource": "https://atcoder.jp/contests/abc344/tasks/abc344_a"
+  },
+  "ABC343A": {
+    "id": "abc343_a",
+    "name": "Wrong Answer",
+    "point": 100,
+    "difficulty": -960,
+    "pointSource": "https://atcoder.jp/contests/abc343/tasks/abc343_a"
+  },
+  "ABC342A": {
+    "id": "abc342_a",
+    "name": "Yay!",
+    "point": 150,
+    "difficulty": -623,
+    "pointSource": "https://atcoder.jp/contests/abc342/tasks/abc342_a"
+  },
+  "ABC341A": {
+    "id": "abc341_a",
+    "name": "Print 341",
+    "point": 100,
+    "difficulty": -1033,
+    "pointSource": "https://atcoder.jp/contests/abc341/tasks/abc341_a"
+  },
+  "ABC340A": {
+    "id": "abc340_a",
+    "name": "Arithmetic Progression",
+    "point": 100,
+    "difficulty": -1100,
+    "pointSource": "https://atcoder.jp/contests/abc340/tasks/abc340_a"
+  },
+  "ABC338A": {
+    "id": "abc338_a",
+    "name": "Capitalized?",
+    "point": 100,
+    "difficulty": -779,
+    "pointSource": "https://atcoder.jp/contests/abc338/tasks/abc338_a"
+  },
+  "ABC337A": {
+    "id": "abc337_a",
+    "name": "Scoreboard",
+    "point": 100,
+    "difficulty": -923,
+    "pointSource": "https://atcoder.jp/contests/abc337/tasks/abc337_a"
+  },
+  "ABC336A": {
+    "id": "abc336_a",
+    "name": "Long Loong",
+    "point": 100,
+    "difficulty": -1289,
+    "pointSource": "https://atcoder.jp/contests/abc336/tasks/abc336_a"
+  },
+  "ABC335A": {
+    "id": "abc335_a",
+    "name": "202<s>3</s>",
+    "point": 100,
+    "difficulty": -1139,
+    "pointSource": "https://atcoder.jp/contests/abc335/tasks/abc335_a"
+  },
+  "ABC334A": {
+    "id": "abc334_a",
+    "name": "Christmas Present",
+    "point": 100,
+    "difficulty": -1092,
+    "pointSource": "https://atcoder.jp/contests/abc334/tasks/abc334_a"
+  },
+  "ABC303B": {
+    "id": "abc303_b",
+    "name": "Discord",
+    "point": 200,
+    "difficulty": -110,
+    "pointSource": "https://atcoder.jp/contests/abc303/tasks/abc303_b"
+  },
+  "ABC302B": {
+    "id": "abc302_b",
+    "name": "Find snuke",
+    "point": 250,
+    "difficulty": 349,
+    "pointSource": "https://atcoder.jp/contests/abc302/tasks/abc302_b"
+  },
+  "ABC301B": {
+    "id": "abc301_b",
+    "name": " Fill the Gaps",
+    "point": 200,
+    "difficulty": -314,
+    "pointSource": "https://atcoder.jp/contests/abc301/tasks/abc301_b"
+  },
+  "ABC300B": {
+    "id": "abc300_b",
+    "name": "Same Map in the RPG World",
+    "point": 200,
+    "difficulty": 350,
+    "pointSource": "https://atcoder.jp/contests/abc300/tasks/abc300_b"
+  },
+  "ABC289B": {
+    "id": "abc289_b",
+    "name": "V",
+    "point": 200,
+    "difficulty": 169,
+    "pointSource": "https://atcoder.jp/contests/abc289/tasks/abc289_b"
+  },
+  "ABC287B": {
+    "id": "abc287_b",
+    "name": "Postal Card",
+    "point": 200,
+    "difficulty": -471,
+    "pointSource": "https://atcoder.jp/contests/abc287/tasks/abc287_b"
+  },
+  "ABC286B": {
+    "id": "abc286_b",
+    "name": "Cat",
+    "point": 200,
+    "difficulty": -605,
+    "pointSource": "https://atcoder.jp/contests/abc286/tasks/abc286_b"
+  },
+  "ABC282B": {
+    "id": "abc282_b",
+    "name": "Let's Get a Perfect Score",
+    "point": 200,
+    "difficulty": -284,
+    "pointSource": "https://atcoder.jp/contests/abc282/tasks/abc282_b"
+  },
+  "ABC281B": {
+    "id": "abc281_b",
+    "name": "Sandwich Number",
+    "point": 200,
+    "difficulty": -322,
+    "pointSource": "https://atcoder.jp/contests/abc281/tasks/abc281_b"
+  },
+  "ABC264B": {
+    "id": "abc264_b",
+    "name": "Nice Grid",
+    "point": 200,
+    "difficulty": -391,
+    "pointSource": "https://atcoder.jp/contests/abc264/tasks/abc264_b"
+  },
+  "ABC263B": {
+    "id": "abc263_b",
+    "name": "Ancestor",
+    "point": 200,
+    "difficulty": -32,
+    "pointSource": "https://atcoder.jp/contests/abc263/tasks/abc263_b"
+  },
+  "ABC229A": {
+    "id": "abc229_a",
+    "name": "First Grid",
+    "point": 100,
+    "difficulty": -721,
+    "pointSource": "https://atcoder.jp/contests/abc229/tasks/abc229_a"
+  },
+  "ABC228B": {
+    "id": "abc228_b",
+    "name": "Takahashi's Secret",
+    "point": 200,
+    "difficulty": -229,
+    "pointSource": "https://atcoder.jp/contests/abc228/tasks/abc228_b"
+  },
+  "ABC218A": {
+    "id": "abc218_a",
+    "name": "Weather Forecast",
+    "point": 100,
+    "difficulty": -1219,
+    "pointSource": "https://atcoder.jp/contests/abc218/tasks/abc218_a"
+  },
+  "ABC217B": {
+    "id": "abc217_b",
+    "name": "AtCoder Quiz",
+    "point": 200,
+    "difficulty": -763,
+    "pointSource": "https://atcoder.jp/contests/abc217/tasks/abc217_b"
+  },
+  "ABC216A": {
+    "id": "abc216_a",
+    "name": "Signed Difficulty",
+    "point": 100,
+    "difficulty": -860,
+    "pointSource": "https://atcoder.jp/contests/abc216/tasks/abc216_a"
+  },
+  "ABC213B": {
+    "id": "abc213_b",
+    "name": "Booby Prize",
+    "point": 200,
+    "difficulty": -692,
+    "pointSource": "https://atcoder.jp/contests/abc213/tasks/abc213_b"
+  },
+  "ABC203A": {
+    "id": "abc203_a",
+    "name": "Chinchirorin",
+    "point": 100,
+    "difficulty": -1276,
+    "pointSource": "https://atcoder.jp/contests/abc203/tasks/abc203_a"
+  },
+  "ABC201A": {
+    "id": "abc201_a",
+    "name": "Tiny Arithmetic Sequence",
+    "point": 100,
+    "difficulty": -1000,
+    "pointSource": "https://atcoder.jp/contests/abc201/tasks/abc201_a"
+  },
+  "ABC200A": {
+    "id": "abc200_a",
+    "name": "Century",
+    "point": 100,
+    "difficulty": -1321,
+    "pointSource": "https://atcoder.jp/contests/abc200/tasks/abc200_a"
+  },
+  "ABC185B": {
+    "id": "abc185_b",
+    "name": "Smartphone Addiction",
+    "point": 200,
+    "difficulty": -183,
+    "pointSource": "https://atcoder.jp/contests/abc185/tasks/abc185_b"
+  },
+  "ABC183B": {
+    "id": "abc183_b",
+    "name": "Billiards",
+    "point": 200,
+    "difficulty": -55,
+    "pointSource": "https://atcoder.jp/contests/abc183/tasks/abc183_b"
+  },
+  "ABC181B": {
+    "id": "abc181_b",
+    "name": "Trapezoid Sum",
+    "point": 200,
+    "difficulty": -413,
+    "pointSource": "https://atcoder.jp/contests/abc181/tasks/abc181_b"
+  },
+  "ABC175A": {
+    "id": "abc175_a",
+    "name": "Rainy Season",
+    "point": 100,
+    "difficulty": -746,
+    "pointSource": "https://atcoder.jp/contests/abc175/tasks/abc175_a"
+  },
+  "ABC172B": {
+    "id": "abc172_b",
+    "name": "Minor Change",
+    "point": 200,
+    "difficulty": -779,
+    "pointSource": "https://atcoder.jp/contests/abc172/tasks/abc172_b"
+  },
+  "ABC157B": {
+    "id": "abc157_b",
+    "name": "Bingo",
+    "point": 200,
+    "difficulty": -128,
+    "pointSource": "https://atcoder.jp/contests/abc157/tasks/abc157_b"
+  },
+  "ABC141B": {
+    "id": "abc141_b",
+    "name": "Tap Dance",
+    "point": 200,
+    "difficulty": -424,
+    "pointSource": "https://atcoder.jp/contests/abc141/tasks/abc141_b"
+  },
+  "ABC138B": {
+    "id": "abc138_b",
+    "name": "Resistors in Parallel",
+    "point": 200,
+    "difficulty": -364,
+    "pointSource": "https://atcoder.jp/contests/abc138/tasks/abc138_b"
+  },
+  "ABC137B": {
+    "id": "abc137_b",
+    "name": "One Clue",
+    "point": 200,
+    "difficulty": -561,
+    "pointSource": "https://atcoder.jp/contests/abc137/tasks/abc137_b"
+  },
+  "ABC136B": {
+    "id": "abc136_b",
+    "name": "Uneven Numbers",
+    "point": 200,
+    "difficulty": -267,
+    "pointSource": "https://atcoder.jp/contests/abc136/tasks/abc136_b"
+  },
+  "ABC135B": {
+    "id": "abc135_b",
+    "name": "0 or 1 Swap",
+    "point": 200,
+    "difficulty": -195,
+    "pointSource": "https://atcoder.jp/contests/abc135/tasks/abc135_b"
+  },
+  "ABC133B": {
+    "id": "abc133_b",
+    "name": "Good Distance",
+    "point": 200,
+    "difficulty": 47,
+    "pointSource": "https://atcoder.jp/contests/abc133/tasks/abc133_b"
+  },
+  "ABC132B": {
+    "id": "abc132_b",
+    "name": "Ordinary Number",
+    "point": 200,
+    "difficulty": -423,
+    "pointSource": "https://atcoder.jp/contests/abc132/tasks/abc132_b"
+  },
+  "ABC130B": {
+    "id": "abc130_b",
+    "name": "Bounding",
+    "point": 200,
+    "difficulty": -300,
+    "pointSource": "https://atcoder.jp/contests/abc130/tasks/abc130_b"
+  },
+  "ABC209C": {
+    "id": "abc209_c",
+    "name": "Not Equal",
+    "point": 300,
+    "difficulty": 264,
+    "pointSource": "https://atcoder.jp/contests/abc209/tasks/abc209_c"
+  },
+  "ABC085C": {
+    "id": "abc085_c",
+    "name": "Otoshidama",
+    "point": 300,
+    "difficulty": 584,
+    "pointSource": "https://atcoder.jp/contests/abc085/tasks/abc085_c"
+  },
+  "ABC086C": {
+    "id": "arc089_a",
+    "name": "Traveling",
+    "point": 300,
+    "difficulty": 397,
+    "pointSource": "https://atcoder.jp/contests/abc086/tasks/arc089_a"
+  },
+  "ABC344B": {
+    "id": "abc344_b",
+    "name": "Delimiter",
+    "point": 150,
+    "difficulty": -456,
+    "pointSource": "https://atcoder.jp/contests/abc344/tasks/abc344_b"
+  },
+  "ABC343B": {
+    "id": "abc343_b",
+    "name": "Adjacency Matrix",
+    "point": 150,
+    "difficulty": -411,
+    "pointSource": "https://atcoder.jp/contests/abc343/tasks/abc343_b"
+  },
+  "ABC342B": {
+    "id": "abc342_b",
+    "name": "Which is ahead?",
+    "point": 200,
+    "difficulty": -378,
+    "pointSource": "https://atcoder.jp/contests/abc342/tasks/abc342_b"
+  },
+  "ABC341B": {
+    "id": "abc341_b",
+    "name": "Foreign Exchange",
+    "point": 150,
+    "difficulty": 42,
+    "pointSource": "https://atcoder.jp/contests/abc341/tasks/abc341_b"
+  },
+  "ABC340B": {
+    "id": "abc340_b",
+    "name": "Append",
+    "point": 200,
+    "difficulty": -494,
+    "pointSource": "https://atcoder.jp/contests/abc340/tasks/abc340_b"
+  },
+  "ABC338B": {
+    "id": "abc338_b",
+    "name": "Frequency",
+    "point": 200,
+    "difficulty": -449,
+    "pointSource": "https://atcoder.jp/contests/abc338/tasks/abc338_b"
+  },
+  "ABC337B": {
+    "id": "abc337_b",
+    "name": "Extended ABC",
+    "point": 200,
+    "difficulty": -165,
+    "pointSource": "https://atcoder.jp/contests/abc337/tasks/abc337_b"
+  },
+  "ABC336B": {
+    "id": "abc336_b",
+    "name": "CTZ",
+    "point": 200,
+    "difficulty": -683,
+    "pointSource": "https://atcoder.jp/contests/abc336/tasks/abc336_b"
+  },
+  "ABC335B": {
+    "id": "abc335_b",
+    "name": "Tetrahedral Number",
+    "point": 150,
+    "difficulty": -416,
+    "pointSource": "https://atcoder.jp/contests/abc335/tasks/abc335_b"
+  },
+  "ABC334B": {
+    "id": "abc334_b",
+    "name": "Christmas Trees",
+    "point": 250,
+    "difficulty": 479,
+    "pointSource": "https://atcoder.jp/contests/abc334/tasks/abc334_b"
+  },
+  "ABC303C": {
+    "id": "abc303_c",
+    "name": "Dash",
+    "point": 300,
+    "difficulty": 417,
+    "pointSource": "https://atcoder.jp/contests/abc303/tasks/abc303_c"
+  },
+  "ABC302C": {
+    "id": "abc302_c",
+    "name": "Almost Equal",
+    "point": 250,
+    "difficulty": 469,
+    "pointSource": "https://atcoder.jp/contests/abc302/tasks/abc302_c"
+  },
+  "ABC301C": {
+    "id": "abc301_c",
+    "name": "AtCoder Cards",
+    "point": 300,
+    "difficulty": 379,
+    "pointSource": "https://atcoder.jp/contests/abc301/tasks/abc301_c"
+  },
+  "ABC300C": {
+    "id": "abc300_c",
+    "name": "Cross",
+    "point": 300,
+    "difficulty": 534,
+    "pointSource": "https://atcoder.jp/contests/abc300/tasks/abc300_c"
+  },
+  "ABC289C": {
+    "id": "abc289_c",
+    "name": "Coverage",
+    "point": 300,
+    "difficulty": 396,
+    "pointSource": "https://atcoder.jp/contests/abc289/tasks/abc289_c"
+  },
+  "ABC287C": {
+    "id": "abc287_c",
+    "name": "Path Graph?",
+    "point": 300,
+    "difficulty": 466,
+    "pointSource": "https://atcoder.jp/contests/abc287/tasks/abc287_c"
+  },
+  "ABC286C": {
+    "id": "abc286_c",
+    "name": "Rotate and Palindrome",
+    "point": 300,
+    "difficulty": 565,
+    "pointSource": "https://atcoder.jp/contests/abc286/tasks/abc286_c"
+  },
+  "ABC282C": {
+    "id": "abc282_c",
+    "name": "String Delimiter",
+    "point": 300,
+    "difficulty": -139,
+    "pointSource": "https://atcoder.jp/contests/abc282/tasks/abc282_c"
+  },
+  "ABC281C": {
+    "id": "abc281_c",
+    "name": "Circular Playlist",
+    "point": 300,
+    "difficulty": -45,
+    "pointSource": "https://atcoder.jp/contests/abc281/tasks/abc281_c"
+  },
+  "ABC264C": {
+    "id": "abc264_c",
+    "name": "Matrix Reducing",
+    "point": 300,
+    "difficulty": 758,
+    "pointSource": "https://atcoder.jp/contests/abc264/tasks/abc264_c"
+  },
+  "ABC263C": {
+    "id": "abc263_c",
+    "name": "Monotonically Increasing",
+    "point": 300,
+    "difficulty": 282,
+    "pointSource": "https://atcoder.jp/contests/abc263/tasks/abc263_c"
+  },
+  "ABC233C": {
+    "id": "abc233_c",
+    "name": "Product",
+    "point": 300,
+    "difficulty": 604,
+    "pointSource": "https://atcoder.jp/contests/abc233/tasks/abc233_c"
+  },
+  "ABC229C": {
+    "id": "abc229_c",
+    "name": "Cheese",
+    "point": 300,
+    "difficulty": 45,
+    "pointSource": "https://atcoder.jp/contests/abc229/tasks/abc229_c"
+  },
+  "ABC228C": {
+    "id": "abc228_c",
+    "name": "Final Day",
+    "point": 300,
+    "difficulty": 149,
+    "pointSource": "https://atcoder.jp/contests/abc228/tasks/abc228_c"
+  },
+  "ABC218C": {
+    "id": "abc218_c",
+    "name": "Shapes",
+    "point": 300,
+    "difficulty": 1012,
+    "pointSource": "https://atcoder.jp/contests/abc218/tasks/abc218_c"
+  },
+  "ABC212C": {
+    "id": "abc212_c",
+    "name": "Min Difference",
+    "point": 300,
+    "difficulty": 205,
+    "pointSource": "https://atcoder.jp/contests/abc212/tasks/abc212_c"
+  },
+  "ABC216C": {
+    "id": "abc216_c",
+    "name": "Many Balls",
+    "point": 300,
+    "difficulty": -6,
+    "pointSource": "https://atcoder.jp/contests/abc216/tasks/abc216_c"
+  },
+  "ABC213C": {
+    "id": "abc213_c",
+    "name": "Reorder Cards",
+    "point": 300,
+    "difficulty": 481,
+    "pointSource": "https://atcoder.jp/contests/abc213/tasks/abc213_c"
+  },
+  "ABC208C": {
+    "id": "abc208_c",
+    "name": "Fair Candy Distribution",
+    "point": 300,
+    "difficulty": -13,
+    "pointSource": "https://atcoder.jp/contests/abc208/tasks/abc208_c"
+  },
+  "ABC203C": {
+    "id": "abc203_c",
+    "name": "Friends and Travel costs",
+    "point": 300,
+    "difficulty": 54,
+    "pointSource": "https://atcoder.jp/contests/abc203/tasks/abc203_c"
+  },
+  "ABC201C": {
+    "id": "abc201_c",
+    "name": "Secret Number",
+    "point": 300,
+    "difficulty": 439,
+    "pointSource": "https://atcoder.jp/contests/abc201/tasks/abc201_c"
+  },
+  "ABC200C": {
+    "id": "abc200_c",
+    "name": "Ringo's Favorite Numbers 2",
+    "point": 300,
+    "difficulty": 138,
+    "pointSource": "https://atcoder.jp/contests/abc200/tasks/abc200_c"
+  },
+  "ABC183C": {
+    "id": "abc183_c",
+    "name": "Travel",
+    "point": 300,
+    "difficulty": 329,
+    "pointSource": "https://atcoder.jp/contests/abc183/tasks/abc183_c"
+  },
+  "ABC181C": {
+    "id": "abc181_c",
+    "name": "Collinearity",
+    "point": 300,
+    "difficulty": 248,
+    "pointSource": "https://atcoder.jp/contests/abc181/tasks/abc181_c"
+  },
+  "ABC175B": {
+    "id": "abc175_b",
+    "name": "Making Triangle",
+    "point": 200,
+    "difficulty": -51,
+    "pointSource": "https://atcoder.jp/contests/abc175/tasks/abc175_b"
+  },
+  "ABC172C": {
+    "id": "abc172_c",
+    "name": "Tsundoku",
+    "point": 300,
+    "difficulty": 930,
+    "pointSource": "https://atcoder.jp/contests/abc172/tasks/abc172_c"
+  },
+  "ABC157C": {
+    "id": "abc157_c",
+    "name": "Guess The Number",
+    "point": 300,
+    "difficulty": 456,
+    "pointSource": "https://atcoder.jp/contests/abc157/tasks/abc157_c"
+  },
+  "ABC141C": {
+    "id": "abc141_c",
+    "name": "Attack Survival",
+    "point": 300,
+    "difficulty": -35,
+    "pointSource": "https://atcoder.jp/contests/abc141/tasks/abc141_c"
+  },
+  "ABC138C": {
+    "id": "abc138_c",
+    "name": "Alchemist",
+    "point": 300,
+    "difficulty": -96,
+    "pointSource": "https://atcoder.jp/contests/abc138/tasks/abc138_c"
+  },
+  "ABC137C": {
+    "id": "abc137_c",
+    "name": "Green Bin",
+    "point": 300,
+    "difficulty": 597,
+    "pointSource": "https://atcoder.jp/contests/abc137/tasks/abc137_c"
+  },
+  "ABC136C": {
+    "id": "abc136_c",
+    "name": "Build Stairs",
+    "point": 300,
+    "difficulty": 295,
+    "pointSource": "https://atcoder.jp/contests/abc136/tasks/abc136_c"
+  },
+  "ABC135C": {
+    "id": "abc135_c",
+    "name": "City Savers",
+    "point": 300,
+    "difficulty": 323,
+    "pointSource": "https://atcoder.jp/contests/abc135/tasks/abc135_c"
+  },
+  "ABC133C": {
+    "id": "abc133_c",
+    "name": "Remainder Minimization 2019",
+    "point": 300,
+    "difficulty": 592,
+    "pointSource": "https://atcoder.jp/contests/abc133/tasks/abc133_c"
+  },
+  "ABC132C": {
+    "id": "abc132_c",
+    "name": "Divide the Problems",
+    "point": 300,
+    "difficulty": -99,
+    "pointSource": "https://atcoder.jp/contests/abc132/tasks/abc132_c"
+  },
+  "ABC109B": {
+    "id": "abc109_b",
+    "name": "Shiritori",
+    "point": 200,
+    "difficulty": 93,
+    "pointSource": "https://atcoder.jp/contests/abc109/tasks/abc109_b"
+  },
+  "ABC104B": {
+    "id": "abc104_b",
+    "name": "AcCepted",
+    "point": 200,
+    "difficulty": 188,
+    "pointSource": "https://atcoder.jp/contests/abc104/tasks/abc104_b"
+  },
+  "ABC103B": {
+    "id": "abc103_b",
+    "name": "String Rotation",
+    "point": 200,
+    "difficulty": 110,
+    "pointSource": "https://atcoder.jp/contests/abc103/tasks/abc103_b"
+  },
+  "ABC076C": {
+    "id": "abc076_c",
+    "name": "Dubious Document 2",
+    "point": 300,
+    "difficulty": 846,
+    "pointSource": "https://atcoder.jp/contests/abc076/tasks/abc076_c"
+  },
+  "ABC075B": {
+    "id": "abc075_b",
+    "name": "Minesweeper",
+    "point": 200,
+    "difficulty": 368,
+    "pointSource": "https://atcoder.jp/contests/abc075/tasks/abc075_b"
+  },
+  "ABC073C": {
+    "id": "abc073_c",
+    "name": "Write and Erase",
+    "point": 300,
+    "difficulty": 454,
+    "pointSource": "https://atcoder.jp/contests/abc073/tasks/abc073_c"
+  },
+  "ABC344C": {
+    "id": "abc344_c",
+    "name": "A+B+C",
+    "point": 250,
+    "difficulty": 131,
+    "pointSource": "https://atcoder.jp/contests/abc344/tasks/abc344_c"
+  },
+  "ABC343C": {
+    "id": "abc343_c",
+    "name": "343",
+    "point": 250,
+    "difficulty": 160,
+    "pointSource": "https://atcoder.jp/contests/abc343/tasks/abc343_c"
+  },
+  "ABC342C": {
+    "id": "abc342_c",
+    "name": "Many Replacement",
+    "point": 350,
+    "difficulty": 505,
+    "pointSource": "https://atcoder.jp/contests/abc342/tasks/abc342_c"
+  },
+  "ABC341C": {
+    "id": "abc341_c",
+    "name": "Takahashi Gets Lost",
+    "point": 250,
+    "difficulty": 406,
+    "pointSource": "https://atcoder.jp/contests/abc341/tasks/abc341_c"
+  },
+  "ABC340C": {
+    "id": "abc340_c",
+    "name": "Divide and Divide",
+    "point": 300,
+    "difficulty": 528,
+    "pointSource": "https://atcoder.jp/contests/abc340/tasks/abc340_c"
+  },
+  "ABC339B": {
+    "id": "abc339_b",
+    "name": "Langton's Takahashi",
+    "point": 250,
+    "difficulty": 126,
+    "pointSource": "https://atcoder.jp/contests/abc339/tasks/abc339_b"
+  },
+  "ABC332B": {
+    "id": "abc332_b",
+    "name": "Glass and Mug",
+    "point": 200,
+    "difficulty": -265,
+    "pointSource": "https://atcoder.jp/contests/abc332/tasks/abc332_b"
+  },
+  "ABC364B": {
+    "id": "abc364_b",
+    "name": "Grid Walk",
+    "point": 200,
+    "difficulty": -248,
+    "pointSource": "https://atcoder.jp/contests/abc364/tasks/abc364_b"
+  },
+  "ABC376B": {
+    "id": "abc376_b",
+    "name": "Hands on Ring (Easy)",
+    "point": 250,
+    "difficulty": 271,
+    "pointSource": "https://atcoder.jp/contests/abc376/tasks/abc376_b"
+  },
+  "ABC325C": {
+    "id": "abc325_c",
+    "name": "Sensors",
+    "point": 300,
+    "difficulty": 400,
+    "pointSource": "https://atcoder.jp/contests/abc325/tasks/abc325_c"
+  },
+  "ABC304C": {
+    "id": "abc304_c",
+    "name": "Virus",
+    "point": 300,
+    "difficulty": 365,
+    "pointSource": "https://atcoder.jp/contests/abc304/tasks/abc304_c"
+  },
+  "ABC312C": {
+    "id": "abc312_c",
+    "name": "Invisible Hand",
+    "point": 300,
+    "difficulty": 727,
+    "pointSource": "https://atcoder.jp/contests/abc312/tasks/abc312_c"
+  },
+  "ABC309C": {
+    "id": "abc309_c",
+    "name": "Medicine",
+    "point": 350,
+    "difficulty": 344,
+    "pointSource": "https://atcoder.jp/contests/abc309/tasks/abc309_c"
+  },
+  "ABC302D": {
+    "id": "abc302_d",
+    "name": "Impartial Gift",
+    "point": 400,
+    "difficulty": 682,
+    "pointSource": "https://atcoder.jp/contests/abc302/tasks/abc302_d"
+  },
+  "ABC300D": {
+    "id": "abc300_d",
+    "name": "AABCC",
+    "point": 400,
+    "difficulty": 908,
+    "pointSource": "https://atcoder.jp/contests/abc300/tasks/abc300_d"
+  },
+  "ABC287D": {
+    "id": "abc287_d",
+    "name": "Match or Not",
+    "point": 400,
+    "difficulty": 796,
+    "pointSource": "https://atcoder.jp/contests/abc287/tasks/abc287_d"
+  },
+  "ABC286D": {
+    "id": "abc286_d",
+    "name": "Money in Hand",
+    "point": 400,
+    "difficulty": 607,
+    "pointSource": "https://atcoder.jp/contests/abc286/tasks/abc286_d"
+  },
+  "ABC282D": {
+    "id": "abc282_d",
+    "name": "Make Bipartite 2",
+    "point": 400,
+    "difficulty": 1154,
+    "pointSource": "https://atcoder.jp/contests/abc282/tasks/abc282_d"
+  },
+  "ABC281D": {
+    "id": "abc281_d",
+    "name": "Max Multiple",
+    "point": 400,
+    "difficulty": 1031,
+    "pointSource": "https://atcoder.jp/contests/abc281/tasks/abc281_d"
+  },
+  "ABC233D": {
+    "id": "abc233_d",
+    "name": "Count Interval",
+    "point": 400,
+    "difficulty": 726,
+    "pointSource": "https://atcoder.jp/contests/abc233/tasks/abc233_d"
+  },
+  "ABC229D": {
+    "id": "abc229_d",
+    "name": "Longest X",
+    "point": 400,
+    "difficulty": 745,
+    "pointSource": "https://atcoder.jp/contests/abc229/tasks/abc229_d"
+  },
+  "ABC228D": {
+    "id": "abc228_d",
+    "name": "Linear Probing",
+    "point": 400,
+    "difficulty": 1035,
+    "pointSource": "https://atcoder.jp/contests/abc228/tasks/abc228_d"
+  },
+  "ABC219D": {
+    "id": "abc219_d",
+    "name": "Strange Lunchbox",
+    "point": 400,
+    "difficulty": 1085,
+    "pointSource": "https://atcoder.jp/contests/abc219/tasks/abc219_d"
+  },
+  "ABC218D": {
+    "id": "abc218_d",
+    "name": "Rectangles",
+    "point": 400,
+    "difficulty": 715,
+    "pointSource": "https://atcoder.jp/contests/abc218/tasks/abc218_d"
+  },
+  "ABC216D": {
+    "id": "abc216_d",
+    "name": "Pair of Balls",
+    "point": 400,
+    "difficulty": 1039,
+    "pointSource": "https://atcoder.jp/contests/abc216/tasks/abc216_d"
+  },
+  "ABC209D": {
+    "id": "abc209_d",
+    "name": "Collision",
+    "point": 400,
+    "difficulty": 686,
+    "pointSource": "https://atcoder.jp/contests/abc209/tasks/abc209_d"
+  },
+  "ABC203D": {
+    "id": "abc203_d",
+    "name": "Pond",
+    "point": 400,
+    "difficulty": 1622,
+    "pointSource": "https://atcoder.jp/contests/abc203/tasks/abc203_d"
+  },
+  "ABC185D": {
+    "id": "abc185_d",
+    "name": "Stamp",
+    "point": 400,
+    "difficulty": 490,
+    "pointSource": "https://atcoder.jp/contests/abc185/tasks/abc185_d"
+  },
+  "ABC183D": {
+    "id": "abc183_d",
+    "name": "Water Heater",
+    "point": 400,
+    "difficulty": 662,
+    "pointSource": "https://atcoder.jp/contests/abc183/tasks/abc183_d"
+  },
+  "ABC177D": {
+    "id": "abc177_d",
+    "name": "Friends",
+    "point": 400,
+    "difficulty": 732,
+    "pointSource": "https://atcoder.jp/contests/abc177/tasks/abc177_d"
+  },
+  "ABC157D": {
+    "id": "abc157_d",
+    "name": "Friend Suggestions",
+    "point": 400,
+    "difficulty": 1208,
+    "pointSource": "https://atcoder.jp/contests/abc157/tasks/abc157_d"
+  },
+  "ABC141D": {
+    "id": "abc141_d",
+    "name": "Powerful Discount Tickets",
+    "point": 400,
+    "difficulty": 823,
+    "pointSource": "https://atcoder.jp/contests/abc141/tasks/abc141_d"
+  },
+  "ABC138D": {
+    "id": "abc138_d",
+    "name": "Ki",
+    "point": 400,
+    "difficulty": 920,
+    "pointSource": "https://atcoder.jp/contests/abc138/tasks/abc138_d"
+  },
+  "ABC109D": {
+    "id": "abc109_d",
+    "name": "Make Them Even",
+    "point": 400,
+    "difficulty": 1172,
+    "pointSource": "https://atcoder.jp/contests/abc109/tasks/abc109_d"
+  },
+  "ABC075C": {
+    "id": "abc075_c",
+    "name": "Bridge",
+    "point": 300,
+    "difficulty": 1067,
+    "pointSource": "https://atcoder.jp/contests/abc075/tasks/abc075_c"
+  },
+  "ABC344D": {
+    "id": "abc344_d",
+    "name": "String Bags",
+    "point": 425,
+    "difficulty": 854,
+    "pointSource": "https://atcoder.jp/contests/abc344/tasks/abc344_d"
+  },
+  "ABC343D": {
+    "id": "abc343_d",
+    "name": "Diversity of Scores",
+    "point": 400,
+    "difficulty": 422,
+    "pointSource": "https://atcoder.jp/contests/abc343/tasks/abc343_d"
+  },
+  "ABC342D": {
+    "id": "abc342_d",
+    "name": "Square Pair",
+    "point": 400,
+    "difficulty": 944,
+    "pointSource": "https://atcoder.jp/contests/abc342/tasks/abc342_d"
+  },
+  "ABC341D": {
+    "id": "abc341_d",
+    "name": "Only one of two",
+    "point": 400,
+    "difficulty": 829,
+    "pointSource": "https://atcoder.jp/contests/abc341/tasks/abc341_d"
+  },
+  "ABC340D": {
+    "id": "abc340_d",
+    "name": "Super Takahashi Bros.",
+    "point": 425,
+    "difficulty": 784,
+    "pointSource": "https://atcoder.jp/contests/abc340/tasks/abc340_d"
+  },
+  "ABC339C": {
+    "id": "abc339_c",
+    "name": "Perfect Bus",
+    "point": 250,
+    "difficulty": 66,
+    "pointSource": "https://atcoder.jp/contests/abc339/tasks/abc339_c"
+  },
+  "ABC338C": {
+    "id": "abc338_c",
+    "name": "Leftover Recipes",
+    "point": 300,
+    "difficulty": 513,
+    "pointSource": "https://atcoder.jp/contests/abc338/tasks/abc338_c"
+  },
+  "ABC337C": {
+    "id": "abc337_c",
+    "name": "Lining Up 2",
+    "point": 300,
+    "difficulty": 225,
+    "pointSource": "https://atcoder.jp/contests/abc337/tasks/abc337_c"
+  },
+  "ABC336C": {
+    "id": "abc336_c",
+    "name": "Even Digits",
+    "point": 300,
+    "difficulty": 339,
+    "pointSource": "https://atcoder.jp/contests/abc336/tasks/abc336_c"
+  },
+  "ABC335C": {
+    "id": "abc335_c",
+    "name": "Loong Tracking",
+    "point": 300,
+    "difficulty": 452,
+    "pointSource": "https://atcoder.jp/contests/abc335/tasks/abc335_c"
+  },
+  "ABC176D": {
+    "id": "abc176_d",
+    "name": "Wizard in Maze",
+    "point": 400,
+    "difficulty": 1248,
+    "pointSource": "https://atcoder.jp/contests/abc176/tasks/abc176_d"
+  },
+  "ABC311C": {
+    "id": "abc311_c",
+    "name": "Find it!",
+    "point": 350,
+    "difficulty": 448,
+    "pointSource": "https://atcoder.jp/contests/abc311/tasks/abc311_c"
+  },
+  "ABC317C": {
+    "id": "abc317_c",
+    "name": "Remembering the Days",
+    "point": 300,
+    "difficulty": 604,
+    "pointSource": "https://atcoder.jp/contests/abc317/tasks/abc317_c"
+  },
+  "ABC304D": {
+    "id": "abc304_d",
+    "name": "A Piece of Cake",
+    "point": 400,
+    "difficulty": 1015,
+    "pointSource": "https://atcoder.jp/contests/abc304/tasks/abc304_d"
+  },
+  "ABC293D": {
+    "id": "abc293_d",
+    "name": "Tying Rope",
+    "point": 400,
+    "difficulty": 830,
+    "pointSource": "https://atcoder.jp/contests/abc293/tasks/abc293_d"
+  },
+  "ABC291D": {
+    "id": "abc291_d",
+    "name": "Flip Cards",
+    "point": 400,
+    "difficulty": 720,
+    "pointSource": "https://atcoder.jp/contests/abc291/tasks/abc291_d"
+  },
+  "ABC276D": {
+    "id": "abc276_d",
+    "name": "Divide by 2 or 3",
+    "point": 400,
+    "difficulty": 645,
+    "pointSource": "https://atcoder.jp/contests/abc276/tasks/abc276_d"
+  },
+  "ABC275C": {
+    "id": "abc275_c",
+    "name": "Counting Squares",
+    "point": 300,
+    "difficulty": 760,
+    "pointSource": "https://atcoder.jp/contests/abc275/tasks/abc275_c"
+  },
+  "ABC272D": {
+    "id": "abc272_d",
+    "name": "Root M Leaper",
+    "point": 400,
+    "difficulty": 804,
+    "pointSource": "https://atcoder.jp/contests/abc272/tasks/abc272_d"
+  },
+  "ABC270C": {
+    "id": "abc270_c",
+    "name": "Simple path",
+    "point": 300,
+    "difficulty": 625,
+    "pointSource": "https://atcoder.jp/contests/abc270/tasks/abc270_c"
+  },
+  "ABC266D": {
+    "id": "abc266_d",
+    "name": "Snuke Panic (1D)",
+    "point": 400,
+    "difficulty": 840,
+    "pointSource": "https://atcoder.jp/contests/abc266/tasks/abc266_d"
+  },
+  "ABC264D": {
+    "id": "abc264_d",
+    "name": "\"redocta\".swap(i,i+1)",
+    "point": 400,
+    "difficulty": 414,
+    "pointSource": "https://atcoder.jp/contests/abc264/tasks/abc264_d"
+  },
+  "ABC254D": {
+    "id": "abc254_d",
+    "name": "Together Square",
+    "point": 400,
+    "difficulty": 1191,
+    "pointSource": "https://atcoder.jp/contests/abc254/tasks/abc254_d"
+  },
+  "ABC248D": {
+    "id": "abc248_d",
+    "name": "Range Count Query",
+    "point": 400,
+    "difficulty": 793,
+    "pointSource": "https://atcoder.jp/contests/abc248/tasks/abc248_d"
+  },
+  "ABC246D": {
+    "id": "abc246_d",
+    "name": "2-variable Function",
+    "point": 400,
+    "difficulty": 1148,
+    "pointSource": "https://atcoder.jp/contests/abc246/tasks/abc246_d"
+  },
+  "ABC344E": {
+    "id": "abc344_e",
+    "name": "Insert or Erase",
+    "point": 475,
+    "difficulty": 973,
+    "pointSource": "https://atcoder.jp/contests/abc344/tasks/abc344_e"
+  },
+  "ABC342E": {
+    "id": "abc342_e",
+    "name": "Last Train",
+    "point": 450,
+    "difficulty": 1476,
+    "pointSource": "https://atcoder.jp/contests/abc342/tasks/abc342_e"
+  },
+  "ABC341E": {
+    "id": "abc341_e",
+    "name": "Alternating String",
+    "point": 450,
+    "difficulty": 1223,
+    "pointSource": "https://atcoder.jp/contests/abc341/tasks/abc341_e"
+  },
+  "ABC340E": {
+    "id": "abc340_e",
+    "name": "Mancala 2",
+    "point": 475,
+    "difficulty": 1157,
+    "pointSource": "https://atcoder.jp/contests/abc340/tasks/abc340_e"
+  },
+  "ABC339D": {
+    "id": "abc339_d",
+    "name": "Synchronized Players ",
+    "point": 400,
+    "difficulty": 1276,
+    "pointSource": "https://atcoder.jp/contests/abc339/tasks/abc339_d"
+  },
+  "ABC338D": {
+    "id": "abc338_d",
+    "name": "Island Tour",
+    "point": 425,
+    "difficulty": 1234,
+    "pointSource": "https://atcoder.jp/contests/abc338/tasks/abc338_d"
+  },
+  "ABC337D": {
+    "id": "abc337_d",
+    "name": "Cheating Gomoku Narabe",
+    "point": 400,
+    "difficulty": 760,
+    "pointSource": "https://atcoder.jp/contests/abc337/tasks/abc337_d"
+  },
+  "ABC336D": {
+    "id": "abc336_d",
+    "name": "Pyramid",
+    "point": 400,
+    "difficulty": 991,
+    "pointSource": "https://atcoder.jp/contests/abc336/tasks/abc336_d"
+  },
+  "ABC333D": {
+    "id": "abc333_d",
+    "name": "Erase Leaves",
+    "point": 400,
+    "difficulty": 704,
+    "pointSource": "https://atcoder.jp/contests/abc333/tasks/abc333_d"
+  },
+  "ABC332D": {
+    "id": "abc332_d",
+    "name": "Swapping Puzzle",
+    "point": 425,
+    "difficulty": 1175,
+    "pointSource": "https://atcoder.jp/contests/abc332/tasks/abc332_d"
+  }
+}

@@ -1,0 +1,761 @@
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>EX15 - 果物屋さんでお買い物</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="Content-Language" content="ja">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="google-site-verification" content="nXGC_JxO0yoP1qBzMnYD_xgufO6leSLw1kyNo2HZltM" />
+	<meta name="robots" content="noai, noimageai">
+
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-RC512FD18N"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+		gtag('set', 'user_properties', {
+			
+				'login_status': 'logged_out',
+			
+		});
+		gtag('config', 'G-RC512FD18N');
+	</script>
+
+	
+	<meta name="description" content="プログラミング初級者から上級者まで楽しめる、競技プログラミングコンテストサイト「AtCoder」。オンラインで毎週開催プログラミングコンテストを開催しています。競技プログラミングを用いて、客観的に自分のスキルを計ることのできるサービスです。">
+	<meta name="author" content="AtCoder Inc.">
+
+	<meta property="og:site_name" content="AtCoder">
+	
+	<meta property="og:title" content="EX15 - 果物屋さんでお買い物" />
+	<meta property="og:description" content="プログラミング初級者から上級者まで楽しめる、競技プログラミングコンテストサイト「AtCoder」。オンラインで毎週開催プログラミングコンテストを開催しています。競技プログラミングを用いて、客観的に自分のスキルを計ることのできるサービスです。" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://atcoder.jp/contests/APG4bPython/tasks/APG4bPython_ch?lang=ja" />
+	<meta property="og:image" content="https://img.atcoder.jp/assets/atcoder.png" />
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:site" content="@atcoder" />
+	
+	<meta property="twitter:title" content="EX15 - 果物屋さんでお買い物" />
+
+	<link href="//fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" type="text/css" href="//img.atcoder.jp/public/4135445/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="//img.atcoder.jp/public/4135445/css/base.css">
+	<link rel="shortcut icon" type="image/png" href="//img.atcoder.jp/assets/favicon.png">
+	<link rel="apple-touch-icon" href="//img.atcoder.jp/assets/atcoder.png">
+	<script src="//img.atcoder.jp/public/4135445/js/lib/jquery-1.9.1.min.js"></script>
+	<script src="//img.atcoder.jp/public/4135445/js/lib/bootstrap.min.js"></script>
+	<script src="//img.atcoder.jp/public/4135445/js/cdn/js.cookie.min.js"></script>
+	<script src="//img.atcoder.jp/public/4135445/js/cdn/moment.min.js"></script>
+	<script src="//img.atcoder.jp/public/4135445/js/cdn/moment_js-ja.js"></script>
+	<script>
+		var LANG = "ja";
+		var userScreenName = "";
+		var csrfToken = "r/mlj+0Kbk17C30djUnZDkeFTH24I+8tx7APhG6Va20="
+	</script>
+	<script src="//img.atcoder.jp/public/4135445/js/utils.js"></script>
+	
+	
+		<script src="//img.atcoder.jp/public/4135445/js/contest.js"></script>
+		<link href="//img.atcoder.jp/public/4135445/css/contest.css" rel="stylesheet" />
+		<script>
+			var contestScreenName = "APG4bPython";
+			var remainingText = "残り時間";
+			var countDownText = "開始まであと";
+			var startTime = moment("2024-04-06T12:00:00+09:00");
+			var endTime = moment("4023-07-19T00:00:00+09:00");
+		</script>
+		<style><style type="text/css">
+
+code {background-color:#eee !important; }
+code:before,code:after {content:"" !important;}
+#task-statement code {font-size: 89%;}
+details { padding-top: 0px; padding-bottom: 0px; }
+summary { padding: 7px; }
+
+/* 何もなし */
+div.nashi+table thead { display: none !important; }
+div.nashi+table th { font-weight: normal !important; }
+div.nashi+table th { border-bottom-width: 1px !important; }
+
+/* 縦横強調+ボーダー */
+div.tateyoko+table th:nth-child(2) {border-left-width: 2px !important; }
+div.tateyoko+table td:nth-child(1) { font-weight: bold !important; }
+div.tateyoko+table td:nth-child(2) {border-left-width: 2px !important; }
+
+/* 縦線だけ */
+div.tatesendake+table thead { display: none !important; }
+div.tatesendake+table th { font-weight: normal !important; }
+div.tatesendake+table th { border-bottom-width: 1px !important; }
+div.tatesendake+table th:nth-child(1) { font-weight: bold !important; }
+div.tatesendake+table th:nth-child(2) {border-left-width: 2px !important; }
+div.tatesendake+table td:nth-child(1) { font-weight: bold !important; }
+div.tatesendake+table td:nth-child(2) {border-left-width: 2px !important; }
+
+/*追加（後で変更するかも）*/
+.warning {
+    background-color: #ffffe0; /* より薄い黄色 */
+}
+.spoiler {
+    background-color: #ccffff; /* 薄い水色 */
+}
+#task-statement h1 {
+    font-size: 170%;
+    padding: 10px 13px 8px;
+    background-color: hsla(200, 50%, 50%, 12%);
+    border-bottom: 3px solid hsla(200, 50%, 30%, 50%);
+}
+#task-statement h2 {
+    font-size: 160%;
+    border-bottom: 1px solid lightgray;
+    padding-top: 0.35rem;
+    padding-bottom: 0.7rem;
+}
+#task-statement h3 {
+    font-size: 135%;
+}
+#task-statement h4 {
+    font-size: 110%;
+}
+</style></style>
+	
+	
+		<link href="//img.atcoder.jp/public/4135445/css/cdn/select2.min.css" rel="stylesheet" />
+		<link href="//img.atcoder.jp/public/4135445/css/cdn/select2-bootstrap.min.css" rel="stylesheet" />
+		<script src="//img.atcoder.jp/public/4135445/js/lib/select2.min.js"></script>
+	
+	
+		<script src="//img.atcoder.jp/public/4135445/js/ace/ace.js"></script>
+		<script src="//img.atcoder.jp/public/4135445/js/ace/ext-language_tools.js"></script>
+	
+	
+		<script src="//img.atcoder.jp/public/4135445/js/cdn/run_prettify.js"></script>
+	
+	
+		<link rel="stylesheet" href="//img.atcoder.jp/public/4135445/css/cdn/katex.min.css">
+		<script defer src="//img.atcoder.jp/public/4135445/js/cdn/katex.min.js"></script>
+		<script defer src="//img.atcoder.jp/public/4135445/js/cdn/auto-render.min.js"></script>
+		<script>$(function(){$('var').each(function(){var html=$(this).html().replace(/<sub>/g,'_{').replace(/<\/sub>/g,'}');$(this).html('\\('+html+'\\)');});});</script>
+		<script>
+			var katexOptions = {
+				delimiters: [
+					{left: "$$", right: "$$", display: true},
+					
+					{left: "\\(", right: "\\)", display: false},
+					{left: "\\[", right: "\\]", display: true}
+				],
+      	ignoredTags: ["script", "noscript", "style", "textarea", "code", "option"],
+				ignoredClasses: ["prettyprint", "source-code-for-copy"],
+				throwOnError: false
+			};
+			document.addEventListener("DOMContentLoaded", function() { renderMathInElement(document.body, katexOptions);});
+		</script>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<script src="//img.atcoder.jp/public/4135445/js/base.js"></script>
+</head>
+
+<body>
+
+<div id="modal-contest-start" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">コンテスト開始</h4>
+			</div>
+			<div class="modal-body">
+				<p>Python入門 AtCoder Programming Guide for beginners (APG4bPython)が開始されました。</p>
+			</div>
+			<div class="modal-footer">
+				
+					<button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+				
+			</div>
+		</div>
+	</div>
+</div>
+<div id="modal-contest-end" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">コンテスト終了</h4>
+			</div>
+			<div class="modal-body">
+				<p>Python入門 AtCoder Programming Guide for beginners (APG4bPython)は終了しました。</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="main-div" class="float-container">
+
+
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+					<span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="/home"></a>
+			</div>
+			<div class="collapse navbar-collapse" id="navbar-collapse">
+				<ul class="nav navbar-nav">
+				
+					<li><a class="contest-title" href="/contests/APG4bPython">Python入門 AtCoder Programming Guide for beginners (APG4bPython)</a></li>
+				
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+							<img src='//img.atcoder.jp/assets/top/img/flag-lang/ja.png'> 日本語 <span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu">
+							<li><a href="/contests/APG4bPython/tasks/APG4bPython_ch?lang=ja"><img src='//img.atcoder.jp/assets/top/img/flag-lang/ja.png'> 日本語</a></li>
+							<li><a href="/contests/APG4bPython/tasks/APG4bPython_ch?lang=en"><img src='//img.atcoder.jp/assets/top/img/flag-lang/en.png'> English</a></li>
+						</ul>
+					</li>
+					
+					
+						<li><a href="/register?continue=https%3A%2F%2Fatcoder.jp%2Fcontests%2FAPG4bPython%2Ftasks%2FAPG4bPython_ch%3Flang%3Dja">新規登録</a></li>
+						<li><a href="/login?continue=https%3A%2F%2Fatcoder.jp%2Fcontests%2FAPG4bPython%2Ftasks%2FAPG4bPython_ch%3Flang%3Dja">ログイン</a></li>
+					
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<form method="POST" name="form_logout" action="/logout?continue=https%3A%2F%2Fatcoder.jp%2Fcontests%2FAPG4bPython%2Ftasks%2FAPG4bPython_ch%3Flang%3Dja">
+		<input type="hidden" name="csrf_token" value="r/mlj&#43;0Kbk17C30djUnZDkeFTH24I&#43;8tx7APhG6Va20=" />
+	</form>
+	<div id="main-container" class="container"
+		 	style="padding-top:50px;">
+		
+
+
+<div class="row">
+	<div id="contest-nav-tabs" class="col-sm-12 mb-2 cnvtb-fixed">
+	<div>
+		<small class="contest-duration">
+			
+				コンテスト時間:
+				<a href='http://www.timeanddate.com/worldclock/fixedtime.html?iso=20240406T1200&p1=248' target='blank'><time class='fixtime fixtime-full'>2024-04-06 12:00:00+0900</time></a> ~ <a href='http://www.timeanddate.com/worldclock/fixedtime.html?iso=40230719T0000&p1=248' target='blank'><time class='fixtime fixtime-full'>4023-07-19 00:00:00+0900</time></a> 
+				
+			
+		</small>
+		<small class="back-to-home pull-right"><a href="/home">AtCoderホームへ戻る</a></small>
+	</div>
+	<ul class="nav nav-tabs">
+		<li><a href="/contests/APG4bPython"><span class="glyphicon glyphicon-home" aria-hidden="true"></span> トップ</a></li>
+		
+			<li class="active"><a href="/contests/APG4bPython/tasks"><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span> 問題</a></li>
+		
+
+		
+			<li><a href="/contests/APG4bPython/clarifications"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span> 質問 <span id="clar-badge" class="badge" ></span></a></li>
+		
+
+		
+
+		
+			<li>
+				<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-list" aria-hidden="true"></span> 提出結果<span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li><a href="/contests/APG4bPython/submissions"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> すべての提出</a></li>
+					
+				</ul>
+			</li>
+		
+
+		
+			
+		
+
+		
+
+		
+			<li><a href="/contests/APG4bPython/editorial"><span class="glyphicon glyphicon-book" aria-hidden="true"></span> 解説</a></li>
+		
+		
+
+		<li class="pull-right"><a id="fix-cnvtb" href="javascript:void(0)"><span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span></a></li>
+	</ul>
+</div>
+	<div class="col-sm-12">
+		<span class="h2">
+			EX15 - 果物屋さんでお買い物
+			<a class="btn btn-default btn-sm" href="/contests/APG4bPython/tasks/APG4bPython_ch/editorial">解説</a>
+		</span>
+		<span id="task-lang-btn" class="pull-right"><span data-lang="ja"><img src='//img.atcoder.jp/assets/top/img/flag-lang/ja.png'></span> / <span data-lang="en"><img src='//img.atcoder.jp/assets/top/img/flag-lang/en.png'></span></span>
+		<script>
+			$(function() {
+				var ts = $('#task-statement span.lang');
+				if (ts.children('span').size() <= 1) {
+					$('#task-lang-btn').hide();
+					ts.children('span').show();
+					return;
+				}
+
+				var REMEMBER_LB = 5;
+				var LS_KEY = 'task_lang';
+				var taskLang = getLS(LS_KEY) || '';
+				function isTaskLangSet(taskLang) { return taskLang === 'ja' || taskLang === 'en';}
+				if (isTaskLangSet(taskLang)) {
+					const params = new URLSearchParams(window.location.search);
+					if (params.get('lang')) {
+						setLS(LS_KEY, REMEMBER_LB);
+						taskLang = LANG;
+					}
+				} else {
+					taskLang = LANG;
+				}
+				ts.children('span.lang-' + taskLang).show();
+
+				$('#task-lang-btn span').click(function() {
+					var l = $(this).data('lang');
+					ts.children('span').hide();
+					ts.children('span.lang-' + l).show();
+
+					taskLang = getLS(LS_KEY) || '';
+					let changeTimes = 0;
+					if (isTaskLangSet(taskLang)) {
+						changeTimes = REMEMBER_LB;
+					} else {
+						changeTimes = parseInt(taskLang, 10);
+						if (isNaN(changeTimes)) changeTimes = 0;
+						changeTimes++;
+					}
+					if (changeTimes < REMEMBER_LB) setLS(LS_KEY, changeTimes);
+					else setLS(LS_KEY, l);
+				});
+			});
+		</script>
+		<hr/>
+		<p>
+			実行時間制限: 2 sec / メモリ制限: 1024 MiB
+			
+			
+		</p>
+
+		<div id="task-statement">
+			
+
+
+	
+	
+
+			
+			<span class="lang">
+<span class="lang-ja">
+<p><a href="https://atcoder.jp/contests/APG4bPython/tasks/APG4bPython_q">説明ページに戻る</a></p>
+<hr />
+
+<div class="part">
+<section>
+<h3>問題文</h3>
+<p>ある果物屋では、リンゴ・パイナップルがそれぞれ<var>N</var>個売られています。<var>i</var>個目のリンゴ、パイナップルはそれぞれ<var>A_i</var>円、<var>P_i</var>円です。</p>
+<p>リンゴ・パイナップルをそれぞれ1つずつ選んで購入しようとするとき、合計金額が丁度<var>S</var>円になるような買い方が何通りあるか求めてください。</p>
+<p>ただし、同じ値段の同じ種類の商品でも区別します。たとえば同じ値段のリンゴが複数あった場合、それらを買う場合は別の買い方として数えます。パイナップルについても同様です。また、リンゴ・パイナップルを買う順番は考慮しないものとします。</p>
+<hr />
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>制約</h3>
+<ul>
+<li><var>0\le N\le 100</var></li>
+<li><var>0\le S\le 1000</var></li>
+<li><var>1\le A_i, P_i\le 500\ (1 \le i \le N)</var></li>
+<li>入力される値はすべて整数である</li>
+</ul>
+<hr />
+</section>
+</div>
+
+<div class="io-style">
+<div class="part">
+<section>
+<h3>入力</h3>
+<p>入力は次の形式で標準入力から与えられます。</p>
+<pre><var>N</var> <var>S</var>
+<var>A_1</var> <var>A_2</var> <var>\cdots</var> <var>A_N</var>
+<var>P_1</var> <var>P_2</var> <var>\cdots</var> <var>P_N</var>
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>出力</h3>
+<p>リンゴ・パイナップルをそれぞれ1つずつ購入しようとするとき、合計金額が丁度<var>S</var>円になるような買い方が何通りあるかを出力してください。</p>
+<hr />
+</section>
+</div>
+</div>
+
+<div class="part">
+<section>
+<h3>サンプルプログラム</h3>
+<p>入力を受け取るサンプルプログラムを以下に示します。</p>
+<pre class="prettyprint lang-python">N, S = map(int, input().split())
+
+A = list(map(int, input().split()))
+B = list(map(int, input().split()))
+
+# リンゴ・パイナップルをそれぞれ1つずつ購入するとき合計S円になるような買い方が何通りあるか
+# ここにプログラムを追記
+</pre>
+
+<hr />
+<p><strong>ジャッジでは以下の入力例以外のケースに関してもテストされる</strong>ことに注意。</p>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>入力例1</h3>
+<pre>3 400
+100 100 130
+270 300 250
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>出力例1</h3>
+<pre>3
+</pre>
+<p>合計が400円になる買い方は以下の3通りです。<br />
+1つ目のリンゴ、2つ目のパイナップルを購入すると、100円 + 300円 = 400円となります。<br />
+2つ目のリンゴ、2つ目のパイナップルを購入すると、100円 + 300円 = 400円となります。<br />
+3つ目のリンゴ、1つ目のパイナップルを購入すると、130円 + 270円 = 400円となります。<br />
+1つ目のリンゴと2つ目のリンゴがどちらも100円ですが、別の買い方として数えることに注意してください。</p>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>入力例2</h3>
+<pre>10 600
+70 110 90 120 90 20 260 150 220 150
+170 100 250 350 60 280 450 460 20 220
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>出力例2</h3>
+<pre>2
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>入力例3</h3>
+<pre>3 200
+100 100 100
+100 100 100
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>出力例3</h3>
+<pre>9
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>入力例4</h3>
+<pre>1 0
+100
+200
+</pre>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>出力例4</h3>
+<pre>0
+</pre>
+<p>合計0円で買うことはできません。</p>
+<hr />
+</section>
+</div>
+
+<div class="part">
+<section>
+<h2>ヒント</h2>
+<ol>
+<li>ループを使わないで書く</li>
+<li>パターンを見つける</li>
+<li>ループで書き直す</li>
+</ol>
+<p>に沿って書く場合の流れをヒントで説明します。</p>
+<p>まずは自分で考えてみて、詰まったら見てみましょう。</p>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>ヒント1 (ループを使わないで書く)</h3>
+<p>
+<details>
+<summary>クリックでヒントを見る</summary>
+<p>合計が<var>S</var>円になるような買い方が何通りあるかを求めるので、<br />
+すべての組み合わせをif文で確認できれば答えが求まるはずです。</p>
+<p>一般の<var>N</var>では考えにくいので、試してみるときはNを小さい値で仮定してみるとよいです。<br />
+<var>N = 3</var>のケースを全て書き出してみます。(添え字として0始まりの値を使っている点に注意してください。)</p>
+<pre class="prettyprint lang-python">ans = 0
+
+if A[0] + P[0] == S:
+    ans += 1
+if A[0] + P[1] == S:
+    ans += 1
+if A[0] + P[2] == S:
+    ans += 1
+
+if A[1] + P[0] == S:
+    ans += 1
+if A[1] + P[1] == S:
+    ans += 1
+if A[1] + P[2] == S:
+    ans += 1
+
+if A[2] + P[0] == S:
+    ans += 1
+if A[2] + P[1] == S:
+    ans += 1
+if A[2] + P[2] == S:
+    ans += 1
+</pre>
+
+<p>添え字の変化に着目するとパターン化できそうです。</p>
+</details>
+</p>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>ヒント2 (パターンを見つける)</h3>
+<p>
+<details>
+<summary>クリックでヒントを見る</summary>
+<p>変数<var>i, j</var>を導入して<var>i</var>番目のリンゴ、<var>j</var>番目のパイナップルを買う場合を考えます。<br />
+条件式は次のようになります。</p>
+<pre class="prettyprint lang-python">if A[i] + P[j] == S:
+    ans += 1
+</pre>
+
+<p>あとは<var>i, j</var>を網羅的に動かして上の文を実行できればよいです。</p>
+</details>
+</p>
+</section>
+</div>
+
+<div class="part">
+<section>
+<h3>ヒント3 (ループで書き直す)</h3>
+<p>
+<details>
+<summary>クリックでヒントを見る</summary>
+<p>変数<var>i, j</var>を導入して<var>i</var>番目のリンゴ、<var>j</var>番目のパイナップルを買う場合の判定文は次のようになります。</p>
+<pre class="prettyprint lang-python">if A[i] + P[j] == S:
+    ans += 1
+</pre>
+
+<p><var>i, j</var>はそれぞれ別々に0から<var>N - 1</var>までの値を取ります。<br />
+このように変数(ここでは<var>i, j</var>)の組み合わせを列挙したい場合は、多重ループを用います。<br />
+今回の場合は変数が<var>i, j</var>の2つなので、次のような二重ループになります。</p>
+<pre class="prettyprint lang-python">for i in range(N):
+    for j in range(N):
+        # i, jを使う
+</pre>
+
+</details>
+</p>
+<hr />
+</section>
+</div>
+
+<div class="part">
+<section>
+<h2>テスト入出力</h2>
+<p><strong>書いたプログラムがACにならず、原因がどうしてもわからないときだけ見てください。</strong> </p>
+<p>
+<details>
+<summary>クリックでテスト入出力を見る</summary>
+<h4>テスト入力1</h4>
+<pre>10 520
+430 310 230 390 130 220 70 370 400 160
+390 120 450 30 250 140 200 300 270 30
+</pre>
+<h4>テスト出力1</h4>
+<pre>4
+</pre>
+<hr />
+<h4>テスト入力2</h4>
+<pre>100 500
+247 365 116 339 302 274 383 230 444 136 12 100 92 498 16 190 252 438 404 493 46 105 197 254 180 455 233 280 289 286 301 205 200 477 273 481 494 287 202 211 327 359 341 4 51 336 101 416 142 35 401 457 61 179 33 362 180 176 60 247 499 44 279 372 424 439 224 99 379 322 110 159 383 143 164 435 6 461 61 391 38 225 163 273 222 156 33 300 42 228 164 22 244 66 28 208 243 36 417 93
+62 231 388 7 434 37 474 357 262 182 36 298 426 331 252 129 113 156 111 441 375 210 492 499 302 287 493 170 262 233 475 406 72 401 468 156 220 1 410 12 223 150 240 159 345 239 455 404 419 19 46 174 499 218 423 145 196 307 401 260 470 424 171 284 437 44 500 316 156 192 422 391 365 485 145 22 410 124 110 182 28 143 203 289 95 85 415 401 191 268 262 341 391 130 364 274 379 443 53 389
+</pre>
+<h4>テスト出力2</h4>
+<pre>15
+</pre>
+<hr />
+<h4>テスト入力3</h4>
+<pre>100 1000
+500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500
+500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500 500
+</pre>
+<h4>テスト出力3</h4>
+<pre>10000
+</pre>
+</details>
+</p>
+<hr />
+</section>
+</div>
+
+<div class="part">
+<section>
+<h2>解答例</h2>
+<p><strong>必ず自分で問題に挑戦してみてから見てください。</strong></p>
+<p>
+<details>
+<summary>クリックで解答例を見る</summary>
+<p>解答例1</p>
+<pre class="prettyprint lang-python"># 入力値を読み込む
+N, S = map(int, input().split())
+A = list(map(int, input().split()))
+P = list(map(int, input().split()))
+
+# りんごとパイナップルを1つずつ購入する組み合わせが、合計S円になる方法の数を計算する
+ans = 0  # 方法の数をカウントするための変数
+
+# すべての組み合わせをチェック
+for i in range(N):
+    for j in range(N):
+        if A[i] + P[j] == S:
+            ans += 1
+
+# 結果を出力
+print(ans)
+</pre>
+
+<p>解答例2 (Listに対するfor文を用いた解法)</p>
+<pre class="prettyprint lang-python"># 入力値を読み込む
+N, S = map(int, input().split())
+A = list(map(int, input().split()))
+P = list(map(int, input().split()))
+
+# りんごとパイナップルを1つずつ購入する組み合わせが、合計S円になる方法の数を計算する
+ans = 0  # 方法の数をカウントするための変数
+
+# すべての組み合わせをチェック
+for x in A:
+    for y in P:
+        if x + y == S:
+            ans += 1
+
+# 結果を出力
+print(ans)
+</pre>
+
+</details>
+</p></section>
+</div>
+</span>
+</span>
+
+		</div>
+
+		
+
+		
+	</div>
+</div>
+
+
+
+
+		
+			<hr>
+			
+			
+			
+<div class="a2a_kit a2a_kit_size_20 a2a_default_style pull-right" data-a2a-url="https://atcoder.jp/contests/APG4bPython/tasks/APG4bPython_ch?lang=ja" data-a2a-title="EX15 - 果物屋さんでお買い物">
+	<a class="a2a_button_facebook"></a>
+	<a class="a2a_button_twitter"></a>
+	
+		<a class="a2a_button_hatena"></a>
+	
+	<a class="a2a_dd" href="https://www.addtoany.com/share"></a>
+</div>
+
+		
+		<script async src="//static.addtoany.com/menu/page.js"></script>
+		
+	</div> 
+	<hr>
+</div> 
+
+	<div class="container" style="margin-bottom: 80px;">
+			<footer class="footer">
+			
+				<ul>
+					<li><a href="/contests/APG4bPython/rules">ルール</a></li>
+					<li><a href="/contests/APG4bPython/glossary">用語集</a></li>
+					
+				</ul>
+			
+			<ul>
+				<li><a href="/tos">利用規約</a></li>
+				<li><a href="/privacy">プライバシーポリシー</a></li>
+				<li><a href="/personal">個人情報保護方針</a></li>
+				<li><a href="/company">企業情報</a></li>
+				<li><a href="/faq">よくある質問</a></li>
+				<li><a href="/contact">お問い合わせ</a></li>
+				<li><a href="/documents/request">資料請求</a></li>
+			</ul>
+			<div class="text-center">
+					<small id="copyright">Copyright Since 2012 &copy;<a href="http://atcoder.co.jp">AtCoder Inc.</a> All rights reserved.</small>
+			</div>
+			</footer>
+	</div>
+	<p id="fixed-server-timer" class="contest-timer"></p>
+	<div id="scroll-page-top" style="display:none;"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span> ページトップ</div>
+
+</body>
+</html>
+
+
